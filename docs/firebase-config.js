@@ -1,9 +1,9 @@
 // Замените на свои данные из Firebase Console
 const firebaseConfig = {
-  apiKey: "ВАШ_API_KEY",
-  authDomain: "ВАШ_ДОМЕН.firebaseapp.com",
-  projectId: "ВАШ_PROJECT_ID",
-  storageBucket: "ВАШ_BUCKET.appspot.com",
-  messagingSenderId: "ВАШ_SENDER_ID",
-  appId: "ВАШ_APP_ID"
+  apiKey: "AIzaSyAqUEri9DzMftxtS7ker4tfC-EnZNK6nMA",
+  authDomain: "content-planner-ffb8e.firebaseapp.com",
+  projectId: "content-planner-ffb8e",
+  storageBucket: "content-planner-ffb8e.firebasestorage.app",
+  messagingSenderId: "615520592527",
+  appId: "1:615520592527:web:7478b8c3de904c924086fa"
 };
