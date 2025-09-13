@@ -1,194 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-<title>Контент-планировщик</title>
-<style>
-  :root{
-    --bg:#f6fbff;
-    --beige:#f3efe6;
-    --blue:#4a90e2;
-    --muted:#6b7280;
-    --card:#ffffff;
-    --mint:#c8f7e8;
-    --yellow:#fff7c2;
-    --pink:#ffd7ea;
-    --lavender:#e8e1ff;
-    --cell-border: rgba(0,0,0,0.06);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  }
-  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg) 0%, #f0f6fb 100%);}
-  body.menu-open .app{ padding-bottom: calc(46vh + 28px); }
-
-  .app {max-width:760px;margin:0 auto;padding:14px;box-sizing:border-box;}
-
-  header{display:flex;gap:12px;align-items:start;margin-bottom:8px;}
-  .title h1{font-size:20px;margin:0;color:var(--blue);}
-  .subtitle{font-size:12px;color:var(--muted);margin-top:6px;}
-
-  .desc {font-size:13px;color:var(--muted);margin:10px 0;padding:10px;border-radius:10px;background:var(--beige);}
-
-  .calendar-card{background:var(--card);border-radius:12px;padding:10px;box-shadow: 0 4px 18px rgba(20,40,80,0.06);margin-bottom:14px;}
-  .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-  .cal-head .month{font-weight:600;color:var(--blue);}
-  .cal-nav button{background:transparent;border:1px solid var(--cell-border);padding:6px 8px;border-radius:8px;font-size:14px;}
-
-  table.calendar{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px;}
-  table.calendar th{text-align:center;padding:6px 0;color:var(--muted);font-weight:600;font-size:12px;}
-  table.calendar td{width:14.285%;border:1px solid var(--cell-border);vertical-align:top;padding:6px;min-height:64px;box-sizing:border-box;position:relative;}
-  .date-btn{display:flex;flex-direction:column;align-items:flex-start;width:100%;height:100%;border:none;background:transparent;cursor:pointer;}
-  .date-num{font-weight:600;font-size:14px;color:var(--blue);}
-  .filled {transition:background-color 200ms ease;}
-
-  .menu {position:fixed;left:0;right:0;bottom:0;background:#fff;border-top-left-radius:14px;border-top-right-radius:14px;box-shadow:0 -18px 40px rgba(20,40,80,0.12);padding:12px;display:none;z-index:40;max-height:46vh;overflow:auto;}
-  .menu.active{display:block;}
-  .menu .opt{display:block;padding:12px;border-radius:10px;margin-bottom:8px;background:var(--beige);font-weight:700;color:var(--muted);text-align:left;}
-
-  /* страницы редактора перекрывают календарь */
-  .page{display:none;position:absolute;top:0;left:0;width:100%;min-height:100%;background:var(--bg);z-index:50;overflow:auto;}
-  .page.active{display:block;}
-  .topbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px;}
-  .btn{padding:8px 12px;border-radius:10px;border:none;font-weight:700;background:var(--blue);color:white;}
-  .btn.ghost{background:transparent;border:1px solid var(--cell-border);color:var(--muted);}
-  textarea{width:100%;min-height:120px;border-radius:10px;border:1px solid var(--cell-border);padding:10px;font-size:14px;box-sizing:border-box;resize:vertical;}
-
-  .topic-table{width:100%;border-collapse:collapse;margin-top:8px;}
-  .topic-table th,.topic-table td{border:1px solid var(--cell-border);padding:8px;text-align:left;font-size:14px;}
-  .color-pickers{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
-  .color-option{display:flex;gap:6px;align-items:center;padding:8px;border-radius:10px;background:var(--beige);cursor:pointer;}
-  .color-option input{display:none;}
-  .swatch{width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,0.06);}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Контент-планировщик</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
 </head>
 <body>
-<div class="app">
-  <header>
-    <div class="title">
-      <h1>Контент-планировщик</h1>
-      <div class="subtitle">Планируй публикации — темы, сторис, посты и рилсы.</div>
+  <div id="app">
+    <div id="calendar"></div>
+    <div id="menu" style="display: none;">
+      <h3 id="menuDateTitle"></h3>
+      <button onclick="showTema()">Тема</button>
+      <button onclick="showEditor('stories')">Сторис</button>
+      <button onclick="showEditor('post')">Пост</button>
+      <button onclick="showEditor('reel')">Рилс</button>
+      <button onclick="closeMenu()">Закрыть</button>
     </div>
-  </header>
-
-  <div class="desc">Цвета: семья — мятный, здоровье — жёлтый, работа — розовый, хобби — лавандовый.</div>
-
-  <div class="calendar-card" id="calendarCard">
-    <div class="cal-head">
-      <div class="month" id="monthLabel"></div>
-      <div class="cal-nav">
-        <button id="prevMonth">‹</button>
-        <button id="todayBtn">Сегодня</button>
-        <button id="nextMonth">›</button>
-      </div>
+    <div id="temaPage" style="display: none;">
+      <h3>Тема</h3>
+      <textarea id="temaText"></textarea>
+      <button onclick="saveTema()">Сохранить</button>
+      <button onclick="closeTema()">Закрыть</button>
     </div>
-    <table class="calendar"><thead><tr><th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th><th>Сб</th><th>Вс</th></tr></thead><tbody id="calBody"></tbody></table>
-  </div>
-
-  <div class="menu" id="menu">
-    <h3 id="menuDateTitle">Выберите действие</h3>
-    <button class="opt" data-type="tema">Тема и Цель</button>
-    <button class="opt" data-type="stories">Сторис</button>
-    <button class="opt" data-type="post">Пост</button>
-    <button class="opt" data-type="reel">Рилс</button>
-    <button class="opt" id="closeMenu">Отмена</button>
-  </div>
-
-  <!-- Страница Тема -->
-  <section class="page" id="page-tema">
-    <div class="topbar">
-      <button class="btn ghost" id="backFromTema">↩ назад</button>
-      <div style="flex:1"></div>
-      <button class="btn" id="copyTema">Скопировать</button>
-    </div>
-    <div style="padding:8px;">
-      <div id="temaDateTitle" style="font-weight:800;color:var(--blue);margin-bottom:8px"></div>
-      <div class="color-pickers">
-        <label class="color-option"><input type="radio" name="temaColor" value="family"><div class="swatch" style="background:var(--mint)"></div>семья</label>
-        <label class="color-option"><input type="radio" name="temaColor" value="health"><div class="swatch" style="background:var(--yellow)"></div>здоровье</label>
-        <label class="color-option"><input type="radio" name="temaColor" value="work"><div class="swatch" style="background:var(--pink)"></div>работа</label>
-        <label class="color-option"><input type="radio" name="temaColor" value="hobby"><div class="swatch" style="background:var(--lavender)"></div>хобби</label>
-      </div>
-      <table class="topic-table">
-        <tr><td>Тема</td><td><textarea id="tema_tema"></textarea></td></tr>
-        <tr><td>Цель</td><td><textarea id="tema_goal"></textarea></td></tr>
-        <tr><td>Активность</td><td><textarea id="tema_activity"></textarea></td></tr>
-      </table>
-    </div>
-  </section>
-
-  <!-- Страница редактора -->
-  <section class="page" id="page-editor">
-    <div class="topbar">
-      <button class="btn ghost" id="backFromEditor">↩ назад</button>
-      <div style="flex:1"></div>
-      <button class="btn" id="copyEditor">Скопировать</button>
-    </div>
-    <div style="padding:8px;">
-      <div id="editorDateTitle" style="font-weight:800;color:var(--blue);margin-bottom:8px"></div>
-      <label id="editorTypeLabel"></label>
+    <div id="editorPage" style="display: none;">
+      <h3 id="editorTitle"></h3>
       <textarea id="editorText"></textarea>
+      <button onclick="saveEditor()">Сохранить</button>
+      <button onclick="closeEditor()">Закрыть</button>
     </div>
-  </section>
-</div>
-
-<script>
-(function(){
-  const LO_KEY = 'cp_entries_v1';
-  const META_KEY = 'cp_meta_v1';
-  const colorMap = {family:'var(--mint)',health:'var(--yellow)',work:'var(--pink)',hobby:'var(--lavender)'};
-  let state={year:0,month:0,selectedDateISO:null,selectedType:null};
-
-  function load(k){try{return JSON.parse(localStorage.getItem(k)||'{}');}catch(e){return{};}}
-  function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
-  function formatISO(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
-  function formatReadable(iso){return new Date(iso).toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});}
-
-  const calBody=document.getElementById('calBody');
-  const monthLabel=document.getElementById('monthLabel');
-  function renderCalendar(){
-    calBody.innerHTML='';
-    const y=state.year,m=state.month;
-    const first=new Date(y,m,1), last=new Date(y,m+1,0);
-    const days=last.getDate(), offset=(first.getDay()+6)%7;
-    monthLabel.textContent=first.toLocaleString('ru-RU',{month:'long',year:'numeric'});
-    let cells=[];
-    for(let i=0;i<offset;i++)cells.push(null);
-    for(let d=1;d<=days;d++){cells.push(d);if(cells.length===7){drawRow(cells);cells=[];}}
-    if(cells.length){while(cells.length<7)cells.push(null);drawRow(cells);}
-  }
-  function drawRow(cells){
-    const tr=document.createElement('tr');
-    cells.forEach(day=>{
-      const td=document.createElement('td');
-      if(day){const iso=formatISO(state.year,state.month,day);
-        const btn=document.createElement('button');btn.className='date-btn';btn.dataset.iso=iso;
-        btn.innerHTML='<div class="date-num">'+day+'</div>';btn.onclick=()=>openMenu(iso,td);td.appendChild(btn);
-        const meta=load(META_KEY);if(meta[iso]&&meta[iso].temaColor){td.style.background=colorMap[meta[iso].temaColor];}
-      }
-      tr.appendChild(td);
-    });
-    calBody.appendChild(tr);
-  }
-
-  function openMenu(iso){state.selectedDateISO=iso;document.getElementById('menuDateTitle').textContent=formatReadable(iso);menu.classList.add('active');}
-  function closeMenu(){menu.classList.remove('active');}
-  const menu=document.getElementById('menu');document.getElementById('closeMenu').onclick=closeMenu;
-  document.querySelectorAll('.menu .opt[data-type]').forEach(b=>b.onclick=()=>{state.selectedType=b.dataset.type;closeMenu(); if(b.dataset.type==='tema')openTema();else openEditor();});
-
-  function openTema(){showPage('tema');document.getElementById('temaDateTitle').textContent=formatReadable(state.selectedDateISO);}
-  function openEditor(){showPage('editor');document.getElementById('editorDateTitle').textContent=formatReadable(state.selectedDateISO);document.getElementById('editorTypeLabel').textContent=state.selectedType;}
-  function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));if(name==='tema')document.getElementById('page-tema').classList.add('active');if(name==='editor')document.getElementById('page-editor').classList.add('active');}
-
-  document.getElementById('backFromTema').onclick=()=>{showPage();renderCalendar();};
-  document.getElementById('backFromEditor').onclick=()=>{showPage();renderCalendar();};
-
-  document.getElementById('prevMonth').onclick=()=>{state.month--;if(state.month<0){state.month=11;state.year--;}renderCalendar();};
-  document.getElementById('nextMonth').onclick=()=>{state.month++;if(state.month>11){state.month=0;state.year++;}renderCalendar();};
-  document.getElementById('todayBtn').onclick=()=>{const t=new Date();state.year=t.getFullYear();state.month=t.getMonth();renderCalendar();};
-
-  const t=new Date();state.year=t.getFullYear();state.month=t.getMonth();renderCalendar();
-})();
-</script>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
-
