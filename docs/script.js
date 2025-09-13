@@ -1,26 +1,3 @@
-// Инициализация Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// Цвета для тем
-const colorMap = {
-  family: '#c8f7e8',
-  health: '#fff7c2',
-  work: '#ffd7ea',
-  hobby: '#e8e1ff'
-};
-
-let selectedDate = null;
-let selectedType = null;
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
-
-// Календарь
-document.addEventListener('DOMContentLoaded', () => {
-  renderCalendar();
-});
-
-// Рендер календаря
 function renderCalendar() {
   const calendar = document.getElementById('calendar');
   calendar.innerHTML = '';
@@ -37,132 +14,43 @@ function renderCalendar() {
     const isoDate = date.toISOString().split('T')[0];
 
     const dayDiv = document.createElement('div');
-    dayDiv.textContent = day;
     dayDiv.dataset.date = isoDate;
-    dayDiv.addEventListener('click', () => openMenu(isoDate));
 
-    loadData(isoDate, dayDiv);
+    // Основной текст дня (число)
+    const dayNumber = document.createElement('div');
+    dayNumber.textContent = day;
+    dayDiv.appendChild(dayNumber);
+
+    // Текст заметки
+    const noteTextarea = document.createElement('textarea');
+    noteTextarea.placeholder = "Введите заметку...";
+    noteTextarea.style.width = "100%";
+    noteTextarea.style.height = "50px";
+    noteTextarea.style.marginTop = "5px";
+    noteTextarea.style.fontSize = "12px";
+
+    // Загрузка текста из Firestore
+    db.collection('contentPlanner').doc(isoDate).get().then(doc => {
+      if (doc.exists && doc.data().note) {
+        noteTextarea.value = doc.data().note;
+      }
+      if (doc.exists && doc.data().temaColor) {
+        dayDiv.style.backgroundColor = colorMap[doc.data().temaColor] || '';
+      }
+    });
+
+    // Автосохранение при вводе
+    noteTextarea.addEventListener('input', () => {
+      db.collection('contentPlanner').doc(isoDate).set({
+        note: noteTextarea.value
+      }, { merge: true });
+    });
+
+    dayDiv.appendChild(noteTextarea);
+
+    // Клик по дню открывает меню действий
+    dayNumber.addEventListener('click', () => openMenu(isoDate));
 
     calendar.appendChild(dayDiv);
   }
-}
-
-// Открытие меню выбора действия
-function openMenu(date) {
-  selectedDate = date;
-  document.getElementById('menuDateTitle').textContent = date;
-  document.getElementById('menu').style.display = 'block';
-}
-
-// Закрытие меню
-function closeMenu() {
-  document.getElementById('menu').style.display = 'none';
-}
-
-// Показ страницы Тема
-function showTema() {
-  closeMenu();
-  selectedType = 'tema';
-  document.getElementById('temaPage').style.display = 'block';
-  loadTemaData(selectedDate);
-}
-
-// Закрыть страницу Тема
-function closeTema() {
-  document.getElementById('temaPage').style.display = 'none';
-  selectedType = null;
-}
-
-// Сохранение данных Тема
-function saveTema() {
-  const tema = document.getElementById('temaText')?.value || '';
-  const temaColor = document.querySelector('input[name="temaColor"]:checked')?.value || '';
-
-  if (!selectedDate) return;
-
-  db.collection('contentPlanner').doc(selectedDate).set({
-    tema,
-    temaColor
-  }, { merge: true });
-
-  updateCalendarCellColor(selectedDate, temaColor);
-}
-
-// Загрузка данных Тема
-function loadTemaData(date) {
-  const temaTextarea = document.getElementById('temaText');
-
-  db.collection('contentPlanner').doc(date).get().then(doc => {
-    if (doc.exists) {
-      const data = doc.data();
-      if (temaTextarea) temaTextarea.value = data.tema || '';
-      if (data.temaColor) {
-        const radio = document.querySelector(`input[name="temaColor"][value="${data.temaColor}"]`);
-        if (radio) radio.checked = true;
-        updateCalendarCellColor(date, data.temaColor);
-      }
-    }
-  });
-
-  // Автосохранение при вводе
-  temaTextarea.oninput = () => saveTema();
-  document.querySelectorAll('input[name="temaColor"]').forEach(r => r.addEventListener('change', () => saveTema()));
-}
-
-// Обновление цвета ячейки календаря
-function updateCalendarCellColor(date, color) {
-  const dayDiv = document.querySelector(`div[data-date="${date}"]`);
-  if (dayDiv) {
-    dayDiv.style.backgroundColor = colorMap[color] || '';
-  }
-}
-
-// Показ редактора (Сторис, Пост, Рилс)
-function showEditor(type) {
-  closeMenu();
-  selectedType = type;
-  document.getElementById('editorTitle').textContent = type.charAt(0).toUpperCase() + type.slice(1);
-  document.getElementById('editorPage').style.display = 'block';
-  loadEditorData(selectedDate, type);
-}
-
-// Закрыть редактор
-function closeEditor() {
-  document.getElementById('editorPage').style.display = 'none';
-  selectedType = null;
-}
-
-// Сохранение данных редактора
-function saveEditor() {
-  if (!selectedDate || !selectedType) return;
-  const val = document.getElementById('editorText').value || '';
-  db.collection('contentPlanner').doc(selectedDate).set({
-    [selectedType]: val
-  }, { merge: true });
-}
-
-// Загрузка данных редактора и автосохранение
-function loadEditorData(date, type) {
-  const editorTextarea = document.getElementById('editorText');
-  editorTextarea.value = '';
-  db.collection('contentPlanner').doc(date).get().then(doc => {
-    if (doc.exists) {
-      const data = doc.data();
-      if (data[type]) editorTextarea.value = data[type];
-    }
-  });
-
-  editorTextarea.oninput = () => saveEditor();
-}
-
-// Загрузка цвета ячейки календаря
-function loadData(date, dayDiv) {
-  db.collection('contentPlanner').doc(date).get().then(doc => {
-    if (doc.exists) {
-      const data = doc.data();
-      if (data.temaColor) {
-        dayDiv.style.backgroundColor = colorMap[data.temaColor] || '';
-      }
-    }
-  });
 }
