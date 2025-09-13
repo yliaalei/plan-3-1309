@@ -1,45 +1,56 @@
-let currentMonth = 0; // Январь = 0
-let currentYear = 2025;
+function renderCalendar() {
+  const calendar = document.getElementById('calendar');
+  calendar.innerHTML = '';
 
-document.addEventListener('DOMContentLoaded', () => {
-  renderCalendar();
-  setupNavigation();
-});
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-function setupNavigation() {
-  const nav = document.createElement('div');
-  nav.style.textAlign = 'center';
-  nav.style.margin = '10px 0';
+  for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+    calendar.innerHTML += '<div></div>';
+  }
 
-  const prevBtn = document.createElement('button');
-  prevBtn.textContent = '⬅ Назад';
-  prevBtn.onclick = () => changeMonth(-1);
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(currentYear, currentMonth, day);
+    const isoDate = date.toISOString().split('T')[0];
 
-  const nextBtn = document.createElement('button');
-  nextBtn.textContent = 'Вперед ➡';
-  nextBtn.onclick = () => changeMonth(1);
+    const dayDiv = document.createElement('div');
+    dayDiv.dataset.date = isoDate;
 
-  const monthLabel = document.createElement('span');
-  monthLabel.id = 'monthLabel';
-  monthLabel.style.margin = '0 10px';
-  monthLabel.textContent = getMonthName(currentMonth) + ' ' + currentYear;
+    // Основной текст дня (число)
+    const dayNumber = document.createElement('div');
+    dayNumber.textContent = day;
+    dayDiv.appendChild(dayNumber);
 
-  nav.appendChild(prevBtn);
-  nav.appendChild(monthLabel);
-  nav.appendChild(nextBtn);
+    // Текст заметки
+    const noteTextarea = document.createElement('textarea');
+    noteTextarea.placeholder = "Введите заметку...";
+    noteTextarea.style.width = "100%";
+    noteTextarea.style.height = "50px";
+    noteTextarea.style.marginTop = "5px";
+    noteTextarea.style.fontSize = "12px";
 
-  document.getElementById('app').insertBefore(nav, document.getElementById('calendar'));
-}
+    // Загрузка текста из Firestore
+    db.collection('contentPlanner').doc(isoDate).get().then(doc => {
+      if (doc.exists && doc.data().note) {
+        noteTextarea.value = doc.data().note;
+      }
+      if (doc.exists && doc.data().temaColor) {
+        dayDiv.style.backgroundColor = colorMap[doc.data().temaColor] || '';
+      }
+    });
 
-function changeMonth(delta) {
-  currentMonth += delta;
-  if (currentMonth < 0) currentMonth = 0;      // не уходить в 2024
-  if (currentMonth > 11) currentMonth = 11;    // не уходить в 2026
-  document.getElementById('monthLabel').textContent = getMonthName(currentMonth) + ' ' + currentYear;
-  renderCalendar();
-}
+    // Автосохранение при вводе
+    noteTextarea.addEventListener('input', () => {
+      db.collection('contentPlanner').doc(isoDate).set({
+        note: noteTextarea.value
+      }, { merge: true });
+    });
 
-function getMonthName(monthIndex) {
-  const names = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-  return names[monthIndex];
+    dayDiv.appendChild(noteTextarea);
+
+    // Клик по дню открывает меню действий
+    dayNumber.addEventListener('click', () => openMenu(isoDate));
+
+    calendar.appendChild(dayDiv);
+  }
 }
