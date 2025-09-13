@@ -1,38 +1,187 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Контент-планировщик</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-</head>
-<body>
-  <div id="app">
-    <div id="calendar"></div>
-    <div id="menu" style="display: none;">
-      <h3 id="menuDateTitle"></h3>
-      <button onclick="showTema()">Тема</button>
-      <button onclick="showEditor('stories')">Сторис</button>
-      <button onclick="showEditor('post')">Пост</button>
-      <button onclick="showEditor('reel')">Рилс</button>
-      <button onclick="closeMenu()">Закрыть</button>
-    </div>
-    <div id="temaPage" style="display: none;">
-      <h3>Тема</h3>
-      <textarea id="temaText"></textarea>
-      <button onclick="saveTema()">Сохранить</button>
-      <button onclick="closeTema()">Закрыть</button>
-    </div>
-    <div id="editorPage" style="display: none;">
-      <h3 id="editorTitle"></h3>
-      <textarea id="editorText"></textarea>
-      <button onclick="saveEditor()">Сохранить</button>
-      <button onclick="closeEditor()">Закрыть</button>
-    </div>
-  </div>
-  <script src="script.js"></script>
-</body>
-</html>
+// Инициализация Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Цвета для тем
+const colorMap = {
+  family: '#c8f7e8',
+  health: '#fff7c2',
+  work: '#ffd7ea',
+  hobby: '#e8e1ff'
+};
+
+let selectedDate = null;
+let selectedType = null;
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+
+// Календарь
+document.addEventListener('DOMContentLoaded', () => {
+  renderCalendar();
+});
+
+// Функция рендера календаря
+function renderCalendar() {
+  const calendar = document.getElementById('calendar');
+  calendar.innerHTML = '';
+
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // 0 - воскресенье
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+  // Заполнение пустых дней
+  for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+    calendar.innerHTML += '<div></div>';
+  }
+
+  // Заполнение дней
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(currentYear, currentMonth, day);
+    const isoDate = date.toISOString().split('T')[0];
+
+    const dayDiv = document.createElement('div');
+    dayDiv.textContent = day;
+    dayDiv.dataset.date = isoDate;
+    dayDiv.addEventListener('click', () => openMenu(isoDate));
+
+    // Загружаем цвет темы, если есть
+    loadData(isoDate, dayDiv);
+
+    calendar.appendChild(dayDiv);
+  }
+}
+
+// Открытие меню действий
+function openMenu(date) {
+  selectedDate = date;
+  document.getElementById('menuDateTitle').textContent = date;
+  document.getElementById('menu').style.display = 'block';
+}
+
+// Закрытие меню
+function closeMenu() {
+  document.getElementById('menu').style.display = 'none';
+}
+
+// Открыть страницу Тема
+function showTema() {
+  closeMenu();
+  selectedType = 'tema';
+  document.getElementById('temaPage').style.display = 'block';
+  loadTemaData(selectedDate);
+}
+
+// Закрыть страницу Тема
+function closeTema() {
+  document.getElementById('temaPage').style.display = 'none';
+  selectedType = null;
+}
+
+// Сохранение данных темы
+function saveTema() {
+  const tema = document.getElementById('tema_tema')?.value || '';
+  const goal = document.getElementById('tema_goal')?.value || '';
+  const activity = document.getElementById('tema_activity')?.value || '';
+  const temaColor = document.querySelector('input[name="temaColor"]:checked')?.value || '';
+
+  if (!selectedDate) return;
+
+  db.collection('contentPlanner').doc(selectedDate).set({
+    tema,
+    goal,
+    activity,
+    temaColor
+  }, { merge: true });
+
+  updateCalendarCellColor(selectedDate, temaColor);
+}
+
+// Автосохранение темы при вводе
+['tema_tema', 'tema_goal', 'tema_activity'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('input', () => saveTema());
+  }
+});
+document.querySelectorAll('input[name="temaColor"]').forEach(r => {
+  r.addEventListener('change', () => saveTema());
+});
+
+// Загрузка данных темы
+function loadTemaData(date) {
+  const temaTextarea = document.getElementById('tema_tema');
+  const goalTextarea = document.getElementById('tema_goal');
+  const activityTextarea = document.getElementById('tema_activity');
+
+  db.collection('contentPlanner').doc(date).get().then(doc => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (temaTextarea) temaTextarea.value = data.tema || '';
+      if (goalTextarea) goalTextarea.value = data.goal || '';
+      if (activityTextarea) activityTextarea.value = data.activity || '';
+      if (data.temaColor) {
+        const radio = document.querySelector(`input[name="temaColor"][value="${data.temaColor}"]`);
+        if (radio) radio.checked = true;
+        updateCalendarCellColor(date, data.temaColor);
+      }
+    }
+  });
+}
+
+// Обновление цвета ячейки календаря
+function updateCalendarCellColor(date, color) {
+  const dayDiv = document.querySelector(`div[data-date="${date}"]`);
+  if (dayDiv) {
+    dayDiv.style.backgroundColor = colorMap[color] || '';
+  }
+}
+
+// Открыть редактор (Сторис, Пост, Рилс)
+function showEditor(type) {
+  closeMenu();
+  selectedType = type;
+  document.getElementById('editorTitle').textContent = type.charAt(0).toUpperCase() + type.slice(1);
+  document.getElementById('editorPage').style.display = 'block';
+  loadEditorData(selectedDate, type);
+}
+
+// Закрыть редактор
+function closeEditor() {
+  document.getElementById('editorPage').style.display = 'none';
+  selectedType = null;
+}
+
+// Сохранить данные редактора
+function saveEditor() {
+  if (!selectedDate || !selectedType) return;
+  const val = document.getElementById('editorText').value || '';
+  db.collection('contentPlanner').doc(selectedDate).set({
+    [selectedType]: val
+  }, { merge: true });
+}
+
+// Автозагрузка текста редактора
+function loadEditorData(date, type) {
+  const editorTextarea = document.getElementById('editorText');
+  editorTextarea.value = '';
+  db.collection('contentPlanner').doc(date).get().then(doc => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data[type]) editorTextarea.value = data[type];
+    }
+  });
+
+  // Автосохранение при вводе
+  editorTextarea.oninput = () => saveEditor();
+}
+
+// Загрузка данных календаря (цвет темы)
+function loadData(date, dayDiv) {
+  db.collection('contentPlanner').doc(date).get().then(doc => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.temaColor) {
+        dayDiv.style.backgroundColor = colorMap[data.temaColor] || '';
+      }
+    }
+  });
+}
