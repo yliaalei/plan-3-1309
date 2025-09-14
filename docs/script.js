@@ -1,8 +1,7 @@
-// Firebase
+// Firebase init
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Цвета
 const colorMap = {
   free: '#ffffff',
   family: '#c8f7e8',
@@ -11,186 +10,71 @@ const colorMap = {
   hobby: '#e8e1ff'
 };
 
-let selectedDate = null;
+let selectedDateKey = null;
 let selectedType = null;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 
-const monthNames = [
-  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-];
-const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const weekdays = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
-document.addEventListener('DOMContentLoaded', () => {
-  const weekdaysRow = document.getElementById('weekdays');
-  weekdaysRow.innerHTML = '';
-  weekdays.forEach(day => {
-    const div = document.createElement('div');
-    div.textContent = day;
-    weekdaysRow.appendChild(div);
-  });
+function pad(n){ return String(n).padStart(2,'0'); }
+function makeDateKey(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
+function parseDateKeyToLocal(isoKey){ const [y,m,d]=isoKey.split('-').map(Number); return new Date(y,m-1,d); }
+function formatReadable(isoKey){ return parseDateKeyToLocal(isoKey).toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'}); }
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('prevBtn').onclick=()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();};
+  document.getElementById('nextBtn').onclick=()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();};
+  document.getElementById('menuClose').onclick=closeMenu;
+  document.getElementById('btnTema').onclick=showTema;
+  document.getElementById('btnStories').onclick=()=>showEditor('stories');
+  document.getElementById('btnPost').onclick=()=>showEditor('post');
+  document.getElementById('btnReel').onclick=()=>showEditor('reel');
+  document.getElementById('temaBack').onclick=()=>hidePanel('temaPage');
+  document.getElementById('editorBack').onclick=()=>hidePanel('editorPage');
+  document.getElementById('copyBtn').onclick=copyEditorText;
+  document.getElementById('tema_tema').oninput=saveTemaDebounced;
+  document.getElementById('tema_goal').oninput=saveTemaDebounced;
+  document.getElementById('tema_activity').oninput=saveTemaDebounced;
+  document.querySelectorAll('input[name="temaColor"]').forEach(r=>r.onchange=saveTema);
+  document.getElementById('editorText').oninput=saveEditorDebounced;
+  renderWeekdays();
   renderCalendar();
 });
 
-function renderCalendar() {
-  const calendar = document.getElementById('calendar');
-  const monthYear = document.getElementById('monthYear');
-  calendar.innerHTML = '';
-
-  monthYear.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-
-  const firstDay = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7; // Пн=0
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-  for (let i = 0; i < firstDay; i++) {
-    calendar.innerHTML += '<div></div>';
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(currentYear, currentMonth, day);
-    const isoDate = date.toISOString().split('T')[0];
-
-    const dayDiv = document.createElement('div');
-    dayDiv.textContent = day;
-    dayDiv.dataset.date = isoDate;
-    dayDiv.addEventListener('click', () => openMenu(isoDate));
-
-    loadData(isoDate, dayDiv);
-    calendar.appendChild(dayDiv);
+function renderWeekdays(){
+  const wd=document.getElementById('weekdays');wd.innerHTML='';weekdays.forEach(d=>{const div=document.createElement('div');div.textContent=d;wd.appendChild(div);});
+}
+function renderCalendar(){
+  const cal=document.getElementById('calendar');const monthYear=document.getElementById('monthYear');cal.innerHTML='';monthYear.textContent=`${monthNames[currentMonth]} ${currentYear}`;
+  const firstDay=new Date(currentYear,currentMonth,1).getDay();const leading=(firstDay===0?6:firstDay-1);
+  for(let i=0;i<leading;i++){const e=document.createElement('div');e.className='day-cell empty';cal.appendChild(e);}
+  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+  for(let d=1;d<=daysInMonth;d++){const key=makeDateKey(currentYear,currentMonth,d);const cell=document.createElement('div');cell.className='day-cell';cell.dataset.date=key;
+    const num=document.createElement('div');num.className='day-number';num.textContent=d;cell.appendChild(num);
+    cell.style.backgroundColor=colorMap.free;
+    cell.onclick=()=>openMenuForDate(key);
+    loadDataForCell(key,cell);
+    cal.appendChild(cell);
   }
 }
 
-function prevMonth() {
-  currentMonth--;
-  if (currentMonth < 0) {
-    currentMonth = 11;
-    currentYear--;
-  }
-  renderCalendar();
-}
-function nextMonth() {
-  currentMonth++;
-  if (currentMonth > 11) {
-    currentMonth = 0;
-    currentYear++;
-  }
-  renderCalendar();
-}
+function openMenuForDate(key){selectedDateKey=key;document.getElementById('menuDateTitle').textContent=formatReadable(key);showMenu();}
+function showMenu(){document.getElementById('menu').classList.add('active');}
+function closeMenu(){document.getElementById('menu').classList.remove('active');}
 
-// ==== Меню ====
-function openMenu(date) {
-  selectedDate = date;
-  document.getElementById('menuDateTitle').textContent = date;
-  document.getElementById('menu').style.display = 'block';
-}
-function closeMenu() {
-  document.getElementById('menu').style.display = 'none';
-}
+function showTema(){closeMenu();selectedType='tema';document.getElementById('temaDateTitle').textContent=formatReadable(selectedDateKey);showPanel('temaPage');loadTemaData(selectedDateKey);}
+function showEditor(type){closeMenu();selectedType=type;document.getElementById('editorDateTitle').textContent=formatReadable(selectedDateKey);document.getElementById('editorTypeLabel').textContent=type.charAt(0).toUpperCase()+type.slice(1);showPanel('editorPage');loadEditorData(selectedDateKey,type);}
+function showPanel(id){document.getElementById(id).classList.add('active');}
+function hidePanel(id){document.getElementById(id).classList.remove('active');}
 
-// ==== Тема ====
-function showTema() {
-  closeMenu();
-  selectedType = 'tema';
-  document.getElementById('temaPage').style.display = 'block';
-  loadTemaData(selectedDate);
-}
-function closeTema() {
-  document.getElementById('temaPage').style.display = 'none';
-  selectedType = null;
-}
-function saveTema() {
-  const tema = document.getElementById('tema_tema')?.value || '';
-  const goal = document.getElementById('tema_goal')?.value || '';
-  const activity = document.getElementById('tema_activity')?.value || '';
-  const temaColor = document.querySelector('input[name="temaColor"]:checked')?.value || 'free';
-  if (!selectedDate) return;
-
-  db.collection('contentPlanner').doc(selectedDate).set({
-    tema, goal, activity, temaColor
-  }, { merge: true });
-  updateCalendarCellColor(selectedDate, temaColor);
-}
-['tema_tema', 'tema_goal', 'tema_activity'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('input', () => saveTema());
-});
-document.querySelectorAll('input[name="temaColor"]').forEach(r => {
-  r.addEventListener('change', () => saveTema());
-});
-function loadTemaData(date) {
-  const temaTextarea = document.getElementById('tema_tema');
-  const goalTextarea = document.getElementById('tema_goal');
-  const activityTextarea = document.getElementById('tema_activity');
-  db.collection('contentPlanner').doc(date).get().then(doc => {
-    if (doc.exists) {
-      const data = doc.data();
-      if (temaTextarea) temaTextarea.value = data.tema || '';
-      if (goalTextarea) goalTextarea.value = data.goal || '';
-      if (activityTextarea) activityTextarea.value = data.activity || '';
-      if (data.temaColor) {
-        const radio = document.querySelector(`input[name="temaColor"][value="${data.temaColor}"]`);
-        if (radio) radio.checked = true;
-        updateCalendarCellColor(date, data.temaColor);
-      }
-    }
-  });
-}
-function updateCalendarCellColor(date, color) {
-  const dayDiv = document.querySelector(`div[data-date="${date}"]`);
-  if (dayDiv) dayDiv.style.backgroundColor = colorMap[color] || colorMap.free;
-}
-
-// ==== Редактор ====
-function showEditor(type) {
-  closeMenu();
-  selectedType = type;
-  document.getElementById('editorTitle').textContent =
-    type.charAt(0).toUpperCase() + type.slice(1);
-  document.getElementById('editorDate').textContent = selectedDate;
-  document.getElementById('editorPage').style.display = 'block';
-  loadEditorData(selectedDate, type);
-}
-function closeEditor() {
-  document.getElementById('editorPage').style.display = 'none';
-  selectedType = null;
-}
-function saveEditor() {
-  if (!selectedDate || !selectedType) return;
-  const val = document.getElementById('editorText').value || '';
-  db.collection('contentPlanner').doc(selectedDate).set({
-    [selectedType]: val
-  }, { merge: true });
-}
-function loadEditorData(date, type) {
-  const editorTextarea = document.getElementById('editorText');
-  editorTextarea.value = '';
-  db.collection('contentPlanner').doc(date).get().then(doc => {
-    if (doc.exists) {
-      const data = doc.data();
-      if (data[type]) editorTextarea.value = data[type];
-    }
-  });
-  editorTextarea.oninput = () => saveEditor();
-}
-function copyText() {
-  const textarea = document.getElementById('editorText');
-  textarea.select();
-  textarea.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(textarea.value).then(() => {
-    alert("Текст скопирован!");
-  });
-}
-
-// ==== Загрузка данных календаря ====
-function loadData(date, dayDiv) {
-  db.collection('contentPlanner').doc(date).get().then(doc => {
-    if (doc.exists) {
-      const data = doc.data();
-      const color = data.temaColor || 'free';
-      dayDiv.style.backgroundColor = colorMap[color];
-    } else {
-      dayDiv.style.backgroundColor = colorMap.free;
-    }
-  });
-}
+function loadDataForCell(key,cell){db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const data=doc.data();const c=data.temaColor||'free';cell.style.backgroundColor=colorMap[c]||colorMap.free;}});}
+function loadTemaData(key){['tema_tema','tema_goal','tema_activity'].forEach(id=>document.getElementById(id).value='');db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data();if(d.tema)document.getElementById('tema_tema').value=d.tema;if(d.goal)document.getElementById('tema_goal').value=d.goal;if(d.activity)document.getElementById('tema_activity').value=d.activity;const c=d.temaColor||'free';const r=document.querySelector(`input[name="temaColor"][value="${c}"]`);if(r)r.checked=true;}});}
+function saveTema(){if(!selectedDateKey)return;const tema=document.getElementById('tema_tema').value;const goal=document.getElementById('tema_goal').value;const activity=document.getElementById('tema_activity').value;const temaColor=(document.querySelector('input[name="temaColor"]:checked')||{}).value||'free';db.collection('contentPlanner').doc(selectedDateKey).set({tema,goal,activity,temaColor},{merge:true});updateCellColor(selectedDateKey,temaColor);}
+let temaTimer;function saveTemaDebounced(){clearTimeout(temaTimer);temaTimer=setTimeout(saveTema,500);}
+function updateCellColor(key,color){const el=document.querySelector(`.day-cell[data-date="${key}"]`);if(el)el.style.backgroundColor=colorMap[color]||colorMap.free;}
+function loadEditorData(key,type){const ta=document.getElementById('editorText');ta.value='';db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data();if(d[type])ta.value=d[type];}});}
+function saveEditor(){if(!selectedDateKey||!selectedType)return;const val=document.getElementById('editorText').value;db.collection('contentPlanner').doc(selectedDateKey).set({[selectedType]:val},{merge:true});}
+let editorTimer;function saveEditorDebounced(){clearTimeout(editorTimer);editorTimer=setTimeout(saveEditor,500);}
+function copyEditorText(){const ta=document.getElementById('editorText');navigator.clipboard.writeText(ta.value).then(()=>{const b=document.getElementById('copyBtn');const old=b.textContent;b.textContent='Скопировано';setTimeout(()=>b.textContent=old,1000);});}
