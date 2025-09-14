@@ -19,7 +19,60 @@ let currentYear = new Date().getFullYear();
 document.addEventListener('DOMContentLoaded', () => {
   renderCalendar();
 });
+// Названия месяцев для отображения
+const monthNames = [
+  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+];
 
+function renderCalendar() {
+  const calendar = document.getElementById('calendar');
+  const monthYear = document.getElementById('monthYear');
+  calendar.innerHTML = '';
+
+  // Показать название месяца и года
+  monthYear.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+  for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+    calendar.innerHTML += '<div></div>';
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(currentYear, currentMonth, day);
+    const isoDate = date.toISOString().split('T')[0];
+
+    const dayDiv = document.createElement('div');
+    dayDiv.textContent = day;
+    dayDiv.dataset.date = isoDate;
+    dayDiv.addEventListener('click', () => openMenu(isoDate));
+
+    loadData(isoDate, dayDiv);
+
+    calendar.appendChild(dayDiv);
+  }
+}
+
+// Переключение месяцев
+function prevMonth() {
+  currentMonth--;
+  if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  }
+  renderCalendar();
+}
+
+function nextMonth() {
+  currentMonth++;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  }
+  renderCalendar();
+}
 function renderCalendar() {
   const calendar = document.getElementById('calendar');
   calendar.innerHTML = '';
