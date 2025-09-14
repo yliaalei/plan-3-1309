@@ -28,7 +28,19 @@ h1 {
 #calendar div:hover {
   background: #e0f7fa;
 }
+#calendarNav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  font-size: 18px;
+}
 
+#calendarNav button {
+  padding: 5px 10px;
+  cursor: pointer;
+}
 #menu, #temaPage, #editorPage {
   margin-top: 20px;
   padding: 10px;
