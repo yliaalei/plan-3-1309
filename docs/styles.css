@@ -9,7 +9,50 @@ h1 {
   text-align: center;
   color: #003366;
 }
+/* Легенда цветов */
+#colorLegend {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
+  font-size: 14px;
+}
 
+.circle {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.circle.family { background-color: #c8f7e8; }
+.circle.health { background-color: #fff7c2; }
+.circle.work { background-color: #ffd7ea; }
+.circle.hobby { background-color: #e8e1ff; }
+
+/* Навигация */
+#calendarNav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 10px 0;
+  font-size: 18px;
+}
+
+#calendarNav button {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* Дни недели */
+#weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
 #calendarNav {
   display: flex;
   justify-content: center;
