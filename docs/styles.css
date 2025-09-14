@@ -1,19 +1,14 @@
 body {
   font-family: Arial, sans-serif;
-  background: #f0f8ff;
-  margin: 0;
-  padding: 10px;
+  margin: 20px;
+  text-align: center;
 }
 
-h1 {
-  text-align: center;
-  color: #003366;
-}
-/* Легенда цветов */
 #colorLegend {
   display: flex;
-  justify-content: space-around;
-  margin: 10px 0;
+  justify-content: center;
+  gap: 20px;
+  margin: 15px 0;
   font-size: 14px;
 }
 
@@ -30,7 +25,6 @@ h1 {
 .circle.work { background-color: #ffd7ea; }
 .circle.hobby { background-color: #e8e1ff; }
 
-/* Навигация */
 #calendarNav {
   display: flex;
   justify-content: center;
@@ -45,7 +39,6 @@ h1 {
   cursor: pointer;
 }
 
-/* Дни недели */
 #weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -53,52 +46,17 @@ h1 {
   font-weight: bold;
   margin-bottom: 5px;
 }
-#calendarNav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 0;
-  font-size: 18px;
-}
-
-#calendarNav button {
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
 
 #calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
-  margin: 20px 0;
 }
 
 #calendar div {
-  background: #fff5e6;
-  padding: 15px;
-  text-align: center;
-  border: 1px solid #ccc;
-  cursor: pointer;
-}
-
-#calendar div:hover {
-  background: #e0f7fa;
-}
-
-#menu, #temaPage, #editorPage {
-  margin-top: 20px;
+  border: 1px solid #ddd;
   padding: 10px;
-  background: #ffffffcc;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-textarea {
-  width: 100%;
-  height: 100px;
-  margin: 10px 0;
-  padding: 5px;
-  font-size: 16px;
+  min-height: 40px;
+  cursor: pointer;
+  border-radius: 5px;
 }
