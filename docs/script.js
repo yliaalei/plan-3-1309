@@ -17,15 +17,7 @@ let currentYear = new Date().getFullYear();
 
 // Календарь
 document.addEventListener('DOMContentLoaded', () => {
-  renderCalendar();
-});
-// Названия месяцев для отображения
-const monthNames = [
-  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-];
-
-const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
 document.addEventListener('DOMContentLoaded', () => {
   // Отрисовать названия дней недели
@@ -37,8 +29,14 @@ document.addEventListener('DOMContentLoaded', () => {
     weekdaysRow.appendChild(div);
   });
 
-  renderCalendar();
-});
+  renderCalendar();});
+// Названия месяцев для отображения
+const monthNames = [
+  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+];
+
+
 function renderCalendar() {
   const calendar = document.getElementById('calendar');
   const monthYear = document.getElementById('monthYear');
