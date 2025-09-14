@@ -4,6 +4,7 @@ const db = firebase.firestore();
 
 // Цвета для тем
 const colorMap = {
+  free: '#ffffff',
   family: '#c8f7e8',
   health: '#fff7c2',
   work: '#ffd7ea',
@@ -53,6 +54,7 @@ function renderCalendar() {
     const dayDiv = document.createElement('div');
     dayDiv.textContent = day;
     dayDiv.dataset.date = isoDate;
+    dayDiv.style.backgroundColor = colorMap['free']; // по умолчанию свободно
     dayDiv.addEventListener('click', () => openMenu(isoDate));
 
     loadData(isoDate, dayDiv);
@@ -102,7 +104,7 @@ function saveTema() {
   const tema = document.getElementById('tema_tema')?.value || '';
   const goal = document.getElementById('tema_goal')?.value || '';
   const activity = document.getElementById('tema_activity')?.value || '';
-  const temaColor = document.querySelector('input[name="temaColor"]:checked')?.value || '';
+  const temaColor = document.querySelector('input[name="temaColor"]:checked')?.value || 'free';
   if (!selectedDate) return;
 
   db.collection('contentPlanner').doc(selectedDate).set({
@@ -131,13 +133,17 @@ function loadTemaData(date) {
         const radio = document.querySelector(`input[name="temaColor"][value="${data.temaColor}"]`);
         if (radio) radio.checked = true;
         updateCalendarCellColor(date, data.temaColor);
+      } else {
+        updateCalendarCellColor(date, 'free');
       }
+    } else {
+      updateCalendarCellColor(date, 'free');
     }
   });
 }
 function updateCalendarCellColor(date, color) {
   const dayDiv = document.querySelector(`div[data-date="${date}"]`);
-  if (dayDiv) dayDiv.style.backgroundColor = colorMap[color] || '';
+  if (dayDiv) dayDiv.style.backgroundColor = colorMap[color] || colorMap['free'];
 }
 
 // ==== Редактор ====
@@ -186,8 +192,12 @@ function loadData(date, dayDiv) {
     if (doc.exists) {
       const data = doc.data();
       if (data.temaColor) {
-        dayDiv.style.backgroundColor = colorMap[data.temaColor] || '';
+        dayDiv.style.backgroundColor = colorMap[data.temaColor] || colorMap['free'];
+      } else {
+        dayDiv.style.backgroundColor = colorMap['free'];
       }
+    } else {
+      dayDiv.style.backgroundColor = colorMap['free'];
     }
   });
 }
