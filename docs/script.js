@@ -25,6 +25,20 @@ const monthNames = [
   'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
 ];
 
+const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Отрисовать названия дней недели
+  const weekdaysRow = document.getElementById('weekdays');
+  weekdaysRow.innerHTML = '';
+  weekdays.forEach(day => {
+    const div = document.createElement('div');
+    div.textContent = day;
+    weekdaysRow.appendChild(div);
+  });
+
+  renderCalendar();
+});
 function renderCalendar() {
   const calendar = document.getElementById('calendar');
   const monthYear = document.getElementById('monthYear');
