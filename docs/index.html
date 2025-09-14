@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Контент-планировщик</title>
+  <title>Мой контент план</title>
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Шрифт -->
+  <link href="https://fonts.googleapis.com/css2?family=Sweet+Mavka+Script&display=swap" rel="stylesheet">
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -14,12 +17,15 @@
 <body>
   <div id="app">
 
+    <!-- Заголовок -->
+    <h1 id="appTitle">Мой контент план</h1>
+
     <!-- Легенда цветов -->
     <div id="colorLegend">
       <div><span class="circle family"></span> Семья</div>
       <div><span class="circle health"></span> Здоровье</div>
       <div><span class="circle work"></span> Работа</div>
-      <div><span class="circle hobby"></span> Хобби/Развитие</div>
+      <div><span class="circle hobby"></span> Хобби</div>
     </div>
 
     <!-- Навигация -->
@@ -35,7 +41,7 @@
     <!-- Календарь -->
     <div id="calendar"></div>
 
-    <!-- Меню выбора -->
+    <!-- Меню -->
     <div id="menu" style="display: none;">
       <h3 id="menuDateTitle"></h3>
       <button onclick="showTema()">Тема</button>
@@ -56,17 +62,21 @@
       <label><input type="radio" name="temaColor" value="family"> Семья</label>
       <label><input type="radio" name="temaColor" value="health"> Здоровье</label>
       <label><input type="radio" name="temaColor" value="work"> Работа</label>
-      <label><input type="radio" name="temaColor" value="hobby"> Хобби/Развитие</label><br><br>
+      <label><input type="radio" name="temaColor" value="hobby"> Хобби</label><br><br>
 
       <button onclick="closeTema()">Назад</button>
     </div>
 
-    <!-- Страница редактора -->
+    <!-- Редактор -->
     <div id="editorPage" style="display: none;">
       <h3 id="editorTitle"></h3>
-      <textarea id="editorText"></textarea>
+      <div class="editor-block">
+        <textarea id="editorText"></textarea>
+        <button class="copyBtn" onclick="copyText()">Копировать</button>
+      </div>
       <button onclick="closeEditor()">Назад</button>
     </div>
+
   </div>
 
   <script src="script.js"></script>
