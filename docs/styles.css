@@ -1,61 +1,46 @@
 body {
   font-family: Arial, sans-serif;
-  margin: 20px;
+  background: #f0f8ff;
+  margin: 0;
+  padding: 10px;
+}
+
+h1 {
   text-align: center;
-}
-
-#colorLegend {
-  display: flex;
-  justify-content: space-around;
-  margin: 10px 0;
-  font-size: 14px;
-}
-
-.circle {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  margin-right: 6px;
-}
-
-.circle.family { background-color: #c8f7e8; }
-.circle.health { background-color: #fff7c2; }
-.circle.work { background-color: #ffd7ea; }
-.circle.hobby { background-color: #e8e1ff; }
-
-#calendarNav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin: 10px 0;
-  font-size: 18px;
-}
-
-#calendarNav button {
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-#weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 5px;
+  color: #003366;
 }
 
 #calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
+  margin: 20px 0;
 }
 
 #calendar div {
-  border: 1px solid #ddd;
-  padding: 10px;
-  min-height: 40px;
+  background: #fff5e6;
+  padding: 15px;
+  text-align: center;
+  border: 1px solid #ccc;
   cursor: pointer;
-  border-radius: 5px;
+}
+
+#calendar div:hover {
+  background: #e0f7fa;
+}
+
+#menu, #temaPage, #editorPage {
+  margin-top: 20px;
+  padding: 10px;
+  background: #ffffffcc;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  margin: 10px 0;
+  padding: 5px;
+  font-size: 16px;
 }
