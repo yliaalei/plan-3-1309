@@ -1,91 +1,113 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <!-- Отключаем авто-зум на мобильных -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Мой контент план</title>
+
+  <!-- Стили -->
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Шрифт -->
+  <!-- Шрифт заголовка -->
   <link href="https://fonts.googleapis.com/css2?family=Sweet+Mavka+Script&display=swap" rel="stylesheet">
 
-  <!-- Firebase -->
+  <!-- Firebase (compat для простоты) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Твой firebase-config.js (вставь туда конфиг проекта) -->
   <script src="firebase-config.js"></script>
 </head>
 <body>
   <div id="app">
 
     <!-- Заголовок -->
-    <h1 id="appTitle">Мой контент план</h1>
+    <header id="header">
+      <h1 id="appTitle">Мой контент план</h1>
+    </header>
 
     <!-- Легенда цветов -->
-    <div id="colorLegend">
-      <div><span class="circle free"></span> Свободно</div>
-      <div><span class="circle family"></span> Семья</div>
-      <div><span class="circle health"></span> Здоровье</div>
-      <div><span class="circle work"></span> Работа</div>
-      <div><span class="circle hobby"></span> Хобби</div>
-    </div>
+    <section id="colorLegend">
+      <div class="legend-item"><span class="circle free"></span><span>Свободно</span></div>
+      <div class="legend-item"><span class="circle family"></span><span>Семья</span></div>
+      <div class="legend-item"><span class="circle health"></span><span>Здоровье</span></div>
+      <div class="legend-item"><span class="circle work"></span><span>Работа</span></div>
+      <div class="legend-item"><span class="circle hobby"></span><span>Хобби</span></div>
+    </section>
 
-    <!-- Навигация -->
-    <div id="calendarNav">
-      <button onclick="prevMonth()">←</button>
-      <span id="monthYear"></span>
-      <button onclick="nextMonth()">→</button>
-    </div>
+    <!-- Навигация по месяцам -->
+    <section id="calendarNav">
+      <button id="prevBtn">←</button>
+      <div id="monthYear"></div>
+      <button id="nextBtn">→</button>
+    </section>
 
     <!-- Дни недели -->
     <div id="weekdays"></div>
 
     <!-- Календарь -->
-    <div id="calendar"></div>
+    <main id="calendar"></main>
 
-    <!-- Меню -->
-    <div id="menu" style="display: none;">
-      <h3 id="menuDateTitle"></h3>
-      <button onclick="showTema()">Тема</button>
-      <button onclick="showEditor('stories')">Сторис</button>
-      <button onclick="showEditor('post')">Пост</button>
-      <button onclick="showEditor('reel')">Рилс</button>
-      <button onclick="closeMenu()">Закрыть</button>
+    <!-- Меню (при клике по дате) -->
+    <div id="menu" class="sheet">
+      <div class="sheet-inner">
+        <h3 id="menuDateTitle"></h3>
+        <div class="sheet-buttons">
+          <button id="btnTema">Тема</button>
+          <button id="btnStories">Сторис</button>
+          <button id="btnPost">Пост</button>
+          <button id="btnReel">Рилс</button>
+        </div>
+        <button class="sheet-close" id="menuClose">Отмена</button>
+      </div>
     </div>
 
     <!-- Страница "Тема" -->
-    <div id="temaPage" class="panel">
+    <section id="temaPage" class="panel">
       <div class="panel-inner">
-        <h3>Тема</h3>
-        <label>Тема:<br><textarea id="tema_tema"></textarea></label><br>
-        <label>Цель:<br><textarea id="tema_goal"></textarea></label><br>
-        <label>Активность:<br><textarea id="tema_activity"></textarea></label><br>
-
-        <p>Выберите цвет:</p>
-        <label><input type="radio" name="temaColor" value="free"> Свободно</label>
-        <label><input type="radio" name="temaColor" value="family"> Семья</label>
-        <label><input type="radio" name="temaColor" value="health"> Здоровье</label>
-        <label><input type="radio" name="temaColor" value="work"> Работа</label>
-        <label><input type="radio" name="temaColor" value="hobby"> Хобби</label><br><br>
-
-        <button onclick="closeTema()">Назад</button>
-      </div>
-    </div>
-
-    <!-- Редактор -->
-    <div id="editorPage" class="panel">
-      <div class="panel-inner">
-        <div class="editor-header">
-          <button id="editorBack" onclick="closeEditor()">Назад</button>
-          <span id="editorDate"></span>
-          <button id="copyBtn" onclick="copyText()">Копировать</button>
+        <div class="panel-top">
+          <button class="backBtn" id="temaBack">← Назад</button>
+          <h2 id="temaDateTitle"></h2>
         </div>
-        <h3 id="editorTitle"></h3>
-        <textarea id="editorText"></textarea>
+
+        <label>Тема
+          <textarea id="tema_tema"></textarea>
+        </label>
+
+        <label>Цель
+          <textarea id="tema_goal"></textarea>
+        </label>
+
+        <label>Активность
+          <textarea id="tema_activity"></textarea>
+        </label>
+
+        <div class="tema-colors">
+          <p>Выберите цвет:</p>
+          <label><input type="radio" name="temaColor" value="free"> Свободно</label>
+          <label><input type="radio" name="temaColor" value="family"> Семья</label>
+          <label><input type="radio" name="temaColor" value="health"> Здоровье</label>
+          <label><input type="radio" name="temaColor" value="work"> Работа</label>
+          <label><input type="radio" name="temaColor" value="hobby"> Хобби</label>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <!-- Редактор (Сторис/Пост/Рилс) -->
+    <section id="editorPage" class="panel">
+      <div class="editor-header">
+        <button class="backBtn" id="editorBack">←</button>
+        <h2 id="editorDateTitle"></h2>
+        <button id="copyBtn">Копировать</button>
+      </div>
+      <div class="editor-type" id="editorTypeLabel"></div>
+      <textarea id="editorText"></textarea>
+    </section>
 
   </div>
 
+  <!-- Логика -->
   <script src="script.js"></script>
 </body>
 </html>
