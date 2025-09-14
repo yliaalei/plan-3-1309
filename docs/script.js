@@ -1,4 +1,4 @@
-// Инициализация Firebase
+// Firebase
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -15,7 +15,6 @@ let selectedType = null;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 
-// Названия месяцев для отображения
 const monthNames = [
   'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
   'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
@@ -23,7 +22,7 @@ const monthNames = [
 const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Отрисовать названия дней недели
+  // Отрисовать дни недели
   const weekdaysRow = document.getElementById('weekdays');
   weekdaysRow.innerHTML = '';
   weekdays.forEach(day => {
@@ -34,12 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderCalendar();
 });
+
 function renderCalendar() {
   const calendar = document.getElementById('calendar');
   const monthYear = document.getElementById('monthYear');
   calendar.innerHTML = '';
 
-  // Показать название месяца и года
   monthYear.textContent = `${monthNames[currentMonth]} ${currentYear}`;
 
   const firstDay = new Date(currentYear, currentMonth, 1).getDay();
@@ -59,12 +58,10 @@ function renderCalendar() {
     dayDiv.addEventListener('click', () => openMenu(isoDate));
 
     loadData(isoDate, dayDiv);
-
     calendar.appendChild(dayDiv);
   }
 }
 
-// Переключение месяцев
 function prevMonth() {
   currentMonth--;
   if (currentMonth < 0) {
@@ -83,43 +80,12 @@ function nextMonth() {
   renderCalendar();
 }
 
-// Календарь
-document.addEventListener('DOMContentLoaded', () => {
-  renderCalendar();
-});
-
-function renderCalendar() {
-  const calendar = document.getElementById('calendar');
-  calendar.innerHTML = '';
-
-  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-  for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
-    calendar.innerHTML += '<div></div>';
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(currentYear, currentMonth, day);
-    const isoDate = date.toISOString().split('T')[0];
-
-    const dayDiv = document.createElement('div');
-    dayDiv.textContent = day;
-    dayDiv.dataset.date = isoDate;
-    dayDiv.addEventListener('click', () => openMenu(isoDate));
-
-    loadData(isoDate, dayDiv);
-
-    calendar.appendChild(dayDiv);
-  }
-}
-
+// ==== Меню и страницы ====
 function openMenu(date) {
   selectedDate = date;
   document.getElementById('menuDateTitle').textContent = date;
   document.getElementById('menu').style.display = 'block';
 }
-
 function closeMenu() {
   document.getElementById('menu').style.display = 'none';
 }
@@ -130,33 +96,65 @@ function showTema() {
   document.getElementById('temaPage').style.display = 'block';
   loadTemaData(selectedDate);
 }
-
 function closeTema() {
   document.getElementById('temaPage').style.display = 'none';
   selectedType = null;
 }
 
+function showEditor(type) {
+  closeMenu();
+  selectedType = type;
+  document.getElementById('editorTitle').textContent =
+    type.charAt(0).toUpperCase() + type.slice(1);
+  document.getElementById('editorPage').style.display = 'block';
+  loadEditorData(selectedDate, type);
+}
+function closeEditor() {
+  document.getElementById('editorPage').style.display = 'none';
+  selectedType = null;
+}
+
+// ==== Работа с Firestore ====
+
+// Сохранение темы
 function saveTema() {
-  const tema = document.getElementById('temaText')?.value || '';
+  const tema = document.getElementById('tema_tema')?.value || '';
+  const goal = document.getElementById('tema_goal')?.value || '';
+  const activity = document.getElementById('tema_activity')?.value || '';
   const temaColor = document.querySelector('input[name="temaColor"]:checked')?.value || '';
 
   if (!selectedDate) return;
 
   db.collection('contentPlanner').doc(selectedDate).set({
-    tema,
-    temaColor
+    tema, goal, activity, temaColor
   }, { merge: true });
 
   updateCalendarCellColor(selectedDate, temaColor);
 }
 
+// Автосохранение при вводе
+['tema_tema', 'tema_goal', 'tema_activity'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('input', () => saveTema());
+  }
+});
+document.querySelectorAll('input[name="temaColor"]').forEach(r => {
+  r.addEventListener('change', () => saveTema());
+});
+
+// Загрузка данных темы
 function loadTemaData(date) {
-  const temaTextarea = document.getElementById('temaText');
+  const temaTextarea = document.getElementById('tema_tema');
+  const goalTextarea = document.getElementById('tema_goal');
+  const activityTextarea = document.getElementById('tema_activity');
 
   db.collection('contentPlanner').doc(date).get().then(doc => {
     if (doc.exists) {
       const data = doc.data();
       if (temaTextarea) temaTextarea.value = data.tema || '';
+      if (goalTextarea) goalTextarea.value = data.goal || '';
+      if (activityTextarea) activityTextarea.value = data.activity || '';
       if (data.temaColor) {
         const radio = document.querySelector(`input[name="temaColor"][value="${data.temaColor}"]`);
         if (radio) radio.checked = true;
@@ -164,11 +162,9 @@ function loadTemaData(date) {
       }
     }
   });
-
-  temaTextarea.oninput = () => saveTema();
-  document.querySelectorAll('input[name="temaColor"]').forEach(r => r.addEventListener('change', () => saveTema()));
 }
 
+// Обновление цвета ячейки календаря
 function updateCalendarCellColor(date, color) {
   const dayDiv = document.querySelector(`div[data-date="${date}"]`);
   if (dayDiv) {
@@ -176,19 +172,7 @@ function updateCalendarCellColor(date, color) {
   }
 }
 
-function showEditor(type) {
-  closeMenu();
-  selectedType = type;
-  document.getElementById('editorTitle').textContent = type.charAt(0).toUpperCase() + type.slice(1);
-  document.getElementById('editorPage').style.display = 'block';
-  loadEditorData(selectedDate, type);
-}
-
-function closeEditor() {
-  document.getElementById('editorPage').style.display = 'none';
-  selectedType = null;
-}
-
+// Сохранение текста редактора
 function saveEditor() {
   if (!selectedDate || !selectedType) return;
   const val = document.getElementById('editorText').value || '';
@@ -197,6 +181,7 @@ function saveEditor() {
   }, { merge: true });
 }
 
+// Загрузка данных редактора
 function loadEditorData(date, type) {
   const editorTextarea = document.getElementById('editorText');
   editorTextarea.value = '';
@@ -210,6 +195,7 @@ function loadEditorData(date, type) {
   editorTextarea.oninput = () => saveEditor();
 }
 
+// Загрузка данных календаря (цвет)
 function loadData(date, dayDiv) {
   db.collection('contentPlanner').doc(date).get().then(doc => {
     if (doc.exists) {
