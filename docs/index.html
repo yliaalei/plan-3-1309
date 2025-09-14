@@ -5,36 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Контент-планировщик</title>
   <link rel="stylesheet" href="styles.css">
-
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
 </head>
 <body>
   <div id="app">
-    <!-- Легенда цветов -->
-    <div id="colorLegend">
-      <div><span class="circle family"></span> Семья</div>
-      <div><span class="circle health"></span> Здоровье</div>
-      <div><span class="circle work"></span> Работа</div>
-      <div><span class="circle hobby"></span> Хобби/Развитие</div>
-    </div>
+    <h1>Контент-планировщик</h1>
 
-    <!-- Навигация -->
-    <div id="calendarNav">
-      <button onclick="prevMonth()">←</button>
-      <span id="monthYear"></span>
-      <button onclick="nextMonth()">→</button>
+    <!-- Цвета и описание -->
+    <div id="temaColors">
+      <p>Семья — мятный, Здоровье — желтый, Работа — розовый, Хобби/Развитие — лавандовый</p>
     </div>
+<!-- Легенда цветов -->
+<div id="colorLegend">
+  <div><span class="circle family"></span> Семья</div>
+  <div><span class="circle health"></span> Здоровье</div>
+  <div><span class="circle work"></span> Работа</div>
+  <div><span class="circle hobby"></span> Хобби/Развитие</div>
+</div>
 
-    <!-- Дни недели -->
-    <div id="weekdays"></div>
+<!-- Навигация по календарю -->
+<div id="calendarNav">
+  <button onclick="prevMonth()">←</button>
+  <span id="monthYear"></span>
+  <button onclick="nextMonth()">→</button>
+</div>
+
+<!-- Дни недели -->
+<div id="weekdays"></div>
+    
+<div id="calendarNav">
+    <button onclick="prevMonth()">←</button>
+    <span id="monthYear"></span>
+    <button onclick="nextMonth()">→</button>
+  </div>
 
     <!-- Календарь -->
     <div id="calendar"></div>
 
-    <!-- Меню выбора -->
+    <!-- Меню выбора действия -->
     <div id="menu" style="display: none;">
       <h3 id="menuDateTitle"></h3>
       <button onclick="showTema()">Тема</button>
@@ -44,26 +54,23 @@
       <button onclick="closeMenu()">Закрыть</button>
     </div>
 
-    <!-- Страница "Тема" -->
+    <!-- Страница Тема -->
     <div id="temaPage" style="display: none;">
       <h3>Тема</h3>
-      <label>Тема:<br><textarea id="tema_tema"></textarea></label><br>
-      <label>Цель:<br><textarea id="tema_goal"></textarea></label><br>
-      <label>Активность:<br><textarea id="tema_activity"></textarea></label><br>
-
-      <p>Выберите цвет:</p>
-      <label><input type="radio" name="temaColor" value="family"> Семья</label>
-      <label><input type="radio" name="temaColor" value="health"> Здоровье</label>
-      <label><input type="radio" name="temaColor" value="work"> Работа</label>
-      <label><input type="radio" name="temaColor" value="hobby"> Хобби/Развитие</label><br><br>
-
+      <textarea id="temaText" placeholder="Введите тему..."></textarea>
+      <div>
+        <label><input type="radio" name="temaColor" value="family"> Семья</label>
+        <label><input type="radio" name="temaColor" value="health"> Здоровье</label>
+        <label><input type="radio" name="temaColor" value="work"> Работа</label>
+        <label><input type="radio" name="temaColor" value="hobby"> Хобби/Развитие</label>
+      </div>
       <button onclick="closeTema()">Назад</button>
     </div>
 
-    <!-- Страница редактора -->
+    <!-- Редактор Сторис/Пост/Рилс -->
     <div id="editorPage" style="display: none;">
       <h3 id="editorTitle"></h3>
-      <textarea id="editorText"></textarea>
+      <textarea id="editorText" placeholder="Введите текст..."></textarea>
       <button onclick="closeEditor()">Назад</button>
     </div>
   </div>
