@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Sweet+Mavka+Script&display=swap" rel="stylesheet">
 
-  <!-- Firebase (compat) -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
@@ -25,7 +25,7 @@
       <h1 id="appTitle">Мой контент план</h1>
     </header>
 
-    <!-- Легенда цветов (Свободно первым) -->
+    <!-- Легенда цветов -->
     <section id="colorLegend">
       <div class="legend-item"><span class="circle free"></span><span>Свободно</span></div>
       <div class="legend-item"><span class="circle family"></span><span>Семья</span></div>
@@ -34,20 +34,20 @@
       <div class="legend-item"><span class="circle hobby"></span><span>Хобби</span></div>
     </section>
 
-    <!-- Навигация месяца -->
+    <!-- Навигация по месяцам -->
     <section id="calendarNav">
-      <button id="prevBtn" aria-label="Предыдущий месяц">←</button>
-      <div id="monthYear" aria-live="polite"></div>
-      <button id="nextBtn" aria-label="Следующий месяц">→</button>
+      <button id="prevBtn">←</button>
+      <div id="monthYear">—</div>
+      <button id="nextBtn">→</button>
     </section>
 
     <!-- Дни недели -->
-    <div id="weekdays" role="presentation"></div>
+    <div id="weekdays"></div>
 
     <!-- Календарь -->
-    <main id="calendar" role="grid" aria-label="Календарь"></main>
+    <main id="calendar"></main>
 
-    <!-- Лист меню при клике на дату -->
+    <!-- Меню -->
     <div id="menu" class="sheet" aria-hidden="true">
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
@@ -66,7 +66,7 @@
       <div class="panel-inner">
         <div class="panel-top">
           <button class="backBtn" id="temaBack">← Назад</button>
-          <h2 id="temaDateTitle"></h2>
+          <h2 id="temaDateTitle">—</h2>
         </div>
 
         <label>Тема
@@ -96,7 +96,7 @@
     <section id="editorPage" class="panel" aria-hidden="true">
       <div class="editor-header">
         <button class="backBtn" id="editorBack">←</button>
-        <h2 id="editorDateTitle"></h2>
+        <h2 id="editorDateTitle">—</h2>
         <div class="editor-actions">
           <button id="copyBtn">Копировать</button>
           <button id="downloadBtn">Скачать</button>
@@ -105,19 +105,17 @@
 
       <div id="editorTypeLabel" class="editor-type"></div>
 
-      <!-- Quill toolbar -->
       <div id="editorToolbar">
         <span class="ql-formats">
           <button class="ql-bold" title="Жирный"></button>
           <button class="ql-italic" title="Курсив"></button>
         </span>
         <span class="ql-formats">
-          <button class="ql-link" title="Вставить ссылку"></button>
-          <button class="ql-image" title="Вставить изображение"></button>
+          <button class="ql-link" title="Ссылка"></button>
+          <button class="ql-image" title="Изображение"></button>
         </span>
       </div>
 
-      <!-- Quill container -->
       <div id="editorText"></div>
     </section>
 
