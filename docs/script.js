@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('temaBack').onclick=()=>hidePanel('temaPage');
   document.getElementById('editorBack').onclick=()=>hidePanel('editorPage');
   document.getElementById('copyBtn').onclick=copyEditorText;
-  document.getElementById('downloadBtn').onclick=downloadImageFromEditor;
 
   ['tema_tema','tema_goal','tema_activity'].forEach(id=>{document.getElementById(id).oninput=saveTemaDebounced;});
   document.querySelectorAll('input[name="temaColor"]').forEach(r=>r.onchange=saveTema);
@@ -77,9 +76,10 @@ function showEditor(type){
       theme:'snow',
       modules:{toolbar:'#editorToolbar'}
     });
-    // делаем ссылки кликабельными
+    // ссылки открываются сразу
     quill.root.addEventListener('click',e=>{
-      if(e.target.tagName==='A'){e.target.setAttribute('target','_blank');}
+      if(e.target.tagName==='A'){e.preventDefault(); window.open(e.target.href,'_blank');}
+      if(e.target.tagName==='IMG'){showImageTooltip(e.target);}
     });
     quill.on('text-change',saveEditorDebounced);
   }
@@ -98,17 +98,22 @@ function loadEditorData(key,type){if(!quill)return; quill.setContents([]); db.co
 function saveEditor(){if(!selectedDateKey||!selectedType||!quill)return; const val=quill.root.innerHTML; db.collection('contentPlanner').doc(selectedDateKey).set({[selectedType]:val},{merge:true});}
 let editorTimer; function saveEditorDebounced(){clearTimeout(editorTimer); editorTimer=setTimeout(saveEditor,700);}
 function copyEditorText(){if(!quill)return; navigator.clipboard.writeText(quill.root.innerHTML).then(()=>{const b=document.getElementById('copyBtn'); const old=b.textContent; b.textContent='Скопировано'; setTimeout(()=>b.textContent=old,1000);});}
-function downloadImageFromEditor(){
-  if(!quill)return;
-  const img=quill.root.querySelector('img');
-  if(img&&img.src){
+
+// Всплывающая подсказка для скачивания фото
+const tooltip=document.getElementById('imageTooltip');
+function showImageTooltip(img){
+  const rect=img.getBoundingClientRect();
+  tooltip.style.left=rect.left+window.scrollX+'px';
+  tooltip.style.top=rect.top+window.scrollY-30+'px';
+  tooltip.style.display='block';
+  tooltip.onclick=()=>{
     const link=document.createElement('a');
     link.href=img.src;
     link.download='image';
     document.body.appendChild(link);
     link.click();
     link.remove();
-  } else {
-    alert('Нет изображения для скачивания');
-  }
+    tooltip.style.display='none';
+  };
 }
+document.addEventListener('click',e=>{if(!e.target.closest('img')) tooltip.style.display='none';});
