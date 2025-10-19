@@ -10,5 +10,18 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+
+// Firebase services
 const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Function to get a user's calendar collection
+function getUserCalendar(uid) {
+  return db.collection('users').doc(uid).collection('calendar');
+}
+
+// Optional: set Firestore offline persistence
+db.enablePersistence()
+  .catch((err) => {
+    console.warn("Persistence could not be enabled:", err.code);
+  });
