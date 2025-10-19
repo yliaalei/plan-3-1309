@@ -1,18 +1,16 @@
-// Авторизация
-auth.createUserWithEmailAndPassword(email, pass)
-    .then(userCredential => {
-      // Пользователь успешно зарегистрирован
-      const user = userCredential.user;
-      loginError.style.color = 'green';
-      loginError.textContent = "Регистрация успешна! Вы вошли как: " + user.email;
-      // Интерфейс автоматически переключится через onAuthStateChanged
-    })
-    .catch(err => {
-      loginError.style.color = 'red';
-      loginError.textContent = err.message;
-      console.error("Ошибка регистрации:", err);
-    });
-};
+// --- Авторизация ---
+auth.onAuthStateChanged(user => {
+  const loginSection = document.getElementById('loginSection');
+  const app = document.getElementById('app');
+
+  if (user) {
+    loginSection.style.display = 'none';
+    app.style.display = 'block';
+  } else {
+    loginSection.style.display = 'block';
+    app.style.display = 'none';
+  }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('loginBtn');
@@ -21,39 +19,75 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logoutBtn');
   const loginError = document.getElementById('loginError');
 
+  // --- Вход через email/password ---
   loginBtn.onclick = () => {
-    const email = document.getElementById('loginEmail').value;
+    const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value;
+
+    if (!email || !pass) {
+      loginError.textContent = "Введите email и пароль";
+      loginError.style.color = 'red';
+      return;
+    }
+
     auth.signInWithEmailAndPassword(email, pass)
-      .catch(err => loginError.textContent = err.message);
+      .then(userCredential => {
+        loginError.textContent = "";
+      })
+      .catch(err => {
+        loginError.textContent = err.message;
+        loginError.style.color = 'red';
+      });
   };
 
-registerBtn.onclick = () => {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPass').value;
+  // --- Регистрация через email/password ---
+  registerBtn.onclick = () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPass').value;
 
-  // Проверка на пустые поля
-  if (!email || !pass) {
-    loginError.textContent = "Введите email и пароль";
-    return;
-  }
+    if (!email || !pass) {
+      loginError.textContent = "Введите email и пароль";
+      loginError.style.color = 'red';
+      return;
+    }
 
+    auth.createUserWithEmailAndPassword(email, pass)
+      .then(userCredential => {
+        const user = userCredential.user;
+        loginError.textContent = "Регистрация успешна! Вы вошли как: " + user.email;
+        loginError.style.color = 'green';
+      })
+      .catch(err => {
+        loginError.textContent = err.message;
+        loginError.style.color = 'red';
+        console.error("Ошибка регистрации:", err);
+      });
+  };
+
+  // --- Вход через Google ---
   googleBtn.onclick = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
     auth.signInWithPopup(provider)
-      .catch(err => loginError.textContent = err.message);
+      .catch(err => {
+        loginError.textContent = err.message;
+        loginError.style.color = 'red';
+        console.error("Ошибка Google-входа:", err);
+      });
   };
 
+  // --- Выход ---
   logoutBtn.onclick = () => auth.signOut();
 
+  // --- Инициализация приложения ---
   initApp();
 });
 
-// --- initApp: календарь, темы, редактор ---
+// --- Приложение: календарь, темы, редактор ---
 function initApp() {
   const colorMap = { free:'#fff', family:'#c8f7e8', health:'#fff7c2', work:'#ffd7ea', hobby:'#e8e1ff' };
-  let selectedDateKey = null, selectedType = null, currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
+  let selectedDateKey = null, selectedType = null;
+  let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
   let quill = null;
 
   const monthNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -63,6 +97,7 @@ function initApp() {
   function makeDateKey(y,m,d){return `${y}-${pad(m+1)}-${pad(d)}`;}
   function formatReadable(key){const [y,m,d]=key.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});}
 
+  // --- Навигация календаря ---
   document.getElementById('prevBtn').onclick=()=>{currentMonth--; if(currentMonth<0){currentMonth=11; currentYear--;} renderCalendar();};
   document.getElementById('nextBtn').onclick=()=>{currentMonth++; if(currentMonth>11){currentMonth=0; currentYear++;} renderCalendar();};
   document.getElementById('menuClose').onclick=closeMenu;
@@ -78,7 +113,10 @@ function initApp() {
 
   renderWeekdays(); renderCalendar();
 
+  // --- Рендер дней недели ---
   function renderWeekdays(){const wd=document.getElementById('weekdays'); wd.innerHTML=''; weekdays.forEach(d=>{const div=document.createElement('div'); div.textContent=d; wd.appendChild(div);});}
+
+  // --- Рендер календаря ---
   function renderCalendar(){
     const cal=document.getElementById('calendar'); cal.innerHTML='';
     document.getElementById('monthYear').textContent=`${monthNames[currentMonth]} ${currentYear}`;
@@ -90,8 +128,7 @@ function initApp() {
       const cell=document.createElement('div');
       cell.className='day-cell';
       cell.dataset.date=key;
-      const num=document.createElement('div');
-      num.className='day-number';
+      const num=document.createElement('div'); num.className='day-number';
       num.textContent=d;
       cell.appendChild(num);
       cell.style.backgroundColor=colorMap.free;
@@ -101,9 +138,12 @@ function initApp() {
     }
   }
 
+  // --- Работа с меню и панелями ---
   function openMenuForDate(key){selectedDateKey=key; document.getElementById('menuDateTitle').textContent=formatReadable(key); showMenu();}
   function showMenu(){document.getElementById('menu').classList.add('active');}
   function closeMenu(){document.getElementById('menu').classList.remove('active');}
+  function showPanel(id){document.getElementById(id).classList.add('active');}
+  function hidePanel(id){document.getElementById(id).classList.remove('active');}
   function showTema(){closeMenu(); selectedType='tema'; document.getElementById('temaDateTitle').textContent=formatReadable(selectedDateKey); showPanel('temaPage'); loadTemaData(selectedDateKey);}
   function showEditor(type){
     closeMenu(); selectedType=type;
@@ -121,9 +161,7 @@ function initApp() {
     loadEditorData(selectedDateKey,type);
   }
 
-  function showPanel(id){document.getElementById(id).classList.add('active');}
-  function hidePanel(id){document.getElementById(id).classList.remove('active');}
-
+  // --- Данные тем ---
   function loadDataForCell(key,cell){db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); const c=d.temaColor||'free'; cell.style.backgroundColor=colorMap[c]||colorMap.free;}});}
   function loadTemaData(key){['tema_tema','tema_goal','tema_activity'].forEach(id=>document.getElementById(id).value=''); db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d.tema)document.getElementById('tema_tema').value=d.tema; if(d.goal)document.getElementById('tema_goal').value=d.goal; if(d.activity)document.getElementById('tema_activity').value=d.activity; const c=d.temaColor||'free'; const r=document.querySelector(`input[name="temaColor"][value="${c}"]`); if(r)r.checked=true;}});}
   function saveTema(){const user=auth.currentUser;if(!selectedDateKey||!user)return; const tema=document.getElementById('tema_tema').value; const goal=document.getElementById('tema_goal').value; const activity=document.getElementById('tema_activity').value; const temaColor=(document.querySelector('input[name="temaColor"]:checked')||{}).value||'free'; db.collection('contentPlanner').doc(selectedDateKey).set({tema,goal,activity,temaColor},{merge:true}); updateCellColor(selectedDateKey,temaColor);}
