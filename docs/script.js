@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   googleBtn.onclick = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
     auth.signInWithPopup(provider).catch(err => {
       loginError.textContent = err.message;
     });
@@ -39,17 +40,20 @@ function initApp() {
   const colorMap = {
     free:'#fff', family:'#c8f7e8', health:'#fff7c2', work:'#ffd7ea', hobby:'#e8e1ff'
   };
+
   let selectedDateKey = null;
   let selectedType = null;
   let currentMonth = new Date().getMonth();
   let currentYear = new Date().getFullYear();
   let quill = null;
+
   const monthNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   const weekdays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+
   function pad(n){return String(n).padStart(2,'0');}
   function makeDateKey(y,m,d){return `${y}-${pad(m+1)}-${pad(d)}`;}
   function formatReadable(key){const [y,m,d]=key.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});}
-  
+
   document.getElementById('prevBtn').onclick=()=>{currentMonth--; if(currentMonth<0){currentMonth=11; currentYear--;} renderCalendar();};
   document.getElementById('nextBtn').onclick=()=>{currentMonth++; if(currentMonth>11){currentMonth=0; currentYear++;} renderCalendar();};
   document.getElementById('menuClose').onclick=closeMenu;
@@ -62,6 +66,7 @@ function initApp() {
   document.getElementById('copyBtn').onclick=copyEditorText;
   ['tema_tema','tema_goal','tema_activity'].forEach(id=>{document.getElementById(id).oninput=saveTemaDebounced;});
   document.querySelectorAll('input[name="temaColor"]').forEach(r=>r.onchange=saveTema);
+
   renderWeekdays(); renderCalendar();
 
   function renderWeekdays(){const wd=document.getElementById('weekdays'); wd.innerHTML=''; weekdays.forEach(d=>{const div=document.createElement('div'); div.textContent=d; wd.appendChild(div);});}
@@ -90,26 +95,18 @@ function initApp() {
     }
     loadEditorData(selectedDateKey,type);
   }
+
   function showPanel(id){document.getElementById(id).classList.add('active');}
   function hidePanel(id){document.getElementById(id).classList.remove('active');}
 
   function loadDataForCell(key,cell){db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); const c=d.temaColor||'free'; cell.style.backgroundColor=colorMap[c]||colorMap.free;}});}
-  function loadTemaData(key){['tema_tema','tema_goal','tema_activity'].forEach(id=>document.getElementById(id).value=''); db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d.tema)document.getElementById('tema_tema').value=d.tema; if(d.goal)document.getElementById('tema_goal').value=d.goal; if(d.activity)document.getElementById('tema_activity').value=d.activity; const c=d.temaColor||'free'; const r=document.querySelector(`input[name="temaColor"][value="${c}"]`); if(r)r.checked=true;}});}
-  
-  function saveTema(){const user=auth.currentUser;if(!selectedDateKey||!user)return;
-    if(user.email!=='ylia.alei@gmail.com'){alert('Только владелец может сохранять данные');return;}
-    const tema=document.getElementById('tema_tema').value; const goal=document.getElementById('tema_goal').value; const activity=document.getElementById('tema_activity').value; const temaColor=(document.querySelector('input[name="temaColor"]:checked')||{}).value||'free'; db.collection('contentPlanner').doc(selectedDateKey).set({tema,goal,activity,temaColor},{merge:true}); updateCellColor(selectedDateKey,temaColor);}
+  function loadTemaData(key){['tema_tema','tema_goal','tema_activity'].forEach(id=>document.getElementById(id).value=''); db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d.tema)document.getElementById('tema_tema').value=d.temа; if(d.goal)document.getElementById('tema_goal').value=d.goal; if(d.activity)document.getElementById('tema_activity').value=d.activity; const c=d.temaColor||'free'; const r=document.querySelector(`input[name="temaColor"][value="${c}"]`); if(r)r.checked=true;}});}
+  function saveTema(){const user=auth.currentUser;if(!selectedDateKey||!user)return;if(user.email!=='ylia.alei@gmail.com'){alert('Только владелец может сохранять данные');return;}const tema=document.getElementById('tema_tema').value; const goal=document.getElementById('tema_goal').value; const activity=document.getElementById('tema_activity').value; const temaColor=(document.querySelector('input[name="temaColor"]:checked')||{}).value||'free'; db.collection('contentPlanner').doc(selectedDateKey).set({tema,goal,activity,temaColor},{merge:true}); updateCellColor(selectedDateKey,temaColor);}
   let temaTimer; function saveTemaDebounced(){clearTimeout(temaTimer); temaTimer=setTimeout(saveTema,500);}
   function updateCellColor(key,color){const el=document.querySelector(`.day-cell[data-date="${key}"]`); if(el)el.style.backgroundColor=colorMap[color]||colorMap.free;}
-
   function loadEditorData(key,type){if(!quill)return; quill.setContents([]); db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d[type])quill.root.innerHTML=d[type];}});}
-  function saveEditor(){const user=auth.currentUser;if(!selectedDateKey||!selectedType||!quill||!user)return;
-    if(user.email!=='ylia.alei@gmail.com'){alert('Только владелец может сохранять данные');return;}
-    const val=quill.root.innerHTML; db.collection('contentPlanner').doc(selectedDateKey).set({[selectedType]:val},{merge:true});}
+  function saveEditor(){const user=auth.currentUser;if(!selectedDateKey||!selectedType||!quill||!user)return;if(user.email!=='ylia.alei@gmail.com'){alert('Только владелец может сохранять данные');return;}const val=quill.root.innerHTML; db.collection('contentPlanner').doc(selectedDateKey).set({[selectedType]:val},{merge:true});}
   let editorTimer; function saveEditorDebounced(){clearTimeout(editorTimer); editorTimer=setTimeout(saveEditor,700);}
   function copyEditorText(){if(!quill)return; navigator.clipboard.writeText(quill.root.innerHTML).then(()=>{const b=document.getElementById('copyBtn'); const old=b.textContent; b.textContent='Скопировано'; setTimeout(()=>b.textContent=old,1000);});}
-
-  const tooltip=document.getElementById('imageTooltip');
-  function showImageTooltip(img){const rect=img.getBoundingClientRect(); tooltip.style.left=rect.left+window.scrollX+'px'; tooltip.style.top=rect.top+window.scrollY-30+'px'; tooltip.style.display='block'; tooltip.onclick=()=>{const link=document.createElement('a'); link.href=img.src; link.download='image'; document.body.appendChild(link); link.click(); link.remove(); tooltip.style.display='none';};}
-  document.addEventListener('click',e=>{if(!e.target.closest('img')) tooltip.style.display='none';});
+  const tooltip=document.getElementById('imageTooltip'); function showImageTooltip(img){const rect=img.getBoundingClientRect(); tooltip.style.left=rect.left+window.scrollX+'px'; tooltip.style.top=rect.top+window.scrollY-30+'px'; tooltip.style.display='block'; tooltip.onclick=()=>{const link=document.createElement('a'); link.href=img.src; link.download='image'; document.body.appendChild(link); link.click(); link.remove(); tooltip.style.display='none';};} document.addEventListener('click',e=>{if(!e.target.closest('img')) tooltip.style.display='none';});
 }
