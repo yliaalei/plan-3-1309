@@ -10,10 +10,5 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
-// Firebase services
 const auth = firebase.auth();
 const db = firebase.firestore();
-
-// Offline persistence
-db.enablePersistence().catch(err => console.warn("Persistence error:", err.code));
