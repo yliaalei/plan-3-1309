@@ -20,11 +20,11 @@
 </head>
 <body>
 
-  <!-- Форма входа -->
+  <!-- Авторизация -->
   <section id="loginSection" class="panel active">
     <div class="panel-inner">
-      <h2>Вход в систему</h2>
-      <input id="loginEmail" type="email" placeholder="Ваш email">
+      <h2>Вход</h2>
+      <input id="loginEmail" type="email" placeholder="Email">
       <input id="loginPass" type="password" placeholder="Пароль">
       <button id="loginBtn">Войти</button>
       <button id="googleBtn">Войти через Google</button>
@@ -34,13 +34,11 @@
 
   <div id="app" style="display:none;">
 
-    <!-- Заголовок -->
     <header id="header">
-      <h1 id="appTitle">Мой контент план</h1>
-      <button id="logoutBtn" style="float:right;">Выйти</button>
+      <h1>Мой контент-план</h1>
+      <button id="logoutBtn">Выйти</button>
     </header>
 
-    <!-- Легенда -->
     <section id="colorLegend">
       <div class="legend-item"><span class="circle free"></span><span>Свободно</span></div>
       <div class="legend-item"><span class="circle family"></span><span>Семья</span></div>
@@ -49,17 +47,13 @@
       <div class="legend-item"><span class="circle hobby"></span><span>Хобби</span></div>
     </section>
 
-    <!-- Навигация -->
     <section id="calendarNav">
       <button id="prevBtn">←</button>
       <div id="monthYear"></div>
       <button id="nextBtn">→</button>
     </section>
 
-    <!-- Дни недели -->
     <div id="weekdays"></div>
-
-    <!-- Календарь -->
     <main id="calendar"></main>
 
     <!-- Меню -->
@@ -76,26 +70,16 @@
       </div>
     </div>
 
-    <!-- Страница "Тема" -->
+    <!-- Тема -->
     <section id="temaPage" class="panel">
       <div class="panel-inner">
         <div class="panel-top">
           <button class="backBtn" id="temaBack">← Назад</button>
           <h2 id="temaDateTitle"></h2>
         </div>
-
-        <label>Тема
-          <textarea id="tema_tema"></textarea>
-        </label>
-
-        <label>Цель
-          <textarea id="tema_goal"></textarea>
-        </label>
-
-        <label>Активность
-          <textarea id="tema_activity"></textarea>
-        </label>
-
+        <label>Тема<textarea id="tema_tema"></textarea></label>
+        <label>Цель<textarea id="tema_goal"></textarea></label>
+        <label>Активность<textarea id="tema_activity"></textarea></label>
         <div class="tema-colors">
           <p>Выберите цвет:</p>
           <label><input type="radio" name="temaColor" value="free"> Свободно</label>
@@ -112,9 +96,7 @@
       <div class="editor-header">
         <button class="backBtn" id="editorBack">←</button>
         <h2 id="editorDateTitle"></h2>
-        <div class="editor-actions">
-          <button id="copyBtn">Копировать</button>
-        </div>
+        <div class="editor-actions"><button id="copyBtn">Копировать</button></div>
       </div>
       <div class="editor-type" id="editorTypeLabel"></div>
       <div id="editorToolbar">
