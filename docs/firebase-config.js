@@ -1,4 +1,4 @@
-// Firebase Configuration
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAqUEri9DzMftxtS7ker4tfC-EnZNK6nMA",
   authDomain: "content-planner-ffb8e.firebaseapp.com",
