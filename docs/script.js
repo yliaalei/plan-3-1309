@@ -1,93 +1,97 @@
 // Ожидание полной загрузки DOM перед доступом к элементам
 document.addEventListener('DOMContentLoaded', () => {
   // Ссылки на элементы DOM
-  const authSection = document.getElementById('authSection');
-  const appSection = document.getElementById('app');
-  const loginBtn = document.getElementById('loginBtn');
-  const signupBtn = document.getElementById('signupBtn');
-  const googleBtn = document.getElementById('googleBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const authError = document.getElementById('authError');
-  const showSignup = document.getElementById('showSignup');
-  const showLogin = document.getElementById('showLogin');
-  const loginForm = document.getElementById('loginForm');
-  const signupForm = document.getElementById('signupForm');
+  const elements = {
+    authSection: document.getElementById('authSection'),
+    appSection: document.getElementById('app'),
+    loginBtn: document.getElementById('loginBtn'),
+    signupBtn: document.getElementById('signupBtn'),
+    googleBtn: document.getElementById('googleBtn'),
+    logoutBtn: document.getElementById('logoutBtn'),
+    authError: document.getElementById('authError'),
+    showSignup: document.getElementById('showSignup'),
+    showLogin: document.getElementById('showLogin'),
+    loginForm: document.getElementById('loginForm'),
+    signupForm: document.getElementById('signupForm')
+  };
 
   // Проверка наличия всех необходимых элементов
-  if (!authSection || !appSection || !loginBtn || !signupBtn || !googleBtn || 
-      !logoutBtn || !authError || !showSignup || !showLogin || !loginForm || !signupForm) {
-    console.error('Ошибка: один или несколько элементов DOM не найдены. Проверьте ID в HTML.');
+  const missingElements = Object.entries(elements)
+    .filter(([key, value]) => !value)
+    .map(([key]) => key);
+  if (missingElements.length > 0) {
+    console.error(`Ошибка: следующие элементы DOM не найдены: ${missingElements.join(', ')}. Проверьте ID в HTML.`);
     return;
   }
 
   // Обработка изменения состояния аутентификации
   auth.onAuthStateChanged(user => {
     if (user) {
-      authSection.style.display = 'none';
-      appSection.style.display = 'block';
+      elements.authSection.style.display = 'none';
+      elements.appSection.style.display = 'block';
       initApp(user);
     } else {
-      authSection.style.display = 'block';
-      appSection.style.display = 'none';
+      elements.authSection.style.display = 'block';
+      elements.appSection.style.display = 'none';
     }
   });
 
   // Переключение между формами входа и регистрации
-  showSignup.onclick = () => {
-    loginForm.style.display = 'none';
-    signupForm.style.display = 'block';
-    authError.textContent = '';
+  elements.showSignup.onclick = () => {
+    elements.loginForm.style.display = 'none';
+    elements.signupForm.style.display = 'block';
+    elements.authError.textContent = '';
   };
 
-  showLogin.onclick = () => {
-    signupForm.style.display = 'none';
-    loginForm.style.display = 'block';
-    authError.textContent = '';
+  elements.showLogin.onclick = () => {
+    elements.signupForm.style.display = 'none';
+    elements.loginForm.style.display = 'block';
+    elements.authError.textContent = '';
   };
 
   // Вход по email и паролю
-  loginBtn.onclick = () => {
+  elements.loginBtn.onclick = () => {
     const email = document.getElementById('loginEmail')?.value;
     const password = document.getElementById('loginPass')?.value;
     if (!email || !password) {
-      authError.textContent = 'Пожалуйста, введите email и пароль';
+      elements.authError.textContent = 'Пожалуйста, введите email и пароль';
       return;
     }
     auth.signInWithEmailAndPassword(email, password)
       .catch(err => {
         console.error('Ошибка входа:', err);
-        authError.textContent = err.message;
+        elements.authError.textContent = err.message;
       });
   };
 
   // Регистрация нового пользователя
-  signupBtn.onclick = () => {
+  elements.signupBtn.onclick = () => {
     const email = document.getElementById('signupEmail')?.value;
     const password = document.getElementById('signupPass')?.value;
     if (!email || !password) {
-      authError.textContent = 'Пожалуйста, введите email и пароль';
+      elements.authError.textContent = 'Пожалуйста, введите email и пароль';
       return;
     }
     auth.createUserWithEmailAndPassword(email, password)
       .catch(err => {
         console.error('Ошибка регистрации:', err);
-        authError.textContent = err.message;
+        elements.authError.textContent = err.message;
       });
   };
 
   // Вход через Google
-  googleBtn.onclick = () => {
+  elements.googleBtn.onclick = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     auth.signInWithPopup(provider)
       .catch(err => {
         console.error('Ошибка входа через Google:', err);
-        authError.textContent = err.message;
+        elements.authError.textContent = err.message;
       });
   };
 
   // Выход из учетной записи
-  logoutBtn.onclick = () => auth.signOut();
+  elements.logoutBtn.onclick = () => auth.signOut();
 });
 
 // Основная логика приложения
@@ -125,42 +129,47 @@ function initApp(user) {
 
   // Настройка обработчиков событий
   const setupEventListeners = () => {
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const menuClose = document.getElementById('menuClose');
-    const btnTema = document.getElementById('btnTema');
-    const btnStories = document.getElementById('btnStories');
-    const btnPost = document.getElementById('btnPost');
-    const btnReel = document.getElementById('btnReel');
-    const temaBack = document.getElementById('temaBack');
-    const editorBack = document.getElementById('editorBack');
-    const copyBtn = document.getElementById('copyBtn');
+    const elements = {
+      prevBtn: document.getElementById('prevBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      menuClose: document.getElementById('menuClose'),
+      btnTema: document.getElementById('btnTema'),
+      btnStories: document.getElementById('btnStories'),
+      btnPost: document.getElementById('btnPost'),
+      btnReel: document.getElementById('btnReel'),
+      temaBack: document.getElementById('temaBack'),
+      editorBack: document.getElementById('editorBack'),
+      copyBtn: document.getElementById('copyBtn')
+    };
 
-    if (!prevBtn || !nextBtn || !menuClose || !btnTema || !btnStories || !btnPost || !btnReel || !temaBack || !editorBack || !copyBtn) {
-      console.error('Ошибка: один или несколько элементов календаря не найдены. Проверьте ID в HTML.');
+    const missingElements = Object.entries(elements)
+      .filter(([key, value]) => !value)
+      .map(([key]) => key);
+    if (missingElements.length > 0) {
+      console.error(`Ошибка: следующие элементы календаря не найдены: ${missingElements.join(', ')}. Проверьте ID в HTML.`);
       return;
     }
 
-    prevBtn.onclick = () => {
+    elements.prevBtn.onclick = () => {
       currentMonth--;
       if (currentMonth < 0) { currentMonth = 11; currentYear--; }
       renderCalendar();
     };
 
-    nextBtn.onclick = () => {
+    elements.nextBtn.onclick = () => {
       currentMonth++;
       if (currentMonth > 11) { currentMonth = 0; currentYear++; }
       renderCalendar();
     };
 
-    menuClose.onclick = closeMenu;
-    btnTema.onclick = showTema;
-    btnStories.onclick = () => showEditor('stories');
-    btnPost.onclick = () => showEditor('post');
-    btnReel.onclick = () => showEditor('reel');
-    temaBack.onclick = () => hidePanel('temaPage');
-    editorBack.onclick = () => hidePanel('editorPage');
-    copyBtn.onclick = copyEditorText;
+    elements.menuClose.onclick = closeMenu;
+    elements.btnTema.onclick = showTema;
+    elements.btnStories.onclick = () => showEditor('stories');
+    elements.btnPost.onclick = () => showEditor('post');
+    elements.btnReel.onclick = () => showEditor('reel');
+    elements.temaBack.onclick = () => hidePanel('temaPage');
+    elements.editorBack.onclick = () => hidePanel('editorPage');
+    elements.copyBtn.onclick = copyEditorText;
 
     ['tema_tema', 'tema_goal', 'tema_activity'].forEach(id => {
       const element = document.getElementById(id);
@@ -400,27 +409,4 @@ function initApp(user) {
     const rect = img.getBoundingClientRect();
     tooltip.style.left = `${rect.left + window.scrollX}px`;
     tooltip.style.top = `${rect.top + window.scrollY - 30}px`;
-    tooltip.style.display = 'block';
-    tooltip.onclick = () => {
-      const link = document.createElement('a');
-      link.href = img.src;
-      link.download = 'image';
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      tooltip.style.display = 'none';
-    };
-  };
-
-  document.addEventListener('click', e => {
-    if (!e.target.closest('img')) {
-      const tooltip = document.getElementById('imageTooltip');
-      if (tooltip) tooltip.style.display = 'none';
-    }
-  });
-
-  // Инициализация приложения
-  setupEventListeners();
-  renderWeekdays();
-  renderCalendar();
-}
+    tooltip.style
