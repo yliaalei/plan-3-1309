@@ -11,6 +11,7 @@ auth.onAuthStateChanged(user => {
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('loginBtn');
+  const registerBtn = document.getElementById('registerBtn');
   const googleBtn = document.getElementById('googleBtn');
   const logoutBtn = document.getElementById('logoutBtn');
   const loginError = document.getElementById('loginError');
@@ -18,17 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
   loginBtn.onclick = () => {
     const email = document.getElementById('loginEmail').value;
     const pass = document.getElementById('loginPass').value;
-    auth.signInWithEmailAndPassword(email, pass).catch(err => {
-      loginError.textContent = err.message;
-    });
+    auth.signInWithEmailAndPassword(email, pass)
+      .catch(err => loginError.textContent = err.message);
+  };
+
+  registerBtn.onclick = () => {
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPass').value;
+    auth.createUserWithEmailAndPassword(email, pass)
+      .catch(err => loginError.textContent = err.message);
   };
 
   googleBtn.onclick = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
-    auth.signInWithPopup(provider).catch(err => {
-      loginError.textContent = err.message;
-    });
+    auth.signInWithPopup(provider)
+      .catch(err => loginError.textContent = err.message);
   };
 
   logoutBtn.onclick = () => auth.signOut();
@@ -36,15 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initApp();
 });
 
+// --- initApp: календарь, темы, редактор ---
 function initApp() {
-  const colorMap = {
-    free:'#fff', family:'#c8f7e8', health:'#fff7c2', work:'#ffd7ea', hobby:'#e8e1ff'
-  };
-
-  let selectedDateKey = null;
-  let selectedType = null;
-  let currentMonth = new Date().getMonth();
-  let currentYear = new Date().getFullYear();
+  const colorMap = { free:'#fff', family:'#c8f7e8', health:'#fff7c2', work:'#ffd7ea', hobby:'#e8e1ff' };
+  let selectedDateKey = null, selectedType = null, currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
   let quill = null;
 
   const monthNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -76,7 +77,20 @@ function initApp() {
     const firstDay=new Date(currentYear,currentMonth,1).getDay(); const leading=(firstDay===0?6:firstDay-1);
     for(let i=0;i<leading;i++){const e=document.createElement('div'); e.className='day-cell empty'; cal.appendChild(e);}
     const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-    for(let d=1;d<=daysInMonth;d++){const key=makeDateKey(currentYear,currentMonth,d); const cell=document.createElement('div'); cell.className='day-cell'; cell.dataset.date=key; const num=document.createElement('div'); num.className='day-number'; num.textContent=d; cell.appendChild(num); cell.style.backgroundColor=colorMap.free; cell.onclick=()=>openMenuForDate(key); loadDataForCell(key,cell); cal.appendChild(cell);}
+    for(let d=1;d<=daysInMonth;d++){
+      const key=makeDateKey(currentYear,currentMonth,d);
+      const cell=document.createElement('div');
+      cell.className='day-cell';
+      cell.dataset.date=key;
+      const num=document.createElement('div');
+      num.className='day-number';
+      num.textContent=d;
+      cell.appendChild(num);
+      cell.style.backgroundColor=colorMap.free;
+      cell.onclick=()=>openMenuForDate(key);
+      loadDataForCell(key,cell);
+      cal.appendChild(cell);
+    }
   }
 
   function openMenuForDate(key){selectedDateKey=key; document.getElementById('menuDateTitle').textContent=formatReadable(key); showMenu();}
@@ -90,7 +104,10 @@ function initApp() {
     showPanel('editorPage');
     if(!quill){
       quill=new Quill('#editorText',{theme:'snow',modules:{toolbar:'#editorToolbar'}});
-      quill.root.addEventListener('click',e=>{if(e.target.tagName==='A'){e.preventDefault(); window.open(e.target.href,'_blank');} if(e.target.tagName==='IMG'){showImageTooltip(e.target);} });
+      quill.root.addEventListener('click',e=>{
+        if(e.target.tagName==='A'){e.preventDefault(); window.open(e.target.href,'_blank');} 
+        if(e.target.tagName==='IMG'){showImageTooltip(e.target);}
+      });
       quill.on('text-change',saveEditorDebounced);
     }
     loadEditorData(selectedDateKey,type);
@@ -100,12 +117,12 @@ function initApp() {
   function hidePanel(id){document.getElementById(id).classList.remove('active');}
 
   function loadDataForCell(key,cell){db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); const c=d.temaColor||'free'; cell.style.backgroundColor=colorMap[c]||colorMap.free;}});}
-  function loadTemaData(key){['tema_tema','tema_goal','tema_activity'].forEach(id=>document.getElementById(id).value=''); db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d.tema)document.getElementById('tema_tema').value=d.temа; if(d.goal)document.getElementById('tema_goal').value=d.goal; if(d.activity)document.getElementById('tema_activity').value=d.activity; const c=d.temaColor||'free'; const r=document.querySelector(`input[name="temaColor"][value="${c}"]`); if(r)r.checked=true;}});}
-  function saveTema(){const user=auth.currentUser;if(!selectedDateKey||!user)return;if(user.email!=='ylia.alei@gmail.com'){alert('Только владелец может сохранять данные');return;}const tema=document.getElementById('tema_tema').value; const goal=document.getElementById('tema_goal').value; const activity=document.getElementById('tema_activity').value; const temaColor=(document.querySelector('input[name="temaColor"]:checked')||{}).value||'free'; db.collection('contentPlanner').doc(selectedDateKey).set({tema,goal,activity,temaColor},{merge:true}); updateCellColor(selectedDateKey,temaColor);}
+  function loadTemaData(key){['tema_tema','tema_goal','tema_activity'].forEach(id=>document.getElementById(id).value=''); db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d.tema)document.getElementById('tema_tema').value=d.tema; if(d.goal)document.getElementById('tema_goal').value=d.goal; if(d.activity)document.getElementById('tema_activity').value=d.activity; const c=d.temaColor||'free'; const r=document.querySelector(`input[name="temaColor"][value="${c}"]`); if(r)r.checked=true;}});}
+  function saveTema(){const user=auth.currentUser;if(!selectedDateKey||!user)return; const tema=document.getElementById('tema_tema').value; const goal=document.getElementById('tema_goal').value; const activity=document.getElementById('tema_activity').value; const temaColor=(document.querySelector('input[name="temaColor"]:checked')||{}).value||'free'; db.collection('contentPlanner').doc(selectedDateKey).set({tema,goal,activity,temaColor},{merge:true}); updateCellColor(selectedDateKey,temaColor);}
   let temaTimer; function saveTemaDebounced(){clearTimeout(temaTimer); temaTimer=setTimeout(saveTema,500);}
   function updateCellColor(key,color){const el=document.querySelector(`.day-cell[data-date="${key}"]`); if(el)el.style.backgroundColor=colorMap[color]||colorMap.free;}
   function loadEditorData(key,type){if(!quill)return; quill.setContents([]); db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d[type])quill.root.innerHTML=d[type];}});}
-  function saveEditor(){const user=auth.currentUser;if(!selectedDateKey||!selectedType||!quill||!user)return;if(user.email!=='ylia.alei@gmail.com'){alert('Только владелец может сохранять данные');return;}const val=quill.root.innerHTML; db.collection('contentPlanner').doc(selectedDateKey).set({[selectedType]:val},{merge:true});}
+  function saveEditor(){const user=auth.currentUser;if(!selectedDateKey||!selectedType||!quill||!user)return; const val=quill.root.innerHTML; db.collection('contentPlanner').doc(selectedDateKey).set({[selectedType]:val},{merge:true});}
   let editorTimer; function saveEditorDebounced(){clearTimeout(editorTimer); editorTimer=setTimeout(saveEditor,700);}
   function copyEditorText(){if(!quill)return; navigator.clipboard.writeText(quill.root.innerHTML).then(()=>{const b=document.getElementById('copyBtn'); const old=b.textContent; b.textContent='Скопировано'; setTimeout(()=>b.textContent=old,1000);});}
   const tooltip=document.getElementById('imageTooltip'); function showImageTooltip(img){const rect=img.getBoundingClientRect(); tooltip.style.left=rect.left+window.scrollX+'px'; tooltip.style.top=rect.top+window.scrollY-30+'px'; tooltip.style.display='block'; tooltip.onclick=()=>{const link=document.createElement('a'); link.href=img.src; link.download='image'; document.body.appendChild(link); link.click(); link.remove(); tooltip.style.display='none';};} document.addEventListener('click',e=>{if(!e.target.closest('img')) tooltip.style.display='none';});
