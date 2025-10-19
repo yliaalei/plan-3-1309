@@ -23,12 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(err => loginError.textContent = err.message);
   };
 
-  registerBtn.onclick = () => {
+ registerBtn.onclick = () => {
     const email = document.getElementById('loginEmail').value;
     const pass = document.getElementById('loginPass').value;
     auth.createUserWithEmailAndPassword(email, pass)
+      .then(userCredential => {
+          // Пользователь создан и вошёл автоматически
+          loginError.textContent = "Регистрация успешна!";
+      })
       .catch(err => loginError.textContent = err.message);
-  };
+};
 
   googleBtn.onclick = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
