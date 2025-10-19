@@ -352,7 +352,9 @@ function initApp(user) {
       goal,
       activity,
       temaColor
-    }, { merge: true }).catch(err => console.error('Ошибка сохранения темы:', err));
+    }, { merge: true }).then(() => {
+      console.log('Данные темы успешно сохранены для даты:', selectedDateKey);
+    }).catch(err => console.error('Ошибка сохранения темы:', err));
 
     updateCellColor(selectedDateKey, temaColor);
   };
@@ -383,7 +385,9 @@ function initApp(user) {
     const value = quill.root.innerHTML;
     getUserContentCollection().doc(selectedDateKey).set({
       [selectedType]: value
-    }, { merge: true }).catch(err => console.error('Ошибка сохранения редактора:', err));
+    }, { merge: true }).then(() => {
+      console.log('Данные редактора успешно сохранены для типа:', selectedType, 'и даты:', selectedDateKey);
+    }).catch(err => console.error('Ошибка сохранения редактора:', err));
   };
 
   const saveEditorDebounced = () => {
@@ -409,4 +413,27 @@ function initApp(user) {
     const rect = img.getBoundingClientRect();
     tooltip.style.left = `${rect.left + window.scrollX}px`;
     tooltip.style.top = `${rect.top + window.scrollY - 30}px`;
-    tooltip.style
+    tooltip.style.display = 'block';
+    tooltip.onclick = () => {
+      const link = document.createElement('a');
+      link.href = img.src;
+      link.download = 'image';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      tooltip.style.display = 'none';
+    };
+  };
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('img')) {
+      const tooltip = document.getElementById('imageTooltip');
+      if (tooltip) tooltip.style.display = 'none';
+    }
+  });
+
+  // Инициализация приложения
+  setupEventListeners();
+  renderWeekdays();
+  renderCalendar();
+}
