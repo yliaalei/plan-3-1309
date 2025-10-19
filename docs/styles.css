@@ -1,51 +1,52 @@
+/* Global Reset and Base Styles */
 * {
   box-sizing: border-box;
-}
-body {
   margin: 0;
+}
+
+body {
   font-family: system-ui, -apple-system, sans-serif;
   background: #f7fbff;
   -webkit-text-size-adjust: 100%;
 }
+
+/* App Title */
 #appTitle {
   font-family: 'Sweet Mavka Script', cursive;
   text-align: center;
   font-size: 36px;
   margin: 10px 0;
 }
+
+/* Color Legend */
 #colorLegend {
   display: flex;
   justify-content: center;
   gap: 10px;
   margin-bottom: 10px;
 }
+
 .legend-item {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 14px;
 }
+
 .circle {
   width: 16px;
   height: 16px;
   border-radius: 50%;
   border: 1px solid #aaa;
 }
-.circle.free {
-  background: #fff;
-}
-.circle.family {
-  background: #c8f7e8;
-}
-.circle.health {
-  background: #fff7c2;
-}
-.circle.work {
-  background: #ffd7ea;
-}
-.circle.hobby {
-  background: #e8e1ff;
-}
+
+.circle.free { background: #fff; }
+.circle.family { background: #c8f7e8; }
+.circle.health { background: #fff7c2; }
+.circle.work { background: #ffd7ea; }
+.circle.hobby { background: #e8e1ff; }
+
+/* Calendar Navigation */
 #calendarNav {
   display: flex;
   justify-content: center;
@@ -53,9 +54,12 @@ body {
   gap: 10px;
   margin: 10px 0;
 }
+
 #monthYear {
   font-weight: bold;
 }
+
+/* Weekdays and Calendar Grid */
 #weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -63,11 +67,13 @@ body {
   font-weight: bold;
   margin-bottom: 5px;
 }
+
 #calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
 }
+
 .day-cell {
   background: #fff;
   border: 1px solid #ddd;
@@ -76,10 +82,13 @@ body {
   padding: 4px;
   cursor: pointer;
 }
+
 .day-number {
   font-weight: bold;
   font-size: 12px;
 }
+
+/* Bottom Sheet (Menu) */
 .sheet {
   display: none;
   position: fixed;
@@ -92,9 +101,11 @@ body {
   padding: 10px;
   box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
 }
+
 .sheet.active {
   display: block;
 }
+
 .sheet-buttons {
   display: flex;
   justify-content: center;
@@ -102,12 +113,15 @@ body {
   flex-wrap: wrap;
   margin: 8px 0;
 }
+
 .sheet button {
   padding: 6px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   background: #fafafa;
 }
+
+/* Full-Screen Panels */
 .panel {
   display: none;
   position: fixed;
@@ -115,15 +129,20 @@ body {
   background: #fff;
   overflow: auto;
 }
+
 .panel.active {
   display: block;
 }
+
+/* Tema Page */
 #temaPage textarea {
   width: 100%;
   height: 120px;
   margin: 6px 0;
   font-size: 16px;
 }
+
+/* Editor Header */
 .editor-header {
   display: flex;
   justify-content: space-between;
@@ -131,38 +150,46 @@ body {
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
+
 .editor-header h2 {
   margin: 0;
   font-size: 16px;
   text-align: center;
   flex: 1;
 }
+
 .editor-actions {
   display: flex;
   gap: 8px;
 }
-#copyBtn, .backBtn {
+
+#copyBtn,
+.backBtn {
   background: #fafafa;
   border: 1px solid #ccc;
   border-radius: 6px;
   padding: 6px 10px;
 }
+
 .editor-type {
   text-align: center;
   font-weight: bold;
   margin: 10px 0;
 }
+
 #editorToolbar {
   border: 1px solid #ccc;
   display: flex;
   gap: 5px;
   justify-content: center;
 }
+
 #editorText {
   height: calc(100vh - 180px);
   border: 1px solid #ccc;
 }
-/* Всплывающая подсказка */
+
+/* Image Tooltip */
 #imageTooltip {
   position: absolute;
   display: none;
