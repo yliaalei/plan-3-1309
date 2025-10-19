@@ -1,13 +1,18 @@
 // Авторизация
-auth.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-  } else {
-    document.getElementById('loginSection').style.display = 'block';
-    document.getElementById('app').style.display = 'none';
-  }
-});
+auth.createUserWithEmailAndPassword(email, pass)
+    .then(userCredential => {
+      // Пользователь успешно зарегистрирован
+      const user = userCredential.user;
+      loginError.style.color = 'green';
+      loginError.textContent = "Регистрация успешна! Вы вошли как: " + user.email;
+      // Интерфейс автоматически переключится через onAuthStateChanged
+    })
+    .catch(err => {
+      loginError.style.color = 'red';
+      loginError.textContent = err.message;
+      console.error("Ошибка регистрации:", err);
+    });
+};
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('loginBtn');
@@ -23,16 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(err => loginError.textContent = err.message);
   };
 
- registerBtn.onclick = () => {
-    const email = document.getElementById('loginEmail').value;
-    const pass = document.getElementById('loginPass').value;
-    auth.createUserWithEmailAndPassword(email, pass)
-      .then(userCredential => {
-          // Пользователь создан и вошёл автоматически
-          loginError.textContent = "Регистрация успешна!";
-      })
-      .catch(err => loginError.textContent = err.message);
-};
+registerBtn.onclick = () => {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+
+  // Проверка на пустые поля
+  if (!email || !pass) {
+    loginError.textContent = "Введите email и пароль";
+    return;
+  }
 
   googleBtn.onclick = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
