@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Мой контент-план</title>
 
   <link rel="stylesheet" href="styles.css">
@@ -23,15 +23,17 @@
   <!-- Авторизация -->
   <section id="loginSection" class="panel active">
     <div class="panel-inner">
-      <h2>Вход</h2>
+      <h2>Вход / Регистрация</h2>
       <input id="loginEmail" type="email" placeholder="Ваш email">
       <input id="loginPass" type="password" placeholder="Пароль">
       <button id="loginBtn">Войти</button>
+      <button id="registerBtn">Зарегистрироваться</button>
       <button id="googleBtn">Войти через Google</button>
       <p id="loginError" style="color:red;"></p>
     </div>
   </section>
 
+  <!-- Основное приложение -->
   <div id="app" style="display:none;">
     <header id="header">
       <h1 id="appTitle">Мой контент-план</h1>
@@ -55,7 +57,6 @@
     <div id="weekdays"></div>
     <main id="calendar"></main>
 
-    <!-- Меню -->
     <div id="menu" class="sheet">
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
@@ -69,7 +70,6 @@
       </div>
     </div>
 
-    <!-- Страница темы -->
     <section id="temaPage" class="panel">
       <div class="panel-inner">
         <div class="panel-top">
@@ -100,7 +100,6 @@
       </div>
     </section>
 
-    <!-- Редактор -->
     <section id="editorPage" class="panel">
       <div class="editor-header">
         <button class="backBtn" id="editorBack">←</button>
