@@ -37,8 +37,9 @@ body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background:
 .editor-type { text-align:center; font-weight:bold; margin:10px 0; }
 
 #editorToolbar { border: 1px solid #ccc; display:flex; gap:5px; justify-content:center; }
-#editorText { height: calc(100vh - 180px); border: 1px solid #ccc; }
+#editorText { height: calc(100vh - 180px); border: 1px solid #ccc; font-family: system-ui, -apple-system, sans-serif; white-space: pre-wrap; word-wrap: break-word; }
 
+/* Всплывающая подсказка */
 #imageTooltip {
   position: absolute;
   display: none;
