@@ -1,21 +1,8 @@
-// Authentication Handling
-auth.onAuthStateChanged(user => {
+// Ожидание полной загрузки DOM перед доступом к элементам
+document.addEventListener('DOMContentLoaded', () => {
+  // Ссылки на элементы DOM
   const authSection = document.getElementById('authSection');
   const appSection = document.getElementById('app');
-
-  if (user) {
-    authSection.style.display = 'none';
-    appSection.style.display = 'block';
-    initApp(user);
-  } else {
-    authSection.style.display = 'block';
-    appSection.style.display = 'none';
-  }
-});
-
-// DOM Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-  // Element References
   const loginBtn = document.getElementById('loginBtn');
   const signupBtn = document.getElementById('signupBtn');
   const googleBtn = document.getElementById('googleBtn');
@@ -26,7 +13,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
   const signupForm = document.getElementById('signupForm');
 
-  // Toggle between login and signup forms
+  // Проверка наличия всех необходимых элементов
+  if (!authSection || !appSection || !loginBtn || !signupBtn || !googleBtn || 
+      !logoutBtn || !authError || !showSignup || !showLogin || !loginForm || !signupForm) {
+    console.error('Ошибка: один или несколько элементов DOM не найдены. Проверьте ID в HTML.');
+    return;
+  }
+
+  // Обработка изменения состояния аутентификации
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      authSection.style.display = 'none';
+      appSection.style.display = 'block';
+      initApp(user);
+    } else {
+      authSection.style.display = 'block';
+      appSection.style.display = 'none';
+    }
+  });
+
+  // Переключение между формами входа и регистрации
   showSignup.onclick = () => {
     loginForm.style.display = 'none';
     signupForm.style.display = 'block';
@@ -39,40 +45,54 @@ document.addEventListener('DOMContentLoaded', () => {
     authError.textContent = '';
   };
 
-  // Login with email and password
+  // Вход по email и паролю
   loginBtn.onclick = () => {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPass').value;
-    auth.signInWithEmailAndPassword(email, password).catch(err => {
-      authError.textContent = err.message;
-    });
+    const email = document.getElementById('loginEmail')?.value;
+    const password = document.getElementById('loginPass')?.value;
+    if (!email || !password) {
+      authError.textContent = 'Пожалуйста, введите email и пароль';
+      return;
+    }
+    auth.signInWithEmailAndPassword(email, password)
+      .catch(err => {
+        console.error('Ошибка входа:', err);
+        authError.textContent = err.message;
+      });
   };
 
-  // Sign up with email and password
+  // Регистрация нового пользователя
   signupBtn.onclick = () => {
-    const email = document.getElementById('signupEmail').value;
-    const password = document.getElementById('signupPass').value;
-    auth.createUserWithEmailAndPassword(email, password).catch(err => {
-      authError.textContent = err.message;
-    });
+    const email = document.getElementById('signupEmail')?.value;
+    const password = document.getElementById('signupPass')?.value;
+    if (!email || !password) {
+      authError.textContent = 'Пожалуйста, введите email и пароль';
+      return;
+    }
+    auth.createUserWithEmailAndPassword(email, password)
+      .catch(err => {
+        console.error('Ошибка регистрации:', err);
+        authError.textContent = err.message;
+      });
   };
 
-  // Google Sign-In
+  // Вход через Google
   googleBtn.onclick = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
-    auth.signInWithPopup(provider).catch(err => {
-      authError.textContent = err.message;
-    });
+    auth.signInWithPopup(provider)
+      .catch(err => {
+        console.error('Ошибка входа через Google:', err);
+        authError.textContent = err.message;
+      });
   };
 
-  // Logout
+  // Выход из учетной записи
   logoutBtn.onclick = () => auth.signOut();
 });
 
-// Main Application Logic
+// Основная логика приложения
 function initApp(user) {
-  // Constants and State
+  // Константы
   const colorMap = {
     free: '#fff',
     family: '#c8f7e8',
@@ -80,13 +100,10 @@ function initApp(user) {
     work: '#ffd7ea',
     hobby: '#e8e1ff'
   };
-
-  const monthNames = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-  ];
+  const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
   const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
+  // Состояние приложения
   let selectedDateKey = null;
   let selectedType = null;
   let currentMonth = new Date().getMonth();
@@ -95,84 +112,102 @@ function initApp(user) {
   let temaTimer = null;
   let editorTimer = null;
 
-  // Utility Functions
+  // Вспомогательные функции
   const pad = n => String(n).padStart(2, '0');
   const makeDateKey = (year, month, day) => `${year}-${pad(month + 1)}-${pad(day)}`;
   const formatReadable = key => {
     const [year, month, day] = key.split('-').map(Number);
-    return new Date(year, month - 1, day).toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+    return new Date(year, month - 1, day).toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+  };
+
+  // Получение коллекции данных пользователя в Firestore
+  const getUserContentCollection = () => db.collection('users').doc(user.uid).collection('contentPlanner');
+
+  // Настройка обработчиков событий
+  const setupEventListeners = () => {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const menuClose = document.getElementById('menuClose');
+    const btnTema = document.getElementById('btnTema');
+    const btnStories = document.getElementById('btnStories');
+    const btnPost = document.getElementById('btnPost');
+    const btnReel = document.getElementById('btnReel');
+    const temaBack = document.getElementById('temaBack');
+    const editorBack = document.getElementById('editorBack');
+    const copyBtn = document.getElementById('copyBtn');
+
+    if (!prevBtn || !nextBtn || !menuClose || !btnTema || !btnStories || !btnPost || !btnReel || !temaBack || !editorBack || !copyBtn) {
+      console.error('Ошибка: один или несколько элементов календаря не найдены. Проверьте ID в HTML.');
+      return;
+    }
+
+    prevBtn.onclick = () => {
+      currentMonth--;
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      renderCalendar();
+    };
+
+    nextBtn.onclick = () => {
+      currentMonth++;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      renderCalendar();
+    };
+
+    menuClose.onclick = closeMenu;
+    btnTema.onclick = showTema;
+    btnStories.onclick = () => showEditor('stories');
+    btnPost.onclick = () => showEditor('post');
+    btnReel.onclick = () => showEditor('reel');
+    temaBack.onclick = () => hidePanel('temaPage');
+    editorBack.onclick = () => hidePanel('editorPage');
+    copyBtn.onclick = copyEditorText;
+
+    ['tema_tema', 'tema_goal', 'tema_activity'].forEach(id => {
+      const element = document.getElementById(id);
+      if (element) element.oninput = saveTemaDebounced;
+      else console.error(`Элемент с ID ${id} не найден`);
+    });
+
+    document.querySelectorAll('input[name="temaColor"]').forEach(radio => {
+      radio.onchange = saveTema;
     });
   };
 
-  // Firebase User-Specific Collection
-  const getUserContentCollection = () => db.collection('users').doc(user.uid).collection('contentPlanner');
-
-  // Event Listeners for Navigation and Actions
-  document.getElementById('prevBtn').onclick = () => {
-    currentMonth--;
-    if (currentMonth < 0) {
-      currentMonth = 11;
-      currentYear--;
-    }
-    renderCalendar();
-  };
-
-  document.getElementById('nextBtn').onclick = () => {
-    currentMonth++;
-    if (currentMonth > 11) {
-      currentMonth = 0;
-      currentYear++;
-    }
-    renderCalendar();
-  };
-
-  document.getElementById('menuClose').onclick = closeMenu;
-  document.getElementById('btnTema').onclick = showTema;
-  document.getElementById('btnStories').onclick = () => showEditor('stories');
-  document.getElementById('btnPost').onclick = () => showEditor('post');
-  document.getElementById('btnReel').onclick = () => showEditor('reel');
-  document.getElementById('temaBack').onclick = () => hidePanel('temaPage');
-  document.getElementById('editorBack').onclick = () => hidePanel('editorPage');
-  document.getElementById('copyBtn').onclick = copyEditorText;
-
-  ['tema_tema', 'tema_goal', 'tema_activity'].forEach(id => {
-    document.getElementById(id).oninput = saveTemaDebounced;
-  });
-
-  document.querySelectorAll('input[name="temaColor"]').forEach(radio => {
-    radio.onchange = saveTema;
-  });
-
-  // Render Calendar Components
-  function renderWeekdays() {
+  // Отрисовка дней недели
+  const renderWeekdays = () => {
     const weekdaysContainer = document.getElementById('weekdays');
+    if (!weekdaysContainer) {
+      console.error('Контейнер для дней недели не найден');
+      return;
+    }
     weekdaysContainer.innerHTML = '';
     weekdays.forEach(day => {
       const div = document.createElement('div');
       div.textContent = day;
       weekdaysContainer.appendChild(div);
     });
-  }
+  };
 
-  function renderCalendar() {
+  // Отрисовка календаря
+  const renderCalendar = () => {
     const calendar = document.getElementById('calendar');
+    const monthYear = document.getElementById('monthYear');
+    if (!calendar || !monthYear) {
+      console.error('Календарь или элемент monthYear не найдены');
+      return;
+    }
     calendar.innerHTML = '';
-    document.getElementById('monthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    monthYear.textContent = `${monthNames[currentMonth]} ${currentYear}`;
 
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const leadingDays = firstDay === 0 ? 6 : firstDay - 1;
 
-    // Add empty cells for leading days
     for (let i = 0; i < leadingDays; i++) {
       const emptyCell = document.createElement('div');
       emptyCell.className = 'day-cell empty';
       calendar.appendChild(emptyCell);
     }
 
-    // Add day cells
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = makeDateKey(currentYear, currentMonth, day);
@@ -190,47 +225,60 @@ function initApp(user) {
       loadDataForCell(dateKey, cell);
       calendar.appendChild(cell);
     }
-  }
+  };
 
-  // Menu and Panel Handling
-  function openMenuForDate(dateKey) {
+  // Управление меню и панелями
+  const openMenuForDate = dateKey => {
     selectedDateKey = dateKey;
-    document.getElementById('menuDateTitle').textContent = formatReadable(dateKey);
+    const menuDateTitle = document.getElementById('menuDateTitle');
+    if (menuDateTitle) menuDateTitle.textContent = formatReadable(dateKey);
     showMenu();
-  }
+  };
 
-  function showMenu() {
-    document.getElementById('menu').classList.add('active');
-  }
+  const showMenu = () => {
+    const menu = document.getElementById('menu');
+    if (menu) menu.classList.add('active');
+  };
 
-  function closeMenu() {
-    document.getElementById('menu').classList.remove('active');
-  }
+  const closeMenu = () => {
+    const menu = document.getElementById('menu');
+    if (menu) menu.classList.remove('active');
+  };
 
-  function showPanel(panelId) {
-    document.getElementById(panelId).classList.add('active');
-  }
+  const showPanel = panelId => {
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('active');
+  };
 
-  function hidePanel(panelId) {
-    document.getElementById(panelId).classList.remove('active');
-  }
+  const hidePanel = panelId => {
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.remove('active');
+  };
 
-  function showTema() {
+  const showTema = () => {
     closeMenu();
     selectedType = 'tema';
-    document.getElementById('temaDateTitle').textContent = formatReadable(selectedDateKey);
+    const temaDateTitle = document.getElementById('temaDateTitle');
+    if (temaDateTitle) temaDateTitle.textContent = formatReadable(selectedDateKey);
     showPanel('temaPage');
     loadTemaData(selectedDateKey);
-  }
+  };
 
-  function showEditor(type) {
+  const showEditor = type => {
     closeMenu();
     selectedType = type;
-    document.getElementById('editorDateTitle').textContent = formatReadable(selectedDateKey);
-    document.getElementById('editorTypeLabel').textContent = type.charAt(0).toUpperCase() + type.slice(1);
+    const editorDateTitle = document.getElementById('editorDateTitle');
+    const editorTypeLabel = document.getElementById('editorTypeLabel');
+    if (editorDateTitle) editorDateTitle.textContent = formatReadable(selectedDateKey);
+    if (editorTypeLabel) editorTypeLabel.textContent = type.charAt(0).toUpperCase() + type.slice(1);
     showPanel('editorPage');
 
     if (!quill) {
+      const editorText = document.getElementById('editorText');
+      if (!editorText) {
+        console.error('Элемент editorText не найден');
+        return;
+      }
       quill = new Quill('#editorText', {
         theme: 'snow',
         modules: { toolbar: '#editorToolbar' }
@@ -247,22 +295,23 @@ function initApp(user) {
       quill.on('text-change', saveEditorDebounced);
     }
     loadEditorData(selectedDateKey, type);
-  }
+  };
 
-  // Data Loading and Saving
-  function loadDataForCell(dateKey, cell) {
+  // Загрузка и сохранение данных
+  const loadDataForCell = (dateKey, cell) => {
     getUserContentCollection().doc(dateKey).get().then(doc => {
       if (doc.exists) {
         const data = doc.data();
         const color = data.temaColor || 'free';
         cell.style.backgroundColor = colorMap[color] || colorMap.free;
       }
-    });
-  }
+    }).catch(err => console.error('Ошибка загрузки данных ячейки:', err));
+  };
 
-  function loadTemaData(dateKey) {
+  const loadTemaData = dateKey => {
     ['tema_tema', 'tema_goal', 'tema_activity'].forEach(id => {
-      document.getElementById(id).value = '';
+      const element = document.getElementById(id);
+      if (element) element.value = '';
     });
     document.querySelectorAll('input[name="temaColor"]').forEach(radio => {
       radio.checked = false;
@@ -278,15 +327,15 @@ function initApp(user) {
         const radio = document.querySelector(`input[name="temaColor"][value="${color}"]`);
         if (radio) radio.checked = true;
       }
-    });
-  }
+    }).catch(err => console.error('Ошибка загрузки данных темы:', err));
+  };
 
-  function saveTema() {
+  const saveTema = () => {
     if (!selectedDateKey || !user) return;
 
-    const tema = document.getElementById('tema_tema').value;
-    const goal = document.getElementById('tema_goal').value;
-    const activity = document.getElementById('tema_activity').value;
+    const tema = document.getElementById('tema_tema')?.value || '';
+    const goal = document.getElementById('tema_goal')?.value || '';
+    const activity = document.getElementById('tema_activity')?.value || '';
     const temaColor = document.querySelector('input[name="temaColor"]:checked')?.value || 'free';
 
     getUserContentCollection().doc(selectedDateKey).set({
@@ -294,22 +343,22 @@ function initApp(user) {
       goal,
       activity,
       temaColor
-    }, { merge: true });
+    }, { merge: true }).catch(err => console.error('Ошибка сохранения темы:', err));
 
     updateCellColor(selectedDateKey, temaColor);
-  }
+  };
 
-  function saveTemaDebounced() {
+  const saveTemaDebounced = () => {
     clearTimeout(temaTimer);
     temaTimer = setTimeout(saveTema, 500);
-  }
+  };
 
-  function updateCellColor(dateKey, color) {
+  const updateCellColor = (dateKey, color) => {
     const cell = document.querySelector(`.day-cell[data-date="${dateKey}"]`);
     if (cell) cell.style.backgroundColor = colorMap[color] || colorMap.free;
-  }
+  };
 
-  function loadEditorData(dateKey, type) {
+  const loadEditorData = (dateKey, type) => {
     if (!quill) return;
     quill.setContents([]);
     getUserContentCollection().doc(dateKey).get().then(doc => {
@@ -317,37 +366,37 @@ function initApp(user) {
         const data = doc.data();
         if (data[type]) quill.root.innerHTML = data[type];
       }
-    });
-  }
+    }).catch(err => console.error('Ошибка загрузки данных редактора:', err));
+  };
 
-  function saveEditor() {
+  const saveEditor = () => {
     if (!selectedDateKey || !selectedType || !quill || !user) return;
     const value = quill.root.innerHTML;
     getUserContentCollection().doc(selectedDateKey).set({
       [selectedType]: value
-    }, { merge: true });
-  }
+    }, { merge: true }).catch(err => console.error('Ошибка сохранения редактора:', err));
+  };
 
-  function saveEditorDebounced() {
+  const saveEditorDebounced = () => {
     clearTimeout(editorTimer);
     editorTimer = setTimeout(saveEditor, 700);
-  }
+  };
 
-  // Editor Utilities
-  function copyEditorText() {
+  const copyEditorText = () => {
     if (!quill) return;
     navigator.clipboard.writeText(quill.root.innerHTML).then(() => {
       const copyBtn = document.getElementById('copyBtn');
-      const originalText = copyBtn.textContent;
-      copyBtn.textContent = 'Скопировано';
-      setTimeout(() => {
-        copyBtn.textContent = originalText;
-      }, 1000);
-    });
-  }
+      if (copyBtn) {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Скопировано';
+        setTimeout(() => { copyBtn.textContent = originalText; }, 1000);
+      }
+    }).catch(err => console.error('Ошибка копирования текста:', err));
+  };
 
-  function showImageTooltip(img) {
+  const showImageTooltip = img => {
     const tooltip = document.getElementById('imageTooltip');
+    if (!tooltip) return;
     const rect = img.getBoundingClientRect();
     tooltip.style.left = `${rect.left + window.scrollX}px`;
     tooltip.style.top = `${rect.top + window.scrollY - 30}px`;
@@ -361,15 +410,17 @@ function initApp(user) {
       link.remove();
       tooltip.style.display = 'none';
     };
-  }
+  };
 
   document.addEventListener('click', e => {
     if (!e.target.closest('img')) {
-      document.getElementById('imageTooltip').style.display = 'none';
+      const tooltip = document.getElementById('imageTooltip');
+      if (tooltip) tooltip.style.display = 'none';
     }
   });
 
-  // Initialize Calendar
+  // Инициализация приложения
+  setupEventListeners();
   renderWeekdays();
   renderCalendar();
 }
