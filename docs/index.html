@@ -23,15 +23,16 @@
   <!-- Авторизация -->
   <section id="loginSection" class="panel active">
     <div class="panel-inner">
-      <h2>Вход</h2>
+      <h2>Вход / Регистрация</h2>
       <input id="loginEmail" type="email" placeholder="Ваш email">
       <input id="loginPass" type="password" placeholder="Пароль">
-      <button id="loginBtn">Войти</button>
+      <button id="loginBtn">Зарегистрироваться / Войти</button>
       <button id="googleBtn">Войти через Google</button>
       <p id="loginError" style="color:red;"></p>
     </div>
   </section>
 
+  <!-- Основное приложение -->
   <div id="app" style="display:none;">
     <header id="header">
       <h1 id="appTitle">Мой контент-план</h1>
@@ -55,7 +56,7 @@
     <div id="weekdays"></div>
     <main id="calendar"></main>
 
-    <!-- Меню -->
+    <!-- Меню выбора действия -->
     <div id="menu" class="sheet">
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
@@ -76,19 +77,9 @@
           <button class="backBtn" id="temaBack">← Назад</button>
           <h2 id="temaDateTitle"></h2>
         </div>
-
-        <label>Тема
-          <textarea id="tema_tema"></textarea>
-        </label>
-
-        <label>Цель
-          <textarea id="tema_goal"></textarea>
-        </label>
-
-        <label>Активность
-          <textarea id="tema_activity"></textarea>
-        </label>
-
+        <label>Тема<textarea id="tema_tema"></textarea></label>
+        <label>Цель<textarea id="tema_goal"></textarea></label>
+        <label>Активность<textarea id="tema_activity"></textarea></label>
         <div class="tema-colors">
           <p>Выберите цвет:</p>
           <label><input type="radio" name="temaColor" value="free"> Свободно</label>
@@ -100,7 +91,7 @@
       </div>
     </section>
 
-    <!-- Редактор -->
+    <!-- Редактор контента -->
     <section id="editorPage" class="panel">
       <div class="editor-header">
         <button class="backBtn" id="editorBack">←</button>
