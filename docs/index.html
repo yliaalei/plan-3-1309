@@ -10,8 +10,8 @@
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
 
   <!-- Quill -->
@@ -33,20 +33,11 @@
     </div>
   </section>
 
-  <!-- Основное приложение -->
   <div id="app" style="display:none;">
     <header id="header">
       <h1 id="appTitle">Мой контент-план</h1>
       <button id="logoutBtn" style="float:right;">Выйти</button>
     </header>
-
-    <section id="colorLegend">
-      <div class="legend-item"><span class="circle free"></span><span>Свободно</span></div>
-      <div class="legend-item"><span class="circle family"></span><span>Семья</span></div>
-      <div class="legend-item"><span class="circle health"></span><span>Здоровье</span></div>
-      <div class="legend-item"><span class="circle work"></span><span>Работа</span></div>
-      <div class="legend-item"><span class="circle hobby"></span><span>Хобби</span></div>
-    </section>
 
     <section id="calendarNav">
       <button id="prevBtn">←</button>
@@ -57,6 +48,7 @@
     <div id="weekdays"></div>
     <main id="calendar"></main>
 
+    <!-- Меню -->
     <div id="menu" class="sheet">
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
@@ -70,6 +62,7 @@
       </div>
     </div>
 
+    <!-- Страница темы -->
     <section id="temaPage" class="panel">
       <div class="panel-inner">
         <div class="panel-top">
@@ -100,6 +93,7 @@
       </div>
     </section>
 
+    <!-- Редактор -->
     <section id="editorPage" class="panel">
       <div class="editor-header">
         <button class="backBtn" id="editorBack">←</button>
@@ -117,8 +111,6 @@
       </div>
       <div id="editorText"></div>
     </section>
-
-    <div id="imageTooltip">Скачать фото</div>
   </div>
 
   <script src="script.js"></script>
