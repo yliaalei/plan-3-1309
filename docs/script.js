@@ -6,7 +6,9 @@ function safeAssign(id, prop, handler){ const el = $(id); if(el) el[prop] = hand
 safeAssign("googleBtn", "onclick", () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
-  auth.signInWithPopup(provider).catch(e => { $("authError").textContent = e.message; });
+  auth.signInWithPopup(provider)
+      .then(result => window.focus())
+      .catch(e => $("authError").textContent = e.message);
 });
 
 safeAssign("logoutBtn", "onclick", () => { auth.signOut(); });
@@ -197,7 +199,8 @@ function initApp(){
     if(!quill) return;
     navigator.clipboard.writeText(quill.root.innerHTML).then(()=>{
       const btn=$("copyBtn");
-      const old=btn.textContent; btn.textContent="Скопировано!";
+      const old=btn.textContent;
+      btn.textContent="Скопировано!";
       setTimeout(()=>btn.textContent=old,1000);
     });
   }
