@@ -1,44 +1,84 @@
-// Авторизация
-auth.onAuthStateChanged(user => {
+let userUID = null;
+let currentUserEmail = null;
+let userCollection = null;
+
+auth.onAuthStateChanged(async user => {
   if (user) {
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
+    userUID = user.uid;
+    currentUserEmail = user.email;
+
+    // Проверяем оплату
+    const payDoc = await db.collection("payments").doc(userUID).get();
+    const isPaid = payDoc.exists && payDoc.data().paid === true;
+
+    if (!isPaid && currentUserEmail !== "ylia.alei@gmail.com") {
+      showSection("paymentSection");
+      return;
+    }
+
+    userCollection = (currentUserEmail === "ylia.alei@gmail.com")
+      ? db.collection("contentPlanner")
+      : db.collection("users").doc(userUID).collection("contentPlanner");
+
+    initApp();
+    showSection("app");
   } else {
-    document.getElementById('loginSection').style.display = 'block';
-    document.getElementById('app').style.display = 'none';
+    showSection("authSection");
   }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const loginBtn = document.getElementById('loginBtn');
-  const googleBtn = document.getElementById('googleBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const loginError = document.getElementById('loginError');
+function showSection(id) {
+  document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
+  const el = document.getElementById(id);
+  if (el) el.style.display = "block";
+}
 
-  loginBtn.onclick = () => {
-    const email = document.getElementById('loginEmail').value;
-    const pass = document.getElementById('loginPass').value;
-    auth.signInWithEmailAndPassword(email, pass).catch(err => {
-      loginError.textContent = err.message;
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("signupBtn").onclick = () => {
+    const email = document.getElementById("regEmail").value;
+    const pass = document.getElementById("regPass").value;
+    auth.createUserWithEmailAndPassword(email, pass)
+      .catch(e => document.getElementById("authError").textContent = e.message);
   };
 
-  googleBtn.onclick = () => {
+  document.getElementById("googleBtn").onclick = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
-    auth.signInWithPopup(provider).catch(err => {
-      loginError.textContent = err.message;
-    });
+    auth.signInWithPopup(provider)
+      .catch(e => document.getElementById("authError").textContent = e.message);
   };
 
-  logoutBtn.onclick = () => auth.signOut();
+  document.getElementById("logoutBtn").onclick = () => auth.signOut();
 
-  initApp();
+  document.getElementById("payBtn").onclick = async () => {
+    if (!userUID) {
+      alert("Ошибка: пользователь не авторизован");
+      return;
+    }
+    const response = await fetch("https://us-central1-content-planner-ffb8e.cloudfunctions.net/api/createPayment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: userUID })
+    });
+    const data = await response.json();
+    if (data.confirmation && data.confirmation.confirmation_url) {
+      window.location.href = data.confirmation.confirmation_url;
+    } else {
+      alert("Не удалось создать платёж. Проверь настройки ЮKassa.");
+    }
+  };
 });
 
+// === Календарь и редактор ===
 function initApp() {
+  const dbRef = userCollection;
+  if (!dbRef) return;
+
   const colorMap = {
-    free:'#fff', family:'#c8f7e8', health:'#fff7c2', work:'#ffd7ea', hobby:'#e8e1ff'
+    free: "#fff",
+    family: "#c8f7e8",
+    health: "#fff7c2",
+    work: "#ffd7ea",
+    hobby: "#e8e1ff"
   };
 
   let selectedDateKey = null;
@@ -47,8 +87,8 @@ function initApp() {
   let currentYear = new Date().getFullYear();
   let quill = null;
 
-  const monthNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-  const weekdays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+  const weekdays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
   function pad(n){return String(n).padStart(2,'0');}
   function makeDateKey(y,m,d){return `${y}-${pad(m+1)}-${pad(d)}`;}
@@ -88,25 +128,89 @@ function initApp() {
     document.getElementById('editorDateTitle').textContent=formatReadable(selectedDateKey);
     document.getElementById('editorTypeLabel').textContent=type.charAt(0).toUpperCase()+type.slice(1);
     showPanel('editorPage');
+
+    // Добавляем блок с чекбоксами под заголовком
+    const toolbar = document.getElementById('editorToolbar');
+    let checkContainer = document.getElementById('publishChecks');
+    if (!checkContainer) {
+      checkContainer = document.createElement('div');
+      checkContainer.id = 'publishChecks';
+      checkContainer.style.display = 'flex';
+      checkContainer.style.justifyContent = 'center';
+      checkContainer.style.gap = '12px';
+      checkContainer.style.margin = '8px 0';
+      checkContainer.innerHTML = `
+        <label><input type="checkbox" id="chk_vk"> ВК</label>
+        <label><input type="checkbox" id="chk_inst"> Инст</label>
+        <label><input type="checkbox" id="chk_tg"> ТГ</label>
+      `;
+      toolbar.parentNode.insertBefore(checkContainer, toolbar.nextSibling);
+      ['chk_vk','chk_inst','chk_tg'].forEach(id=>{
+        document.getElementById(id).onchange = saveEditorDebounced;
+      });
+    }
+
     if(!quill){
       quill=new Quill('#editorText',{theme:'snow',modules:{toolbar:'#editorToolbar'}});
-      quill.root.addEventListener('click',e=>{if(e.target.tagName==='A'){e.preventDefault(); window.open(e.target.href,'_blank');} if(e.target.tagName==='IMG'){showImageTooltip(e.target);} });
+      quill.root.addEventListener('click',e=>{if(e.target.tagName==='A'){e.preventDefault(); window.open(e.target.href,'_blank');}});
       quill.on('text-change',saveEditorDebounced);
     }
+
     loadEditorData(selectedDateKey,type);
   }
 
   function showPanel(id){document.getElementById(id).classList.add('active');}
   function hidePanel(id){document.getElementById(id).classList.remove('active');}
-
-  function loadDataForCell(key,cell){db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); const c=d.temaColor||'free'; cell.style.backgroundColor=colorMap[c]||colorMap.free;}});}
-  function loadTemaData(key){['tema_tema','tema_goal','tema_activity'].forEach(id=>document.getElementById(id).value=''); db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d.tema)document.getElementById('tema_tema').value=d.temа; if(d.goal)document.getElementById('tema_goal').value=d.goal; if(d.activity)document.getElementById('tema_activity').value=d.activity; const c=d.temaColor||'free'; const r=document.querySelector(`input[name="temaColor"][value="${c}"]`); if(r)r.checked=true;}});}
-  function saveTema(){const user=auth.currentUser;if(!selectedDateKey||!user)return;if(user.email!=='ylia.alei@gmail.com'){alert('Только владелец может сохранять данные');return;}const tema=document.getElementById('tema_tema').value; const goal=document.getElementById('tema_goal').value; const activity=document.getElementById('tema_activity').value; const temaColor=(document.querySelector('input[name="temaColor"]:checked')||{}).value||'free'; db.collection('contentPlanner').doc(selectedDateKey).set({tema,goal,activity,temaColor},{merge:true}); updateCellColor(selectedDateKey,temaColor);}
+  function loadDataForCell(key,cell){dbRef.doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); const c=d.temaColor||'free'; cell.style.backgroundColor=colorMap[c]||colorMap.free;}});}
+  function loadTemaData(key){['tema_tema','tema_goal','tema_activity'].forEach(id=>document.getElementById(id).value=''); dbRef.doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d.tema)document.getElementById('tema_tema').value=d.tema; if(d.goal)document.getElementById('tema_goal').value=d.goal; if(d.activity)document.getElementById('tema_activity').value=d.activity; const c=d.temaColor||'free'; const r=document.querySelector(`input[name="temaColor"][value="${c}"]`); if(r)r.checked=true;}});}
+  function saveTema(){if(!selectedDateKey)return; const tema=document.getElementById('tema_tema').value; const goal=document.getElementById('tema_goal').value; const activity=document.getElementById('tema_activity').value; const temaColor=(document.querySelector('input[name="temaColor"]:checked')||{}).value||'free'; dbRef.doc(selectedDateKey).set({tema,goal,activity,temaColor},{merge:true}); updateCellColor(selectedDateKey,temaColor);}
   let temaTimer; function saveTemaDebounced(){clearTimeout(temaTimer); temaTimer=setTimeout(saveTema,500);}
   function updateCellColor(key,color){const el=document.querySelector(`.day-cell[data-date="${key}"]`); if(el)el.style.backgroundColor=colorMap[color]||colorMap.free;}
-  function loadEditorData(key,type){if(!quill)return; quill.setContents([]); db.collection('contentPlanner').doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d[type])quill.root.innerHTML=d[type];}});}
-  function saveEditor(){const user=auth.currentUser;if(!selectedDateKey||!selectedType||!quill||!user)return;if(user.email!=='ylia.alei@gmail.com'){alert('Только владелец может сохранять данные');return;}const val=quill.root.innerHTML; db.collection('contentPlanner').doc(selectedDateKey).set({[selectedType]:val},{merge:true});}
-  let editorTimer; function saveEditorDebounced(){clearTimeout(editorTimer); editorTimer=setTimeout(saveEditor,700);}
-  function copyEditorText(){if(!quill)return; navigator.clipboard.writeText(quill.root.innerHTML).then(()=>{const b=document.getElementById('copyBtn'); const old=b.textContent; b.textContent='Скопировано'; setTimeout(()=>b.textContent=old,1000);});}
-  const tooltip=document.getElementById('imageTooltip'); function showImageTooltip(img){const rect=img.getBoundingClientRect(); tooltip.style.left=rect.left+window.scrollX+'px'; tooltip.style.top=rect.top+window.scrollY-30+'px'; tooltip.style.display='block'; tooltip.onclick=()=>{const link=document.createElement('a'); link.href=img.src; link.download='image'; document.body.appendChild(link); link.click(); link.remove(); tooltip.style.display='none';};} document.addEventListener('click',e=>{if(!e.target.closest('img')) tooltip.style.display='none';});
+
+  function loadEditorData(key,type){
+    if(!quill)return;
+    quill.setContents([]);
+    dbRef.doc(key).get().then(doc=>{
+      if(doc.exists){
+        const d=doc.data();
+        if(d[type]) quill.root.innerHTML=d[type];
+        const flags = d[`${type}Platforms`] || {};
+        document.getElementById('chk_vk').checked = !!flags.vk;
+        document.getElementById('chk_inst').checked = !!flags.inst;
+        document.getElementById('chk_tg').checked = !!flags.tg;
+      } else {
+        ['chk_vk','chk_inst','chk_tg'].forEach(id => document.getElementById(id).checked=false);
+      }
+    });
+  }
+
+  function saveEditor(){
+    if(!selectedDateKey||!selectedType||!quill)return;
+    const val = quill.root.innerHTML;
+    const flags = {
+      vk: document.getElementById('chk_vk').checked,
+      inst: document.getElementById('chk_inst').checked,
+      tg: document.getElementById('chk_tg').checked
+    };
+    dbRef.doc(selectedDateKey).set({
+      [selectedType]: val,
+      [`${selectedType}Platforms`]: flags
+    }, {merge:true});
+  }
+
+  let editorTimer;
+  function saveEditorDebounced(){
+    clearTimeout(editorTimer);
+    editorTimer=setTimeout(saveEditor,700);
+  }
+
+  function copyEditorText(){
+    if(!quill)return;
+    navigator.clipboard.writeText(quill.root.innerHTML).then(()=>{
+      const b=document.getElementById('copyBtn');
+      const old=b.textContent;
+      b.textContent='Скопировано';
+      setTimeout(()=>b.textContent=old,1000);
+    });
+  }
 }
