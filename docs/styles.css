@@ -58,6 +58,13 @@ body {
 .sheet .sheet-buttons { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:6px 0; }
 .sheet button { padding:8px 10px; border-radius:8px; border:1px solid #ddd; background:#fafafa; cursor:pointer; }
 
+/* button wrapper for calendar menu */
+.button-wrapper { display: flex; flex-direction: column; align-items: center; margin: 6px; }
+
+/* icons under buttons */
+.editor-icons-wrapper { display: flex; gap: 8px; margin-top: 4px; justify-content: center; }
+.editor-icons-wrapper img { width: 22px; height: 22px; }
+
 /* editor */
 .editor-header { display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; z-index:20; }
 .editor-type { text-align:center; font-weight:700; margin:10px 0; }
