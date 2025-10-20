@@ -6,7 +6,7 @@ function safeAssign(id, prop, handler){ const el = $(id); if(el) el[prop] = hand
 safeAssign("googleBtn", "onclick", () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
-  auth.signInWithPopup(provider).catch(e => { const el = $("authError"); if(el) el.textContent = e.message; });
+  auth.signInWithPopup(provider).catch(e => { $("authError").textContent = e.message; });
 });
 
 safeAssign("logoutBtn", "onclick", () => { auth.signOut(); });
@@ -164,7 +164,7 @@ function initApp(){
   function renderCalendarIcons(key){
     dbRef.doc(key).get().then(doc=>{
       const data = doc.exists ? doc.data() : {};
-      ["post","reel","stories","tema"].forEach(type=>{
+      ["post","reel","stories"].forEach(type=>{
         const flags = data[`${type}Platforms`]||{};
         const div = $(`${type}Icons`);
         if(!div) return;
