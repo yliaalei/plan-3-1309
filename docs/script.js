@@ -1,25 +1,12 @@
-let userUID = null;
-let currentUserEmail = null;
-let userCollection = null;
-
+// --- Firebase авторизация ---
 auth.onAuthStateChanged(async user => {
   if (user) {
-    userUID = user.uid;
-    currentUserEmail = user.email;
-
-    // Проверяем оплату
-    const payDoc = await db.collection("payments").doc(userUID).get();
-    const isPaid = payDoc.exists && payDoc.data().paid === true;
-
-    if (!isPaid && currentUserEmail !== "ylia.alei@gmail.com") {
-      showSection("paymentSection");
+    // Проверка владельца (только ты)
+    if (user.email !== "ylia.alei@gmail.com") {
+      alert("Только владелец может использовать это приложение.");
+      auth.signOut();
       return;
     }
-
-    userCollection = (currentUserEmail === "ylia.alei@gmail.com")
-      ? db.collection("contentPlanner")
-      : db.collection("users").doc(userUID).collection("contentPlanner");
-
     initApp();
     showSection("app");
   } else {
@@ -33,46 +20,35 @@ function showSection(id) {
   if (el) el.style.display = "block";
 }
 
+// --- События при загрузке страницы ---
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("signupBtn").onclick = () => {
-    const email = document.getElementById("regEmail").value;
-    const pass = document.getElementById("regPass").value;
-    auth.createUserWithEmailAndPassword(email, pass)
-      .catch(e => document.getElementById("authError").textContent = e.message);
-  };
+  const googleBtn = document.getElementById("googleBtn");
+  if (googleBtn) {
+    googleBtn.onclick = () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      auth.signInWithPopup(provider)
+        .catch(e => document.getElementById("loginError").textContent = e.message);
+    };
+  }
 
-  document.getElementById("googleBtn").onclick = () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-      .catch(e => document.getElementById("authError").textContent = e.message);
-  };
+  const loginBtn = document.getElementById("loginBtn");
+  if (loginBtn) {
+    loginBtn.onclick = () => {
+      const email = document.getElementById("loginEmail").value;
+      const pass = document.getElementById("loginPass").value;
+      auth.signInWithEmailAndPassword(email, pass)
+        .catch(e => document.getElementById("loginError").textContent = e.message);
+    };
+  }
 
-  document.getElementById("logoutBtn").onclick = () => auth.signOut();
-
-  document.getElementById("payBtn").onclick = async () => {
-    if (!userUID) {
-      alert("Ошибка: пользователь не авторизован");
-      return;
-    }
-    const response = await fetch("https://us-central1-content-planner-ffb8e.cloudfunctions.net/api/createPayment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid: userUID })
-    });
-    const data = await response.json();
-    if (data.confirmation && data.confirmation.confirmation_url) {
-      window.location.href = data.confirmation.confirmation_url;
-    } else {
-      alert("Не удалось создать платёж. Проверь настройки ЮKassa.");
-    }
-  };
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) logoutBtn.onclick = () => auth.signOut();
 });
 
-// === Календарь и редактор ===
+// --- Основная логика приложения ---
 function initApp() {
-  const dbRef = userCollection;
-  if (!dbRef) return;
-
+  const dbRef = db.collection("contentPlanner");
   const colorMap = {
     free: "#fff",
     family: "#c8f7e8",
@@ -109,27 +85,65 @@ function initApp() {
 
   renderWeekdays(); renderCalendar();
 
-  function renderWeekdays(){const wd=document.getElementById('weekdays'); wd.innerHTML=''; weekdays.forEach(d=>{const div=document.createElement('div'); div.textContent=d; wd.appendChild(div);});}
-  function renderCalendar(){
-    const cal=document.getElementById('calendar'); cal.innerHTML='';
-    document.getElementById('monthYear').textContent=`${monthNames[currentMonth]} ${currentYear}`;
-    const firstDay=new Date(currentYear,currentMonth,1).getDay(); const leading=(firstDay===0?6:firstDay-1);
-    for(let i=0;i<leading;i++){const e=document.createElement('div'); e.className='day-cell empty'; cal.appendChild(e);}
-    const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-    for(let d=1;d<=daysInMonth;d++){const key=makeDateKey(currentYear,currentMonth,d); const cell=document.createElement('div'); cell.className='day-cell'; cell.dataset.date=key; const num=document.createElement('div'); num.className='day-number'; num.textContent=d; cell.appendChild(num); cell.style.backgroundColor=colorMap.free; cell.onclick=()=>openMenuForDate(key); loadDataForCell(key,cell); cal.appendChild(cell);}
+  function renderWeekdays(){
+    const wd=document.getElementById('weekdays');
+    wd.innerHTML='';
+    weekdays.forEach(d=>{
+      const div=document.createElement('div');
+      div.textContent=d;
+      wd.appendChild(div);
+    });
   }
 
-  function openMenuForDate(key){selectedDateKey=key; document.getElementById('menuDateTitle').textContent=formatReadable(key); showMenu();}
+  function renderCalendar(){
+    const cal=document.getElementById('calendar');
+    cal.innerHTML='';
+    document.getElementById('monthYear').textContent=`${monthNames[currentMonth]} ${currentYear}`;
+    const firstDay=new Date(currentYear,currentMonth,1).getDay();
+    const leading=(firstDay===0?6:firstDay-1);
+    for(let i=0;i<leading;i++){
+      const e=document.createElement('div');
+      e.className='day-cell empty';
+      cal.appendChild(e);
+    }
+    const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+    for(let d=1;d<=daysInMonth;d++){
+      const key=makeDateKey(currentYear,currentMonth,d);
+      const cell=document.createElement('div');
+      cell.className='day-cell';
+      cell.dataset.date=key;
+      const num=document.createElement('div');
+      num.className='day-number';
+      num.textContent=d;
+      cell.appendChild(num);
+      cell.style.backgroundColor=colorMap.free;
+      cell.onclick=()=>openMenuForDate(key);
+      loadDataForCell(key,cell);
+      cal.appendChild(cell);
+    }
+  }
+
+  function openMenuForDate(key){
+    selectedDateKey=key;
+    document.getElementById('menuDateTitle').textContent=formatReadable(key);
+    showMenu();
+  }
   function showMenu(){document.getElementById('menu').classList.add('active');}
   function closeMenu(){document.getElementById('menu').classList.remove('active');}
-  function showTema(){closeMenu(); selectedType='tema'; document.getElementById('temaDateTitle').textContent=formatReadable(selectedDateKey); showPanel('temaPage'); loadTemaData(selectedDateKey);}
+  function showTema(){
+    closeMenu(); selectedType='tema';
+    document.getElementById('temaDateTitle').textContent=formatReadable(selectedDateKey);
+    showPanel('temaPage');
+    loadTemaData(selectedDateKey);
+  }
+
   function showEditor(type){
     closeMenu(); selectedType=type;
     document.getElementById('editorDateTitle').textContent=formatReadable(selectedDateKey);
     document.getElementById('editorTypeLabel').textContent=type.charAt(0).toUpperCase()+type.slice(1);
     showPanel('editorPage');
 
-    // Добавляем блок с чекбоксами под заголовком
+    // --- Добавляем флажки для публикации ---
     const toolbar = document.getElementById('editorToolbar');
     let checkContainer = document.getElementById('publishChecks');
     if (!checkContainer) {
@@ -152,7 +166,9 @@ function initApp() {
 
     if(!quill){
       quill=new Quill('#editorText',{theme:'snow',modules:{toolbar:'#editorToolbar'}});
-      quill.root.addEventListener('click',e=>{if(e.target.tagName==='A'){e.preventDefault(); window.open(e.target.href,'_blank');}});
+      quill.root.addEventListener('click',e=>{
+        if(e.target.tagName==='A'){e.preventDefault(); window.open(e.target.href,'_blank');}
+      });
       quill.on('text-change',saveEditorDebounced);
     }
 
@@ -161,11 +177,47 @@ function initApp() {
 
   function showPanel(id){document.getElementById(id).classList.add('active');}
   function hidePanel(id){document.getElementById(id).classList.remove('active');}
-  function loadDataForCell(key,cell){dbRef.doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); const c=d.temaColor||'free'; cell.style.backgroundColor=colorMap[c]||colorMap.free;}});}
-  function loadTemaData(key){['tema_tema','tema_goal','tema_activity'].forEach(id=>document.getElementById(id).value=''); dbRef.doc(key).get().then(doc=>{if(doc.exists){const d=doc.data(); if(d.tema)document.getElementById('tema_tema').value=d.tema; if(d.goal)document.getElementById('tema_goal').value=d.goal; if(d.activity)document.getElementById('tema_activity').value=d.activity; const c=d.temaColor||'free'; const r=document.querySelector(`input[name="temaColor"][value="${c}"]`); if(r)r.checked=true;}});}
-  function saveTema(){if(!selectedDateKey)return; const tema=document.getElementById('tema_tema').value; const goal=document.getElementById('tema_goal').value; const activity=document.getElementById('tema_activity').value; const temaColor=(document.querySelector('input[name="temaColor"]:checked')||{}).value||'free'; dbRef.doc(selectedDateKey).set({tema,goal,activity,temaColor},{merge:true}); updateCellColor(selectedDateKey,temaColor);}
-  let temaTimer; function saveTemaDebounced(){clearTimeout(temaTimer); temaTimer=setTimeout(saveTema,500);}
-  function updateCellColor(key,color){const el=document.querySelector(`.day-cell[data-date="${key}"]`); if(el)el.style.backgroundColor=colorMap[color]||colorMap.free;}
+
+  function loadDataForCell(key,cell){
+    dbRef.doc(key).get().then(doc=>{
+      if(doc.exists){
+        const d=doc.data();
+        const c=d.temaColor||'free';
+        cell.style.backgroundColor=colorMap[c]||colorMap.free;
+      }
+    });
+  }
+
+  function loadTemaData(key){
+    ['tema_tema','tema_goal','tema_activity'].forEach(id=>document.getElementById(id).value='');
+    dbRef.doc(key).get().then(doc=>{
+      if(doc.exists){
+        const d=doc.data();
+        if(d.tema)document.getElementById('tema_tema').value=d.tema;
+        if(d.goal)document.getElementById('tema_goal').value=d.goal;
+        if(d.activity)document.getElementById('tema_activity').value=d.activity;
+        const c=d.temaColor||'free';
+        const r=document.querySelector(`input[name="temaColor"][value="${c}"]`);
+        if(r)r.checked=true;
+      }
+    });
+  }
+
+  function saveTema(){
+    if(!selectedDateKey)return;
+    const tema=document.getElementById('tema_tema').value;
+    const goal=document.getElementById('tema_goal').value;
+    const activity=document.getElementById('tema_activity').value;
+    const temaColor=(document.querySelector('input[name="temaColor"]:checked')||{}).value||'free';
+    dbRef.doc(selectedDateKey).set({tema,goal,activity,temaColor},{merge:true});
+    updateCellColor(selectedDateKey,temaColor);
+  }
+  let temaTimer; 
+  function saveTemaDebounced(){clearTimeout(temaTimer); temaTimer=setTimeout(saveTema,500);}
+  function updateCellColor(key,color){
+    const el=document.querySelector(`.day-cell[data-date="${key}"]`);
+    if(el)el.style.backgroundColor=colorMap[color]||colorMap.free;
+  }
 
   function loadEditorData(key,type){
     if(!quill)return;
