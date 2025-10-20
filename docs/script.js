@@ -1,36 +1,3 @@
-/* script.js — content planner (Google-only owner) */
-/* Owner email */
-const OWNER_EMAIL = "ylia.alei@gmail.com";
-
-/* Helpers */
-function $(id){ return document.getElementById(id); }
-function safeAssign(id, prop, handler){ const el = $(id); if(el) el[prop] = handler; }
-
-/* AUTH */
-safeAssign("googleBtn", "onclick", () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
-  auth.signInWithPopup(provider).catch(e => { const el = $("authError"); if(el) el.textContent = e.message; });
-});
-
-safeAssign("logoutBtn", "onclick", () => { auth.signOut(); });
-
-auth.onAuthStateChanged(user => {
-  if(!user){
-    document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
-    const authSec = $("authSection"); if(authSec) authSec.style.display = "block";
-    return;
-  }
-  if(user.email !== OWNER_EMAIL){
-    alert("Доступ только владельцу.");
-    auth.signOut();
-    return;
-  }
-  $("app").style.display = "block";
-  $("authSection").style.display = "none";
-  initApp();
-});
-
 /* ICONS */
 const ICONS = {
   vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
@@ -63,7 +30,6 @@ function initApp(){
   const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
   const weekdays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
-  /* NAV */
   safeAssign("prevBtn","onclick", () => { currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; } renderCalendar(); });
   safeAssign("nextBtn","onclick", () => { currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; } renderCalendar(); });
   safeAssign("menuClose","onclick", closeMenu);
@@ -159,40 +125,23 @@ function initApp(){
     $("editorTypeLabel").textContent = type.charAt(0).toUpperCase()+type.slice(1);
     showPanel("editorPage");
 
-    // блок с флажками и иконками
-    let checkContainer = $("publishChecks");
-    if(!checkContainer){
-      const toolbar = $("editorToolbar");
-      checkContainer = document.createElement("div");
-      checkContainer.id = "publishChecks";
-      checkContainer.innerHTML = `
+    if(!quill){
+      quill = new Quill("#editorText", { theme: "snow", modules: { toolbar: "#editorToolbar" } });
+      quill.on("text-change", saveEditorDebounced);
+    }
+
+    // инициализация publishChecks только один раз
+    const checksDiv = $("publishChecks");
+    if(checksDiv && checksDiv.childElementCount===0){
+      checksDiv.innerHTML = `
         <label><input type="checkbox" id="chk_vk"> ВК</label>
         <label><input type="checkbox" id="chk_inst"> Инст</label>
         <label><input type="checkbox" id="chk_tg"> ТГ</label>
       `;
-      toolbar.parentNode.insertBefore(checkContainer, toolbar.nextSibling);
       ["chk_vk","chk_inst","chk_tg"].forEach(id => {
         const el=$(id);
         if(el) el.onchange = saveEditorDebounced;
       });
-    }
-
-    // контейнер иконок публикаций
-    let iconsDiv = $("editorIcons");
-    if(!iconsDiv){
-      iconsDiv = document.createElement("div");
-      iconsDiv.id = "editorIcons";
-      iconsDiv.style.display="flex";
-      iconsDiv.style.justifyContent="center";
-      iconsDiv.style.gap="10px";
-      iconsDiv.style.margin="10px 0";
-      const label = $("editorTypeLabel");
-      label.parentNode.insertBefore(iconsDiv, label.nextSibling);
-    }
-
-    if(!quill){
-      quill = new Quill("#editorText", { theme: "snow", modules: { toolbar: "#editorToolbar" } });
-      quill.on("text-change", saveEditorDebounced);
     }
 
     loadEditorData(selectedDateKey, type);
