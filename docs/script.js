@@ -245,3 +245,22 @@ function saveTema() {
     });
   }
 }
+function updateCalendarBackground(currentMonth) {
+  // currentMonth — число от 0 (январь) до 11 (декабрь)
+  const calendarSection = document.getElementById("calendarContainer");
+
+  // Устанавливаем фон только для сентябрь, октябрь, ноябрь
+  if ([8, 9, 10].includes(currentMonth)) {
+    calendarSection.style.backgroundImage = "url('https://disk.yandex.ru/i/pU2HznbFSjNSxw')";
+    calendarSection.style.backgroundSize = "cover";
+    calendarSection.style.backgroundPosition = "center";
+    calendarSection.style.backgroundRepeat = "no-repeat";
+  } else {
+    // Для остальных месяцев — убираем фон или задаём стандартный
+    calendarSection.style.backgroundImage = "none";
+  }
+}
+
+// 🔸 Вызови эту функцию внутри твоей функции, где рисуется календарь
+// Например, если у тебя есть переменная currentDate:
+updateCalendarBackground(currentDate.getMonth());
