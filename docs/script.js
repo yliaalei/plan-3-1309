@@ -122,32 +122,46 @@ function saveTema() {
     weekdays.forEach(d => { const div=document.createElement("div"); div.textContent=d; wd.appendChild(div); });
   }
 
-  function renderCalendar(){
-    const cal = $("calendar");
-    cal.innerHTML = "";
-    $("monthYear").textContent = `${monthNames[currentMonth]} ${currentYear}`;
-    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-    const leading = (firstDay === 0 ? 6 : firstDay - 1);
-    for(let i=0;i<leading;i++){ cal.appendChild(document.createElement("div")).className="day-cell empty"; }
-    const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
-    for(let d=1; d<=daysInMonth; d++){
-      const key = makeDateKey(currentYear, currentMonth, d);
-      const cell = document.createElement("div");
-      cell.className = "day-cell"; cell.dataset.date = key;
-      const num = document.createElement("div"); num.className = "day-number"; num.textContent=d;
-      cell.appendChild(num);
-      cell.style.backgroundColor=colorMap.free;
-      cell.onclick=()=> openMenuForDate(key);
-      dbRef.doc(key).get().then(doc => {
-        if(doc.exists){
-          const data=doc.data();
-          const c=data.temaColor||"free";
-          cell.style.backgroundColor=colorMap[c]||colorMap.free;
-        }
-      });
-      cal.appendChild(cell);
-    }
+ function renderCalendar() {
+  const cal = $("calendar");
+  cal.innerHTML = "";
+  $("monthYear").textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+  // Устанавливаем фон календаря
+  updateCalendarBackground(currentMonth);
+
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const leading = (firstDay === 0 ? 6 : firstDay - 1);
+  for (let i = 0; i < leading; i++) {
+    cal.appendChild(document.createElement("div")).className = "day-cell empty";
   }
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = makeDateKey(currentYear, currentMonth, d);
+    const cell = document.createElement("div");
+    cell.className = "day-cell";
+    cell.dataset.date = key;
+
+    const num = document.createElement("div");
+    num.className = "day-number";
+    num.textContent = d;
+    cell.appendChild(num);
+
+    cell.onclick = () => openMenuForDate(key);
+
+    dbRef.doc(key).get().then(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        const c = data.temaColor || "free";
+        cell.style.backgroundColor = colorMap[c] || colorMap.free;
+      }
+    });
+
+    cal.appendChild(cell);
+  }
+}
+
 
   function openMenuForDate(key){
     selectedDateKey=key;
