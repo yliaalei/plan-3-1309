@@ -1,10 +1,10 @@
 (() => {
-  // --- Инициализация Firebase ---
-  const firebaseApp = firebase.initializeApp(firebaseConfig);
-  const firebaseAuth = firebase.auth();
-  const firestore = firebase.firestore();
+  // --- Firebase и приложение ---
+  const appInstance = firebase.initializeApp(firebaseConfig);
+  const authInstance = firebase.auth();
+  const dbInstance = firebase.firestore();
 
-  // --- Элементы ---
+  // --- Элементы интерфейса ---
   const authSection = document.getElementById("authSection");
   const appContainer = document.getElementById("app");
   const googleBtn = document.getElementById("googleBtn");
@@ -14,6 +14,7 @@
   const temaPage = document.getElementById("temaPage");
   const temaBack = document.getElementById("temaBack");
   const typeSelect = document.getElementById("typeSelect");
+  const authError = document.getElementById("authError");
 
   let currentDate = new Date();
   let selectedDate = null;
@@ -22,16 +23,23 @@
   googleBtn.onclick = async () => {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
-      await firebaseAuth.signInWithPopup(provider);
-    } catch (e) {
-      document.getElementById("authError").innerText = "Ошибка входа: " + e.message;
+      const result = await authInstance.signInWithPopup(provider);
+      const user = result.user;
+
+      if (user.email !== "ylia.alei@gmail.com") {
+        await authInstance.signOut();
+        authError.textContent = "Доступ запрещён: только владелец может войти.";
+        return;
+      }
+    } catch (err) {
+      authError.textContent = "Ошибка входа: " + err.message;
     }
   };
 
-  logoutBtn.onclick = () => firebaseAuth.signOut();
+  logoutBtn.onclick = () => authInstance.signOut();
 
-  firebaseAuth.onAuthStateChanged(user => {
-    if (user) {
+  authInstance.onAuthStateChanged(user => {
+    if (user && user.email === "ylia.alei@gmail.com") {
       authSection.style.display = "none";
       appContainer.style.display = "block";
       renderCalendar();
@@ -41,7 +49,7 @@
     }
   });
 
-  // --- Рендер календаря ---
+  // --- Календарь ---
   function renderCalendar() {
     calendar.innerHTML = "";
     const year = currentDate.getFullYear();
