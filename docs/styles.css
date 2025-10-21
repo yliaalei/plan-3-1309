@@ -27,15 +27,44 @@ body {
 .auth .panel-inner { max-width:360px; text-align:center; margin-top:120px; }
 .primary { background:#4285F4; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
 
-/* Legend */
-.legend { display:flex; gap:12px; justify-content:center; padding:12px 8px; }
-.legend-item { display:flex; gap:8px; align-items:center; font-size:14px; color:#333; }
-.circle { width:14px; height:14px; border-radius:50%; border:1px solid #bbb; display:inline-block; }
-.circle.free { background:#fff; }
-.circle.family { background:#c8f7e8; }
-.circle.health { background:#fff7c2; }
-.circle.work { background:#ffd7ea; }
-.circle.hobby { background:#e8e1ff; }
+/* Легенда в виде вертикального списка с квадратами */
+.legend {
+  display: flex;
+  flex-direction: column;     /* теперь это вертикальный список */
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #fff;
+  border-radius: 10px;
+  margin: 10px auto;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: #333;
+}
+
+/* Квадраты */
+.square {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid #aaa;
+  display: inline-block;
+}
+
+/* Цвета квадратов */
+.square.burgundy { background:#800020; }
+.square.orange { background:#FFA500; }
+.square.green { background:#006400; }
+.square.brown { background:#8B4513; }
+.square.beige { background:#F5F5DC; }
+
 
 /* Calendar nav */
 .nav { display:flex; justify-content:center; align-items:center; gap:12px; margin:10px 0; }
@@ -90,12 +119,6 @@ body {
   #editorText { height:50vh; }
   .day-cell { min-height:62px; }
 }
-/* Новая легенда */
-.circle.burgundy { background:#800020; }
-.circle.orange { background:#FFA500; }
-.circle.green { background:#006400; }
-.circle.brown { background:#8B4513; }
-.circle.beige { background:#F5F5DC; border:1px solid #aaa; }
 
 /* Страница "Тема" */
 .tema-field {
