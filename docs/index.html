@@ -42,44 +42,49 @@
       <button id="nextBtn">→</button>
     </section>
 
-    <!-- Контейнер календаря для фона -->
     <div id="calendarContainer">
       <div id="weekdays" class="weekdays"></div>
       <main id="calendar" class="calendar"></main>
-      <!-- Легенда -->
-      <section id="colorLegend" class="legend">
-        <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
-        <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
-        <div class="legend-item"><span class="square green"></span><span>Продающий</span></div>
-        <div class="legend-item"><span class="square brown"></span><span>Обучающий</span></div>
-        <div class="legend-item"><span class="square beige"></span><span>Интерактив</span></div>
-      </section>
     </div>
 
-    <!-- Меню выбора даты -->
+    <!-- Меню дня -->
     <div id="menu" class="sheet">
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
         <div class="sheet-buttons">
+
           <div class="button-wrapper">
             <button id="btnTema">Тема</button>
           </div>
+
           <div class="button-wrapper">
             <button id="btnStories">Сторис</button>
             <div class="editor-icons-wrapper" id="storiesIcons"></div>
           </div>
+
           <div class="button-wrapper">
             <button id="btnPost">Пост</button>
             <div class="editor-icons-wrapper" id="postIcons"></div>
           </div>
+
           <div class="button-wrapper">
             <button id="btnReel">Рилс</button>
             <div class="editor-icons-wrapper" id="reelIcons"></div>
           </div>
+
         </div>
         <button class="sheet-close" id="menuClose">Отмена</button>
       </div>
     </div>
+
+    <!-- Легенда -->
+    <section id="colorLegend" class="legend">
+      <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
+      <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
+      <div class="legend-item"><span class="square green"></span><span>Продающий</span></div>
+      <div class="legend-item"><span class="square brown"></span><span>Обучающий</span></div>
+      <div class="legend-item"><span class="square beige"></span><span>Интерактив</span></div>
+    </section>
 
     <!-- TEMA PAGE -->
     <section id="temaPage" class="panel">
@@ -99,7 +104,7 @@
           <select id="tema_goal">
             <option value="">Выберите цель...</option>
             <option value="охват">Охват</option>
-            <option value="вовлеченность">Вовлеченность (комментарии, лайки)</option>
+            <option value="вовлеченность">Вовлеченность</option>
             <option value="репост">Репост</option>
             <option value="сохранение">Сохранение</option>
             <option value="подписка">Подписка</option>
@@ -141,10 +146,9 @@
         <button class="ql-image"></button>
       </div>
       <div id="editorText" class="editor-text"></div>
-      <div id="publishChecks"></div>
+      <div id="publishChecks" style="display:flex; gap:12px; justify-content:center; margin:8px 12px;"></div>
     </section>
 
-    <div id="imageTooltip">Скачать фото</div>
   </div>
 
   <script src="script.js"></script>
