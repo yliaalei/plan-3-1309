@@ -254,3 +254,19 @@ function initApp(){
       $("tema_goal").value = data.temaGoal || "";
       $("tema_type").value = data.temaColor || "";
     });
+  });
+
+  // 🔹 Фон календаря для сентября, октября, ноября
+  function updateCalendarBackground(){
+    const calendarSection = $("calendarContainer");
+    if(!calendarSection) return;
+    if([8,9,10].includes(currentMonth)){
+      calendarSection.style.backgroundImage = "url('https://disk.yandex.ru/i/pU2HznbFSjNSxw')";
+      calendarSection.style.backgroundSize = "cover";
+      calendarSection.style.backgroundPosition = "center";
+      calendarSection.style.backgroundRepeat = "no-repeat";
+    } else {
+      calendarSection.style.backgroundImage = "none";
+    }
+  }
+}
