@@ -90,3 +90,37 @@ body {
   #editorText { height:50vh; }
   .day-cell { min-height:62px; }
 }
+/* Новая легенда */
+.circle.burgundy { background:#800020; }
+.circle.orange { background:#FFA500; }
+.circle.green { background:#006400; }
+.circle.brown { background:#8B4513; }
+.circle.beige { background:#F5F5DC; border:1px solid #aaa; }
+
+/* Страница "Тема" */
+.tema-field {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tema-field label {
+  font-weight: 600;
+  font-size: 15px;
+}
+#tema_tema {
+  width: 100%;
+  resize: none;
+  font-size: 15px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+#tema_goal, #tema_type {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  background-color: #fff;
+}
