@@ -1,26 +1,26 @@
 const OWNER_EMAIL = "ylia.alei@gmail.com";
 
-function $(id) { return document.getElementById(id); }
-function safeAssign(id, prop, handler) { const el = $(id); if (el) el[prop] = handler; }
+function $(id){ return document.getElementById(id); }
+function safeAssign(id, prop, handler){ const el = $(id); if(el) el[prop] = handler; }
 
-// Авторизация
+// 🔹 Авторизация
 safeAssign("googleBtn", "onclick", () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
   auth.signInWithPopup(provider)
-    .then(result => window.focus())
-    .catch(e => $("authError").textContent = e.message);
+      .then(result => window.focus())
+      .catch(e => $("authError").textContent = e.message);
 });
 
 safeAssign("logoutBtn", "onclick", () => { auth.signOut(); });
 
 auth.onAuthStateChanged(user => {
-  if (!user) {
+  if(!user){
     document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
     $("authSection").style.display = "block";
     return;
   }
-  if (user.email !== OWNER_EMAIL) {
+  if(user.email !== OWNER_EMAIL){
     alert("Доступ только владельцу.");
     auth.signOut();
     return;
@@ -30,8 +30,27 @@ auth.onAuthStateChanged(user => {
   initApp();
 });
 
-// Основная логика
-function initApp() {
+// 🔹 Иконки платформ
+const ICONS = {
+  vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
+  inst: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
+  tg: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg"
+};
+
+function createIcon(src, alt, active){
+  const img = document.createElement("img");
+  img.src = src;
+  img.alt = alt;
+  img.style.width = "22px";
+  img.style.height = "22px";
+  img.style.opacity = active ? "1" : "0.3";
+  img.style.filter = active ? "none" : "grayscale(100%)";
+  img.title = alt;
+  return img;
+}
+
+// 🔹 Основная инициализация
+function initApp(){
   const dbRef = db.collection("contentPlanner");
 
   const colorMap = {
@@ -43,12 +62,6 @@ function initApp() {
     free: "#fff"
   };
 
-  const ICONS = {
-    vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
-    inst: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
-    tg: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg"
-  };
-
   let selectedDateKey = null;
   let selectedType = null;
   let currentMonth = (new Date()).getMonth();
@@ -58,9 +71,12 @@ function initApp() {
   const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
   const weekdays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
-  safeAssign("prevBtn","onclick", () => { currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; } renderCalendar(); });
-  safeAssign("nextBtn","onclick", () => { currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; } renderCalendar(); });
+  // Навигация по месяцам
+  safeAssign("prevBtn","onclick", () => { currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; } renderCalendar(); updateCalendarBackground(); });
+  safeAssign("nextBtn","onclick", () => { currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; } renderCalendar(); updateCalendarBackground(); });
+
   safeAssign("menuClose","onclick", closeMenu);
+  safeAssign("btnTema","onclick", () => showEditor("tema"));
   safeAssign("btnStories","onclick", () => showEditor("stories"));
   safeAssign("btnPost","onclick", () => showEditor("post"));
   safeAssign("btnReel","onclick", () => showEditor("reel"));
@@ -68,40 +84,9 @@ function initApp() {
   safeAssign("editorBack","onclick", () => hidePanel("editorPage"));
   safeAssign("copyBtn","onclick", copyEditorText);
 
-  // Кнопка "Тема"
-  safeAssign("btnTema", "onclick", () => {
-    closeMenu();
-    $("temaDateTitle").textContent = formatReadable(selectedDateKey);
-    showPanel("temaPage");
-
-    dbRef.doc(selectedDateKey).get().then(doc => {
-      const data = doc.exists ? doc.data() : {};
-      $("tema_tema").value = data.temaText || "";
-      $("tema_goal").value = data.temaGoal || "";
-      $("tema_type").value = data.temaColor || "";
-    });
-  });
-
-  $("tema_tema").addEventListener("input", e => {
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-    saveTema();
-  });
-  $("tema_goal").addEventListener("change", saveTema);
-  $("tema_type").addEventListener("change", saveTema);
-
-  function saveTema() {
-    if (!selectedDateKey) return;
-    const data = {
-      temaText: $("tema_tema").value.trim(),
-      temaGoal: $("tema_goal").value,
-      temaColor: $("tema_type").value
-    };
-    dbRef.doc(selectedDateKey).set(data, { merge: true }).then(() => renderCalendar());
-  }
-
   renderWeekdays();
   renderCalendar();
+  updateCalendarBackground();
 
   function pad(n){ return String(n).padStart(2,"0"); }
   function makeDateKey(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
@@ -113,57 +98,58 @@ function initApp() {
   }
 
   function renderCalendar(){
-    const cal = $("calendar");
-    cal.innerHTML = "";
+    const cal = $("calendar"); cal.innerHTML="";
     $("monthYear").textContent = `${monthNames[currentMonth]} ${currentYear}`;
-
-    // 🔸 Устанавливаем фон
-    updateCalendarBackground(currentMonth);
 
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const leading = (firstDay === 0 ? 6 : firstDay - 1);
     for(let i=0;i<leading;i++){ cal.appendChild(document.createElement("div")).className="day-cell empty"; }
+
     const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
     for(let d=1; d<=daysInMonth; d++){
       const key = makeDateKey(currentYear, currentMonth, d);
       const cell = document.createElement("div");
       cell.className = "day-cell"; cell.dataset.date = key;
+
       const num = document.createElement("div"); num.className = "day-number"; num.textContent=d;
       cell.appendChild(num);
+
       cell.onclick=()=> openMenuForDate(key);
-      dbRef.doc(key).get().then(doc => {
+
+      dbRef.doc(key).get().then(doc=>{
         if(doc.exists){
-          const data=doc.data();
-          const c=data.temaColor||"free";
-          cell.style.backgroundColor=colorMap[c]||colorMap.free;
+          const data = doc.data();
+          const c = data.temaColor || "free";
+          cell.style.backgroundColor = colorMap[c] || colorMap.free;
         }
       });
+
       cal.appendChild(cell);
     }
   }
 
   function openMenuForDate(key){
-    selectedDateKey=key;
-    $("menuDateTitle").textContent=formatReadable(key);
+    selectedDateKey = key;
+    $("menuDateTitle").textContent = formatReadable(key);
     showMenu();
     renderCalendarIcons(key);
   }
 
   function showMenu(){ $("menu").classList.add("active"); }
   function closeMenu(){ $("menu").classList.remove("active"); }
-
   function showPanel(id){ $(id).classList.add("active"); }
   function hidePanel(id){ $(id).classList.remove("active"); }
 
+  // 🔹 Редактор
   function showEditor(type){
     closeMenu();
-    selectedType=type;
-    $("editorDateTitle").textContent=formatReadable(selectedDateKey);
-    $("editorTypeLabel").textContent=type.charAt(0).toUpperCase()+type.slice(1);
+    selectedType = type;
+    $("editorDateTitle").textContent = formatReadable(selectedDateKey);
+    $("editorTypeLabel").textContent = type.charAt(0).toUpperCase()+type.slice(1);
     showPanel("editorPage");
 
     if(!quill){
-      quill=new Quill("#editorText",{theme:"snow",modules:{toolbar:"#editorToolbar"}});
+      quill = new Quill("#editorText",{theme:"snow",modules:{toolbar:"#editorToolbar"}});
       quill.on("text-change", saveEditorDebounced);
     }
 
@@ -174,7 +160,9 @@ function initApp() {
         <label><input type="checkbox" id="chk_inst"> Инст</label>
         <label><input type="checkbox" id="chk_tg"> ТГ</label>
       `;
-      ["chk_vk","chk_inst","chk_tg"].forEach(id=>{ const el=$(id); if(el) el.onchange=saveEditorDebounced; });
+      ["chk_vk","chk_inst","chk_tg"].forEach(id=>{
+        const el=$(id); if(el) el.onchange=saveEditorDebounced;
+      });
     }
 
     loadEditorData(selectedDateKey,type);
@@ -185,8 +173,8 @@ function initApp() {
     quill.setContents([]);
     dbRef.doc(key).get().then(doc=>{
       const data = doc.exists ? doc.data() : {};
-      quill.root.innerHTML=data[type]||"";
-      const flags=data[`${type}Platforms`]||{};
+      quill.root.innerHTML = data[type] || "";
+      const flags = data[`${type}Platforms`]||{};
       $("chk_vk").checked=!!flags.vk;
       $("chk_inst").checked=!!flags.inst;
       $("chk_tg").checked=!!flags.tg;
@@ -209,30 +197,18 @@ function initApp() {
     });
   }
 
-  function createIcon(src, alt, active){
-    const img = document.createElement("img");
-    img.src = src;
-    img.alt = alt;
-    img.style.width = "22px";
-    img.style.height = "22px";
-    img.style.opacity = active ? "1" : "0.3";
-    img.style.filter = active ? "none" : "grayscale(100%)";
-    img.title = alt;
-    return img;
-  }
-
   function saveEditor(){
     if(!selectedDateKey||!selectedType||!quill) return;
-    const val=quill.root.innerHTML;
-    const flags={
-      vk:$("chk_vk").checked,
-      inst:$("chk_inst").checked,
-      tg:$("chk_tg").checked
+    const val = quill.root.innerHTML;
+    const flags = {
+      vk: $("chk_vk").checked,
+      inst: $("chk_inst").checked,
+      tg: $("chk_tg").checked
     };
     dbRef.doc(selectedDateKey).set({
-      [selectedType]:val,
-      [`${selectedType}Platforms`]:flags
-    },{merge:true}).then(()=>renderCalendarIcons(selectedDateKey));
+      [selectedType]: val,
+      [`${selectedType}Platforms`]: flags
+    }, {merge:true}).then(()=> renderCalendarIcons(selectedDateKey));
   }
 
   let timer;
@@ -241,24 +217,40 @@ function initApp() {
   function copyEditorText(){
     if(!quill) return;
     navigator.clipboard.writeText(quill.root.innerHTML).then(()=>{
-      const btn=$("copyBtn");
-      const old=btn.textContent;
-      btn.textContent="Скопировано!";
+      const btn = $("copyBtn");
+      const old = btn.textContent;
+      btn.textContent = "Скопировано!";
       setTimeout(()=>btn.textContent=old,1000);
     });
   }
-}
 
-// === Фон по сезонам ===
-function updateCalendarBackground(currentMonth) {
-  const calendarSection = document.getElementById("calendarContainer");
-  if ([8, 9, 10].includes(currentMonth)) {
-    calendarSection.style.backgroundImage = "url('https://disk.yandex.ru/i/pU2HznbFSjNSxw')";
-    calendarSection.style.backgroundSize = "cover";
-    calendarSection.style.backgroundPosition = "center";
-    calendarSection.style.backgroundRepeat = "no-repeat";
-  } else {
-    calendarSection.style.backgroundImage = "none";
+  // 🔹 TEMA редактор
+  $("tema_tema").addEventListener("input", e=>{
+    e.target.style.height="auto";
+    e.target.style.height=e.target.scrollHeight+"px";
+    saveTema();
+  });
+  $("tema_goal").addEventListener("change", saveTema);
+  $("tema_type").addEventListener("change", saveTema);
+
+  function saveTema(){
+    if(!selectedDateKey) return;
+    const data = {
+      temaText: $("tema_tema").value.trim(),
+      temaGoal: $("tema_goal").value,
+      temaColor: $("tema_type").value
+    };
+    dbRef.doc(selectedDateKey).set(data, {merge:true}).then(()=> renderCalendar());
   }
-}
 
+  safeAssign("btnTema", "onclick", () => {
+    closeMenu();
+    $("temaDateTitle").textContent = formatReadable(selectedDateKey);
+    showPanel("temaPage");
+
+    dbRef.doc(selectedDateKey).get().then(doc=>{
+      const data = doc.exists ? doc.data() : {};
+      $("tema_tema").value = data.temaText || "";
+      $("tema_goal").value = data.temaGoal || "";
+      $("tema_type").value = data.temaColor || "";
+    });
