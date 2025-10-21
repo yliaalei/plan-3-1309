@@ -49,7 +49,13 @@ function createIcon(src, alt, active){
 
 function initApp(){
   const dbRef = db.collection("contentPlanner");
- const colorMap = { free:"#fff", family:"#c8f7e8", health:"#fff7c2", work:"#ffd7ea", hobby:"#e8e1ff" };
+ const colorMap = {
+  burgundy: "#800020",   // Развлекательный
+  orange: "#FFA500",     // Экспертный
+  green: "#006400",      // Продающий
+  brown: "#8B4513",      // Обучающий
+  beige: "#F5F5DC"       // Интерактив
+};
   let selectedDateKey = null;
   let selectedType = null;
   let currentMonth = (new Date()).getMonth();
