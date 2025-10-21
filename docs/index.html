@@ -8,11 +8,13 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Sweet+Mavka+Script&display=swap" rel="stylesheet">
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
 
+  <!-- Quill -->
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 </head>
@@ -35,16 +37,20 @@
         <button id="logoutBtn">Выйти</button>
       </div>
     </header>
-</main>
-    <section id="calendarNav" class="nav">
-      <button id="prevBtn">←</button>
-      <div id="monthYear"></div>
-      <button id="nextBtn">→</button>
-    </section>
 
-    <div id="weekdays" class="weekdays"></div>
-    <main id="calendar" class="calendar"></main>
+    <!-- Календарь с контейнером для фона -->
+    <div id="calendarContainer">
+      <section id="calendarNav" class="nav">
+        <button id="prevBtn">←</button>
+        <div id="monthYear"></div>
+        <button id="nextBtn">→</button>
+      </section>
 
+      <div id="weekdays" class="weekdays"></div>
+      <main id="calendar" class="calendar"></main>
+    </div>
+
+    <!-- Меню для выбранной даты -->
     <div id="menu" class="sheet">
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
@@ -73,62 +79,59 @@
         <button class="sheet-close" id="menuClose">Отмена</button>
       </div>
     </div>
- </section>
-<!-- Новая легенда -->
 
-<section id="colorLegend" class="legend">
-  <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
-  <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
-  <div class="legend-item"><span class="square green"></span><span>Продающий</span></div>
-  <div class="legend-item"><span class="square brown"></span><span>Обучающий</span></div>
-  <div class="legend-item"><span class="square beige"></span><span>Интерактив</span></div>
-</section>
-</main>
-    
-    <!-- TEMA PAGE -->
-<section id="temaPage" class="panel">
-  <div class="panel-inner">
-    <div class="panel-top">
-      <button class="backBtn" id="temaBack">← Назад</button>
-      <h2 id="temaDateTitle"></h2>
-    </div>
+    <!-- Легенда -->
+    <section id="colorLegend" class="legend">
+      <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
+      <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
+      <div class="legend-item"><span class="square green"></span><span>Продающий</span></div>
+      <div class="legend-item"><span class="square brown"></span><span>Обучающий</span></div>
+      <div class="legend-item"><span class="square beige"></span><span>Интерактив</span></div>
+    </section>
 
-    <div class="tema-field">
-      <label for="tema_tema">Тема</label>
-      <textarea id="tema_tema" rows="3" placeholder="Введите тему..."></textarea>
-    </div>
+    <!-- Страница ТЕМА -->
+    <section id="temaPage" class="panel">
+      <div class="panel-inner">
+        <div class="panel-top">
+          <button class="backBtn" id="temaBack">← Назад</button>
+          <h2 id="temaDateTitle"></h2>
+        </div>
 
-    <div class="tema-field">
-      <label for="tema_goal">Цель</label>
-      <select id="tema_goal">
-        <option value="">Выберите цель...</option>
-        <option value="охват">Охват</option>
-        <option value="вовлеченность">Вовлеченность (комментарии, лайки)</option>
-        <option value="репост">Репост</option>
-        <option value="сохранение">Сохранение</option>
-        <option value="подписка">Подписка</option>
-        <option value="продажа">Продажа</option>
-        <option value="отзывы">Отзывы</option>
-        <option value="конверсия">Конверсия</option>
-      </select>
-    </div>
+        <div class="tema-field">
+          <label for="tema_tema">Тема</label>
+          <textarea id="tema_tema" rows="3" placeholder="Введите тему..."></textarea>
+        </div>
 
-    <div class="tema-field">
-      <label for="tema_type">Тип контента</label>
-      <select id="tema_type">
-        <option value="">Выберите тип...</option>
-        <option value="burgundy">Развлекательный</option>
-        <option value="orange">Экспертный</option>
-        <option value="green">Продающий</option>
-        <option value="brown">Обучающий</option>
-        <option value="beige">Интерактив</option>
-      </select>
-    </div>
-  </div>
-</section>
+        <div class="tema-field">
+          <label for="tema_goal">Цель</label>
+          <select id="tema_goal">
+            <option value="">Выберите цель...</option>
+            <option value="охват">Охват</option>
+            <option value="вовлеченность">Вовлеченность</option>
+            <option value="репост">Репост</option>
+            <option value="сохранение">Сохранение</option>
+            <option value="подписка">Подписка</option>
+            <option value="продажа">Продажа</option>
+            <option value="отзывы">Отзывы</option>
+            <option value="конверсия">Конверсия</option>
+          </select>
+        </div>
 
+        <div class="tema-field">
+          <label for="tema_type">Тип контента</label>
+          <select id="tema_type">
+            <option value="">Выберите тип...</option>
+            <option value="burgundy">Развлекательный</option>
+            <option value="orange">Экспертный</option>
+            <option value="green">Продающий</option>
+            <option value="brown">Обучающий</option>
+            <option value="beige">Интерактив</option>
+          </select>
+        </div>
+      </div>
+    </section>
 
-    <!-- EDITOR PAGE -->
+    <!-- Страница РЕДАКТОР -->
     <section id="editorPage" class="panel">
       <div class="editor-header">
         <button class="backBtn" id="editorBack">←</button>
@@ -146,7 +149,7 @@
         <button class="ql-image"></button>
       </div>
       <div id="editorText" class="editor-text"></div>
-      <div id="publishChecks" style="display:flex; gap:12px; justify-content:center; margin:8px 12px;"></div>
+      <div id="publishChecks"></div>
     </section>
 
     <div id="imageTooltip">Скачать фото</div>
