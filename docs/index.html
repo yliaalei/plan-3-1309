@@ -8,21 +8,25 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Sweet+Mavka+Script&display=swap" rel="stylesheet">
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Твой файл конфигурации Firebase -->
   <script src="firebase-config.js"></script>
 </head>
 <body>
+  <!-- Авторизация -->
   <section id="authSection" class="panel active">
     <div class="panel-inner auth">
       <h2>Войдите через Google</h2>
-      <p>Вход доступен только владельцу</p>
       <button id="googleBtn" class="primary">Войти через Google</button>
       <p id="authError" class="hint"></p>
     </div>
   </section>
 
+  <!-- Основное приложение -->
   <div id="app" style="display:none;">
     <header id="header">
       <h1 id="appTitle">Мой контент-план</h1>
@@ -31,7 +35,7 @@
       </div>
     </header>
 
-    <!-- Легенда с новыми цветами -->
+    <!-- Легенда -->
     <section id="colorLegend" class="legend">
       <div class="legend-item"><span class="circle maroon"></span><span>Развлекательный</span></div>
       <div class="legend-item"><span class="circle orange"></span><span>Экспертный</span></div>
@@ -40,43 +44,32 @@
       <div class="legend-item"><span class="circle beige"></span><span>Интерактив</span></div>
     </section>
 
+    <!-- Навигация -->
     <section id="calendarNav" class="nav">
       <button id="prevBtn">←</button>
       <div id="monthYear"></div>
       <button id="nextBtn">→</button>
     </section>
 
+    <!-- Календарь -->
     <div id="weekdays" class="weekdays"></div>
     <main id="calendar" class="calendar"></main>
 
+    <!-- Меню -->
     <div id="menu" class="sheet">
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
         <div class="sheet-buttons">
-          <div class="button-wrapper">
-            <button id="btnTema">Тема</button>
-          </div>
-
-          <div class="button-wrapper">
-            <button id="btnStories">Сторис</button>
-            <div class="editor-icons-wrapper" id="storiesIcons"></div>
-          </div>
-
-          <div class="button-wrapper">
-            <button id="btnPost">Пост</button>
-            <div class="editor-icons-wrapper" id="postIcons"></div>
-          </div>
-
-          <div class="button-wrapper">
-            <button id="btnReel">Рилс</button>
-            <div class="editor-icons-wrapper" id="reelIcons"></div>
-          </div>
+          <div class="button-wrapper"><button id="btnTema">Тема</button></div>
+          <div class="button-wrapper"><button id="btnStories">Сторис</button><div class="editor-icons-wrapper" id="storiesIcons"></div></div>
+          <div class="button-wrapper"><button id="btnPost">Пост</button><div class="editor-icons-wrapper" id="postIcons"></div></div>
+          <div class="button-wrapper"><button id="btnReel">Рилс</button><div class="editor-icons-wrapper" id="reelIcons"></div></div>
         </div>
         <button class="sheet-close" id="menuClose">Отмена</button>
       </div>
     </div>
 
-    <!-- Редактор ТЕМЫ -->
+    <!-- Страница "Тема" -->
     <section id="temaPage" class="panel">
       <div class="panel-inner tema-page">
         <div class="panel-top">
@@ -106,6 +99,7 @@
         <div class="type-field">
           <label for="typeSelect">Тип контента:</label>
           <select id="typeSelect">
+            <option value="">— не выбрано —</option>
             <option value="maroon">Развлекательный</option>
             <option value="orange">Экспертный</option>
             <option value="darkgreen">Продающий</option>
