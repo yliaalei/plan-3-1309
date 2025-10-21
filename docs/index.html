@@ -29,22 +29,33 @@
 
   <!-- APP -->
   <div id="app" style="display:none;">
-    <header id="header">
-      <h1 id="appTitle">Мой контент-план</h1>
-      <div class="header-right">
-        <button id="logoutBtn">Выйти</button>
+    <div id="calendarBackground">
+      <header id="header">
+        <h1 id="appTitle">Мой контент-план</h1>
+        <div class="header-right">
+          <button id="logoutBtn">Выйти</button>
+        </div>
+      </header>
+
+      <section id="calendarNav" class="nav">
+        <button id="prevBtn">←</button>
+        <div id="monthYear"></div>
+        <button id="nextBtn">→</button>
+      </section>
+
+      <div id="calendarContainer">
+        <div id="weekdays" class="weekdays"></div>
+        <main id="calendar" class="calendar"></main>
       </div>
-    </header>
 
-    <section id="calendarNav" class="nav">
-      <button id="prevBtn">←</button>
-      <div id="monthYear"></div>
-      <button id="nextBtn">→</button>
-    </section>
-
-    <div id="calendarContainer">
-      <div id="weekdays" class="weekdays"></div>
-      <main id="calendar" class="calendar"></main>
+      <!-- Легенда -->
+      <section id="colorLegend" class="legend">
+        <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
+        <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
+        <div class="legend-item"><span class="square green"></span><span>Продающий</span></div>
+        <div class="legend-item"><span class="square brown"></span><span>Обучающий</span></div>
+        <div class="legend-item"><span class="square beige"></span><span>Интерактив</span></div>
+      </section>
     </div>
 
     <!-- Меню дня -->
@@ -52,7 +63,6 @@
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
         <div class="sheet-buttons">
-
           <div class="button-wrapper">
             <button id="btnTema">Тема</button>
           </div>
@@ -71,20 +81,10 @@
             <button id="btnReel">Рилс</button>
             <div class="editor-icons-wrapper" id="reelIcons"></div>
           </div>
-
         </div>
         <button class="sheet-close" id="menuClose">Отмена</button>
       </div>
     </div>
-
-    <!-- Легенда -->
-    <section id="colorLegend" class="legend">
-      <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
-      <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
-      <div class="legend-item"><span class="square green"></span><span>Продающий</span></div>
-      <div class="legend-item"><span class="square brown"></span><span>Обучающий</span></div>
-      <div class="legend-item"><span class="square beige"></span><span>Интерактив</span></div>
-    </section>
 
     <!-- TEMA PAGE -->
     <section id="temaPage" class="panel">
@@ -148,7 +148,6 @@
       <div id="editorText" class="editor-text"></div>
       <div id="publishChecks" style="display:flex; gap:12px; justify-content:center; margin:8px 12px;"></div>
     </section>
-
   </div>
 
   <script src="script.js"></script>
