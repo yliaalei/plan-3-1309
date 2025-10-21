@@ -36,13 +36,14 @@
       </div>
     </header>
 
-    <section id="colorLegend" class="legend">
-      <div class="legend-item"><span class="circle free"></span><span>Свободно</span></div>
-      <div class="legend-item"><span class="circle family"></span><span>Семья</span></div>
-      <div class="legend-item"><span class="circle health"></span><span>Здоровье</span></div>
-      <div class="legend-item"><span class="circle work"></span><span>Работа</span></div>
-      <div class="legend-item"><span class="circle hobby"></span><span>Хобби</span></div>
-    </section>
+    <!-- Новая легенда -->
+<section id="colorLegend" class="legend">
+  <div class="legend-item"><span class="circle burgundy"></span><span>Развлекательный</span></div>
+  <div class="legend-item"><span class="circle orange"></span><span>Экспертный</span></div>
+  <div class="legend-item"><span class="circle green"></span><span>Продающий</span></div>
+  <div class="legend-item"><span class="circle brown"></span><span>Обучающий</span></div>
+  <div class="legend-item"><span class="circle beige"></span><span>Интерактив</span></div>
+</section>
 
     <section id="calendarNav" class="nav">
       <button id="prevBtn">←</button>
@@ -83,35 +84,47 @@
     </div>
 
     <!-- TEMA PAGE -->
-    <section id="temaPage" class="panel">
-      <div class="panel-inner">
-        <div class="panel-top">
-          <button class="backBtn" id="temaBack">← Назад</button>
-          <h2 id="temaDateTitle"></h2>
-        </div>
+<section id="temaPage" class="panel">
+  <div class="panel-inner">
+    <div class="panel-top">
+      <button class="backBtn" id="temaBack">← Назад</button>
+      <h2 id="temaDateTitle"></h2>
+    </div>
 
-        <label>Тема
-          <textarea id="tema_tema"></textarea>
-        </label>
+    <div class="tema-field">
+      <label for="tema_tema">Тема</label>
+      <textarea id="tema_tema" rows="3" placeholder="Введите тему..."></textarea>
+    </div>
 
-        <label>Цель
-          <textarea id="tema_goal"></textarea>
-        </label>
+    <div class="tema-field">
+      <label for="tema_goal">Цель</label>
+      <select id="tema_goal">
+        <option value="">Выберите цель...</option>
+        <option value="охват">Охват</option>
+        <option value="вовлеченность">Вовлеченность (комментарии, лайки)</option>
+        <option value="репост">Репост</option>
+        <option value="сохранение">Сохранение</option>
+        <option value="подписка">Подписка</option>
+        <option value="продажа">Продажа</option>
+        <option value="отзывы">Отзывы</option>
+        <option value="конверсия">Конверсия</option>
+      </select>
+    </div>
 
-        <label>Активность
-          <textarea id="tema_activity"></textarea>
-        </label>
+    <div class="tema-field">
+      <label for="tema_type">Тип контента</label>
+      <select id="tema_type">
+        <option value="">Выберите тип...</option>
+        <option value="burgundy">Развлекательный</option>
+        <option value="orange">Экспертный</option>
+        <option value="green">Продающий</option>
+        <option value="brown">Обучающий</option>
+        <option value="beige">Интерактив</option>
+      </select>
+    </div>
+  </div>
+</section>
 
-        <div class="tema-colors">
-          <p>Выберите цвет:</p>
-          <label><input type="radio" name="temaColor" value="free"> Свободно</label>
-          <label><input type="radio" name="temaColor" value="family"> Семья</label>
-          <label><input type="radio" name="temaColor" value="health"> Здоровье</label>
-          <label><input type="radio" name="temaColor" value="work"> Работа</label>
-          <label><input type="radio" name="temaColor" value="hobby"> Хобби</label>
-        </div>
-      </div>
-    </section>
 
     <!-- EDITOR PAGE -->
     <section id="editorPage" class="panel">
