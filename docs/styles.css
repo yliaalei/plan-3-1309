@@ -30,41 +30,38 @@ body {
 /* Легенда в виде вертикального списка с квадратами */
 .legend {
   display: flex;
-  flex-direction: column;     /* теперь это вертикальный список */
+  flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
-  padding: 12px 20px;
-  background: #fff;
-  border-radius: 10px;
-  margin: 10px auto;
-  max-width: 300px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  gap: 6px;
+  margin: 20px auto 40px;
+  max-width: 900px;      /* тот же размер, что и у календаря */
+  padding: 0 10px;
+  background: transparent; /* тот же фон, что и у календаря */
+  box-shadow: none;
+  border: none;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 15px;
   color: #333;
 }
 
-/* Квадраты */
 .square {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  border: 1px solid #aaa;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid #999;
   display: inline-block;
 }
 
-/* Цвета квадратов */
 .square.burgundy { background:#800020; }
 .square.orange { background:#FFA500; }
 .square.green { background:#006400; }
 .square.brown { background:#8B4513; }
 .square.beige { background:#F5F5DC; }
-
 
 /* Calendar nav */
 .nav { display:flex; justify-content:center; align-items:center; gap:12px; margin:10px 0; }
