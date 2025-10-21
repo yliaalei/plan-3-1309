@@ -73,6 +73,40 @@ function initApp(){
   safeAssign("btnPost","onclick", () => showEditor("post"));
   safeAssign("btnReel","onclick", () => showEditor("reel"));
   safeAssign("temaBack","onclick", () => hidePanel("temaPage"));
+  // === РЕДАКТОР "ТЕМА" ===
+safeAssign("btnTema", "onclick", () => {
+  closeMenu();
+  $("temaDateTitle").textContent = formatReadable(selectedDateKey);
+  showPanel("temaPage");
+
+  // загрузка сохранённых данных
+  dbRef.doc(selectedDateKey).get().then(doc => {
+    const data = doc.exists ? doc.data() : {};
+    $("tema_tema").value = data.temaText || "";
+    $("tema_goal").value = data.temaGoal || "";
+    $("tema_type").value = data.temaColor || "";
+  });
+});
+
+// автоувеличение textarea
+$("tema_tema").addEventListener("input", e => {
+  e.target.style.height = "auto";
+  e.target.style.height = e.target.scrollHeight + "px";
+  saveTema();
+});
+$("tema_goal").addEventListener("change", saveTema);
+$("tema_type").addEventListener("change", saveTema);
+
+function saveTema() {
+  if (!selectedDateKey) return;
+  const data = {
+    temaText: $("tema_tema").value.trim(),
+    temaGoal: $("tema_goal").value,
+    temaColor: $("tema_type").value
+  };
+  dbRef.doc(selectedDateKey).set(data, { merge: true })
+    .then(() => renderCalendar());
+}
   safeAssign("editorBack","onclick", () => hidePanel("editorPage"));
   safeAssign("copyBtn","onclick", copyEditorText);
 
