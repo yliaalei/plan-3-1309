@@ -8,13 +8,11 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Sweet+Mavka+Script&display=swap" rel="stylesheet">
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
 
-  <!-- Quill -->
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 </head>
@@ -38,58 +36,52 @@
       </div>
     </header>
 
-    <!-- Календарь с контейнером для фона -->
-    <div id="calendarContainer">
-      <section id="calendarNav" class="nav">
-        <button id="prevBtn">←</button>
-        <div id="monthYear"></div>
-        <button id="nextBtn">→</button>
-      </section>
+    <section id="calendarNav" class="nav">
+      <button id="prevBtn">←</button>
+      <div id="monthYear"></div>
+      <button id="nextBtn">→</button>
+    </section>
 
+    <!-- Контейнер календаря для фона -->
+    <div id="calendarContainer">
       <div id="weekdays" class="weekdays"></div>
       <main id="calendar" class="calendar"></main>
+      <!-- Легенда -->
+      <section id="colorLegend" class="legend">
+        <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
+        <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
+        <div class="legend-item"><span class="square green"></span><span>Продающий</span></div>
+        <div class="legend-item"><span class="square brown"></span><span>Обучающий</span></div>
+        <div class="legend-item"><span class="square beige"></span><span>Интерактив</span></div>
+      </section>
     </div>
 
-    <!-- Меню для выбранной даты -->
+    <!-- Меню выбора даты -->
     <div id="menu" class="sheet">
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
         <div class="sheet-buttons">
-
           <div class="button-wrapper">
             <button id="btnTema">Тема</button>
           </div>
-
           <div class="button-wrapper">
             <button id="btnStories">Сторис</button>
             <div class="editor-icons-wrapper" id="storiesIcons"></div>
           </div>
-
           <div class="button-wrapper">
             <button id="btnPost">Пост</button>
             <div class="editor-icons-wrapper" id="postIcons"></div>
           </div>
-
           <div class="button-wrapper">
             <button id="btnReel">Рилс</button>
             <div class="editor-icons-wrapper" id="reelIcons"></div>
           </div>
-
         </div>
         <button class="sheet-close" id="menuClose">Отмена</button>
       </div>
     </div>
 
-    <!-- Легенда -->
-    <section id="colorLegend" class="legend">
-      <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
-      <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
-      <div class="legend-item"><span class="square green"></span><span>Продающий</span></div>
-      <div class="legend-item"><span class="square brown"></span><span>Обучающий</span></div>
-      <div class="legend-item"><span class="square beige"></span><span>Интерактив</span></div>
-    </section>
-
-    <!-- Страница ТЕМА -->
+    <!-- TEMA PAGE -->
     <section id="temaPage" class="panel">
       <div class="panel-inner">
         <div class="panel-top">
@@ -107,7 +99,7 @@
           <select id="tema_goal">
             <option value="">Выберите цель...</option>
             <option value="охват">Охват</option>
-            <option value="вовлеченность">Вовлеченность</option>
+            <option value="вовлеченность">Вовлеченность (комментарии, лайки)</option>
             <option value="репост">Репост</option>
             <option value="сохранение">Сохранение</option>
             <option value="подписка">Подписка</option>
@@ -131,7 +123,7 @@
       </div>
     </section>
 
-    <!-- Страница РЕДАКТОР -->
+    <!-- EDITOR PAGE -->
     <section id="editorPage" class="panel">
       <div class="editor-header">
         <button class="backBtn" id="editorBack">←</button>
