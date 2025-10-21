@@ -17,7 +17,7 @@ body {
 .day-cell { background:#fff; border:1px solid #e6e9ef; border-radius:8px; min-height:72px; padding:8px; position:relative; cursor:pointer; }
 .day-cell.empty { background:transparent; border:none; cursor:default; }
 
-/* Цвета ячеек по типу контента */
+/* Цвета ячеек */
 .day-cell[data-type="maroon"] { background:#ffcccc; }
 .day-cell[data-type="orange"] { background:#ffe5cc; }
 .day-cell[data-type="darkgreen"] { background:#c6f7d0; }
@@ -34,7 +34,7 @@ body {
 .circle.brown { background:#e0d4c3; }
 .circle.beige { background:#f5f1e0; }
 
-/* Меню под кнопками */
+/* Меню */
 .button-wrapper { display:flex; flex-direction:column; align-items:center; margin:6px; }
 .editor-icons-wrapper { display:flex; gap:8px; margin-top:4px; justify-content:center; }
 .editor-icons-wrapper img { width:22px; height:22px; }
@@ -64,3 +64,7 @@ body {
 .goal-field select[multiple] {
   min-height:140px;
 }
+
+/* Кнопки */
+.backBtn { background:none; border:none; color:#007aff; font-size:16px; cursor:pointer; }
+.primary { background:#4285F4; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
