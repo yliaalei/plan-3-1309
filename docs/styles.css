@@ -144,3 +144,10 @@ body {
   font-size: 15px;
   background-color: #fff;
 }
+#calendarContainer {
+  background-color: rgba(255, 255, 255, 0.8); /* лёгкий прозрачный слой для читаемости текста */
+  border-radius: 10px;
+  padding: 20px;
+  transition: background-image 0.4s ease;
+}
+
