@@ -30,6 +30,8 @@
 
 <!-- APP -->
 <div id="app" style="display:none;">
+
+  <!-- Календарь с фоном -->
   <div id="calendarBackground">
     <header id="header">
       <h1 id="appTitle">Мой контент-план</h1>
@@ -64,10 +66,24 @@
     <div class="sheet-inner">
       <h3 id="menuDateTitle"></h3>
       <div class="sheet-buttons">
-        <div class="button-wrapper"><button id="btnTema">Тема</button></div>
-        <div class="button-wrapper"><button id="btnStories">Сторис</button><div class="editor-icons-wrapper" id="storiesIcons"></div></div>
-        <div class="button-wrapper"><button id="btnPost">Пост</button><div class="editor-icons-wrapper" id="postIcons"></div></div>
-        <div class="button-wrapper"><button id="btnReel">Рилс</button><div class="editor-icons-wrapper" id="reelIcons"></div></div>
+        <div class="button-wrapper">
+          <button id="btnTema">Тема</button>
+        </div>
+
+        <div class="button-wrapper">
+          <button id="btnStories">Сторис</button>
+          <div class="editor-icons-wrapper" id="storiesIcons"></div>
+        </div>
+
+        <div class="button-wrapper">
+          <button id="btnPost">Пост</button>
+          <div class="editor-icons-wrapper" id="postIcons"></div>
+        </div>
+
+        <div class="button-wrapper">
+          <button id="btnReel">Рилс</button>
+          <div class="editor-icons-wrapper" id="reelIcons"></div>
+        </div>
       </div>
       <button class="sheet-close" id="menuClose">Отмена</button>
     </div>
@@ -80,10 +96,12 @@
         <button class="backBtn" id="temaBack">← Назад</button>
         <h2 id="temaDateTitle"></h2>
       </div>
+
       <div class="tema-field">
         <label for="tema_tema">Тема</label>
         <textarea id="tema_tema" rows="3" placeholder="Введите тему..."></textarea>
       </div>
+
       <div class="tema-field">
         <label for="tema_goal">Цель</label>
         <select id="tema_goal">
@@ -98,6 +116,7 @@
           <option value="конверсия">Конверсия</option>
         </select>
       </div>
+
       <div class="tema-field">
         <label for="tema_type">Тип контента</label>
         <select id="tema_type">
@@ -121,6 +140,7 @@
         <button id="copyBtn">Копировать</button>
       </div>
     </div>
+
     <div class="editor-type" id="editorTypeLabel"></div>
     <div id="editorToolbar" class="editor-toolbar">
       <button class="ql-bold"></button>
@@ -129,7 +149,7 @@
       <button class="ql-image"></button>
     </div>
     <div id="editorText" class="editor-text"></div>
-    <div id="publishChecks"></div>
+    <div id="publishChecks" style="display:flex; gap:12px; justify-content:center; margin:8px 12px;"></div>
   </section>
 </div>
 
