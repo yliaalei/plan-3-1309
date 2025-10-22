@@ -31,6 +31,7 @@
   <div id="app" style="display:none;">
     <div id="calendarPage">
       <div class="overlay"></div>
+
       <header id="header">
         <h1 id="appTitle">Мой контент-план</h1>
         <button id="logoutBtn" class="logout">Выйти</button>
@@ -57,7 +58,7 @@
       </section>
     </div>
 
-    <!-- Меню дня -->
+    <!-- Меню дня (sheet) -->
     <div id="menu" class="sheet">
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
@@ -82,7 +83,7 @@
       </div>
     </div>
 
-    <!-- Страницы редакторов -->
+    <!-- Редактор "Тема" (отдельная панель, белый фон) -->
     <section id="temaPage" class="panel">
       <div class="panel-inner">
         <button class="backBtn" id="temaBack">← Назад</button>
@@ -122,25 +123,30 @@
       </div>
     </section>
 
+    <!-- Редактор контента (Post / Reel / Stories) -->
     <section id="editorPage" class="panel">
-      <div class="editor-header">
-        <button class="backBtn" id="editorBack">←</button>
-        <h2 id="editorDateTitle"></h2>
-        <button id="copyBtn">Копировать</button>
+      <div class="panel-inner editor-inner">
+        <button class="backBtn" id="editorBack">← Назад</button>
+        <div class="editor-header">
+          <h2 id="editorDateTitle"></h2>
+          <div id="editorTypeLabel" class="editor-type"></div>
+          <button id="copyBtn" class="primary">Копировать</button>
+        </div>
+
+        <div id="editorToolbar" class="editor-toolbar">
+          <button class="ql-bold"></button>
+          <button class="ql-italic"></button>
+          <button class="ql-link"></button>
+          <button class="ql-image"></button>
+        </div>
+
+        <div id="editorText" class="editor-text"></div>
+
+        <div id="publishChecks" style="display:flex; gap:12px; justify-content:center; margin:8px 12px;"></div>
       </div>
-      <div id="editorTypeLabel"></div>
-      <div id="editorToolbar" class="editor-toolbar">
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-link"></button>
-        <button class="ql-image"></button>
-      </div>
-      <div id="editorText" class="editor-text"></div>
-      <div id="publishChecks"></div>
     </section>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
-
