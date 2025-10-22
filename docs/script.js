@@ -7,7 +7,6 @@ function safeAssign(id, prop, handler){
   if(el) el[prop] = handler;
 }
 
-// Google Sign-in
 safeAssign("googleBtn", "onclick", () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
@@ -16,10 +15,8 @@ safeAssign("googleBtn", "onclick", () => {
       .catch(e => $("authError").textContent = e.message);
 });
 
-// Logout
 safeAssign("logoutBtn", "onclick", () => { auth.signOut(); });
 
-// Auth state change
 auth.onAuthStateChanged(user => {
   if(!user){
     document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
@@ -36,7 +33,6 @@ auth.onAuthStateChanged(user => {
   initApp();
 });
 
-// Icons for social platforms
 const ICONS = {
   vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
   inst: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
@@ -64,7 +60,7 @@ function initApp(){
     green: "#006400",
     brown: "#8B4513",
     beige: "#F5F5DC",
-    free: "#fff"
+    free: "transparent"
   };
 
   let selectedDateKey = null;
@@ -96,12 +92,13 @@ function initApp(){
 
   function renderWeekdays(){
     const wd = $("weekdays"); wd.innerHTML="";
-    weekdays.forEach(d => { const div=document.createElement("div"); div.textContent=d; wd.appendChild(div); });
+    weekdays.forEach(d => { const div=document.createElement("div"); div.textContent=d; div.style.color="white"; wd.appendChild(div); });
   }
 
   function renderCalendar(){
     const cal = $("calendar"); cal.innerHTML="";
     $("monthYear").textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    $("monthYear").style.color = "white";
 
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const leading = (firstDay === 0 ? 6 : firstDay - 1);
@@ -112,29 +109,29 @@ function initApp(){
       const key = makeDateKey(currentYear, currentMonth, d);
       const cell = document.createElement("div");
       cell.className = "day-cell"; cell.dataset.date = key;
-      const num = document.createElement("div"); num.className = "day-number"; num.textContent=d;
+      const num = document.createElement("div"); num.className = "day-number"; num.textContent=d; num.style.color="white";
       cell.appendChild(num);
-      cell.style.backgroundColor=colorMap.free;
+      cell.style.backgroundColor = "transparent";
       cell.onclick=()=> openMenuForDate(key);
 
       dbRef.doc(key).get().then(doc => {
         if(doc.exists){
           const data=doc.data();
           const c=data.temaColor||"free";
-          const baseColor = colorMap[c] || colorMap.free;
-          cell.style.backgroundColor = baseColor === "#fff" ? "rgba(255,255,255,0.3)" : hexToRgba(baseColor,0.3);
+          const baseColor = colorMap[c] || "transparent";
+          cell.style.backgroundColor = baseColor === "transparent" ? "rgba(255,255,255,0.1)" : hexToRgba(baseColor,0.3);
         } else {
-          cell.style.backgroundColor = "rgba(255,255,255,0.3)";
+          cell.style.backgroundColor = "rgba(255,255,255,0.1)";
         }
       });
 
       cal.appendChild(cell);
     }
 
-    updateCalendarBackground(currentMonth);
+    updateCalendarBackground();
   }
 
-  function updateCalendarBackground(currentMonth) {
+  function updateCalendarBackground() {
     const calendarSection = document.getElementById("calendarBackground");
     calendarSection.style.backgroundImage = "url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg')";
     calendarSection.style.backgroundSize = "cover";
