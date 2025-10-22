@@ -1,130 +1,95 @@
+/* Reset */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  height: 100%;
-  font-family: system-ui, sans-serif;
-  color: #fff;
-  background: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg') center/cover no-repeat;
-  position: relative;
-}
+html,body { height:100%; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
 
-/* Затемнение */
-body::before {
-  content: "";
+/* Фоновая картинка + затемнение (покрывает заголовок, навигацию, календарь и легенду) */
+body {
+  background: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg') center/cover no-repeat fixed;
+  color: #fff;
+}
+#calendarPage { position: relative; min-height: 100vh; padding-bottom: 60px; }
+
+/* затемнение overlay поверх фоновой картинки */
+#calendarPage .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
-  z-index: -1;
+  background: rgba(0,0,0,0.45);
+  z-index: 0;
 }
 
-/* Заголовок */
+/* заголовок по центру (белый) */
 #header {
+  position: relative;
+  z-index: 2;
   text-align: center;
   padding: 24px;
 }
-#appTitle {
-  font-family: 'Sweet Mavka Script', cursive;
-  font-size: 36px;
-}
-.logout {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255,255,255,0.2);
-  color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
+#appTitle { font-family:'Sweet Mavka Script', cursive; font-size: 36px; color: #fff; }
 
-/* Навигация */
-.nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.nav button {
-  background: rgba(255,255,255,0.2);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 14px;
-  cursor: pointer;
-  font-size: 18px;
-}
+/* кнопка выйти в правом верхнем углу */
+.logout { position: absolute; right: 18px; top: 18px; z-index: 3; background: rgba(255,255,255,0.12); color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
 
-/* Календарь */
-#calendarContainer {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
-}
-.weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 6px;
-}
-.calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-}
+/* навигация месяцев */
+.nav { z-index:2; position: relative; display:flex; justify-content:center; gap:12px; align-items:center; margin: 10px 0 18px; }
+.nav button { background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+
+/* контейнер календаря */
+#calendarContainer { z-index:2; position: relative; max-width: 980px; margin: 0 auto; padding: 18px; }
+
+/* weekdays row */
+.weekdays { display:grid; grid-template-columns: repeat(7,1fr); text-align:center; font-weight:700; margin-bottom: 8px; color: #fff; }
+
+/* grid календаря: квадратные ячейки */
+.calendar { display:grid; grid-template-columns: repeat(7, 1fr); gap:10px; }
 .day-cell {
   position: relative;
   width: 100%;
-  padding-top: 100%;
+  padding-top: 100%; /* квадрат */
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.15);
+  overflow: hidden;
+  background: rgba(255,255,255,0.12); /* базовый полупрозрачный фон */
+  border: 1px solid rgba(255,255,255,0.08);
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.day-cell:hover { transform: scale(1.05); }
-.day-number {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  font-weight: bold;
-}
+.day-cell:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+.day-cell.empty { background: transparent; border: none; cursor: default; }
+.day-number { position: absolute; left: 8px; top: 6px; font-weight:700; color: #fff; z-index:2; }
 
-/* Легенда */
-.legend {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 30px 0;
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 15px;
-}
-.square {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-}
+/* legenda */
+.legend { z-index:2; display:flex; justify-content:center; gap:12px; margin: 20px auto 40px; color: #fff; }
+.legend-item { display:flex; align-items:center; gap:8px; font-size: 14px; }
+.square { width:16px; height:16px; border-radius:3px; border:1px solid rgba(255,255,255,0.2); }
 .square.burgundy { background: rgba(128,0,32,0.6); }
 .square.orange { background: rgba(255,165,0,0.6); }
 .square.green { background: rgba(0,100,0,0.6); }
 .square.brown { background: rgba(139,69,19,0.6); }
 .square.beige { background: rgba(245,245,220,0.6); }
 
-/* Остальные страницы на белом фоне */
-.panel { display: none; position: fixed; inset: 0; background: #fff; color: #222; overflow: auto; z-index: 50; }
-.panel.active { display: block; }
-.panel-inner { max-width: 720px; margin: 40px auto; padding: 20px; }
+/* sheet (menu) — белый снизу */
+.sheet { display:none; position: fixed; left:0; right:0; bottom:0; background: #fff; border-top-left-radius:12px; border-top-right-radius:12px; padding:12px; box-shadow:0 -8px 40px rgba(0,0,0,0.12); z-index:30; color:#222; }
+.sheet.active { display:block; }
 
-.tema-field { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
-.tema-field label { font-weight: bold; }
-textarea, select {
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+/* панель редактора (белый фон) */
+.panel { display:none; position:fixed; inset:0; background:#fff; overflow:auto; z-index:40; color:#222; }
+.panel.active { display:block; }
+.panel-inner { max-width:900px; margin:40px auto; padding:20px; }
+
+/* редактор внутри (Quill) */
+.editor-inner { max-width:900px; margin: 20px auto; padding: 16px; }
+.editor-toolbar { margin-top: 12px; }
+#editorText { height: 50vh; border: 1px solid #e6e9ef; background: #fff; border-radius:8px; padding:12px; margin-top: 8px; }
+
+/* форма "Тема" */
+.tema-field { margin-bottom: 14px; display:flex; flex-direction:column; gap:8px; }
+textarea, select { width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; }
+
+/* publish checks */
+#publishChecks { display:flex; gap:12px; justify-content:center; margin:12px 0; }
+#publishChecks label { display:flex; gap:6px; align-items:center; }
+
+/* адаптив */
+@media (max-width:640px){
+  #appTitle { font-size: 28px; }
+  .calendar { gap:6px; }
 }
