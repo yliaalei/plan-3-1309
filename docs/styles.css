@@ -1,48 +1,166 @@
 /* Global reset */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; line-height: 1.4; }
-
-/* Фон календаря */
-#calendarBackground {
-  min-height: 100vh;
-  padding: 10px;
-  background-image: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg');
+body, html {
+  height: 100%;
+  margin: 0;
+  background: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg') no-repeat center top;
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  color: #fff;
-  text-shadow: 0 0 6px rgba(0,0,0,0.7);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #222;
+  line-height: 1.4;
 }
 
-/* Полупрозрачные панели */
-#calendarContainer { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 10px; }
-
 /* Header */
-#header { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; text-align:center; }
-#appTitle { font-family:'Sweet Mavka Script', cursive; font-size:36px; }
-.header-right button { padding:6px 10px; }
+#header {
+  display:flex;
+  justify-content: center; /* Центрируем заголовок */
+  align-items:center;
+  padding: 20px 14px;
+  background: transparent;
+  border-bottom: 1px solid #eee;
+}
+#appTitle {
+  font-family:'Sweet Mavka Script', cursive;
+  font-size:30px;
+  text-align: center;
+  margin: 0 auto;
+}
+.header-right button {
+  padding:6px 10px;
+}
 
-/* Навигация месяцев */
-.nav { display:flex; justify-content:center; align-items:center; gap:12px; margin:10px 0; font-weight:600; }
+/* Панели & аутентификация */
+.panel { display:none; position:fixed; inset:0; background:#fff; overflow:auto; z-index:30; }
+.panel.active { display:block; }
+.panel-inner { max-width:720px; margin:40px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(10,20,40,0.06); }
+.auth .panel-inner { max-width:360px; text-align:center; margin-top:120px; }
+.primary { background:#4285F4; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
 
-/* Weekdays and grid */
-.weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-weight:700; margin: 6px 12px; }
-.calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; padding:0 12px 20px; }
-.day-cell { background: rgba(255,255,255,0.5); border-radius:8px; min-height:72px; padding:8px; position:relative; cursor:pointer; color:#000; font-weight:700; }
+/* Общий фон для календаря */
+#calendarBackground {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 10px;
+  max-width: 900px;
+  margin: 40px auto 80px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(10,20,40,0.06);
+}
 
-/* small icons container in day */
-.pub-icons { position:absolute; right:6px; bottom:6px; display:flex; gap:4px; }
-.pub-icons img { width:18px; height:18px; display:block; opacity:0.9; }
+/* Легенда в виде вертикального списка с квадратами */
+.legend {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 20px auto 40px;
+  max-width: 900px;
+  padding: 0 10px;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
 
-/* Легенда */
-.legend { display:flex; flex-direction:column; align-items:flex-start; gap:6px; margin:20px auto 40px; max-width:900px; }
-.legend-item { display:flex; align-items:center; gap:8px; font-size:15px; }
-.square { width:16px; height:16px; border-radius:3px; border:1px solid #999; display:inline-block; }
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #333;
+}
+.square {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid #999;
+  display: inline-block;
+}
 .square.burgundy { background:#800020; }
 .square.orange { background:#FFA500; }
 .square.green { background:#006400; }
 .square.brown { background:#8B4513; }
 .square.beige { background:#F5F5DC; }
 
-/* Редакторы на белом фоне */
-.panel-inner { background:#fff; color:#222; }
+/* Навигация календаря */
+.nav { display:flex; justify-content:center; align-items:center; gap:12px; margin:10px 0; }
+#monthYear { font-weight:600; }
+
+/* День недели и сетка */
+.weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-weight:700; margin: 6px 12px; }
+.calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; padding:0 12px 40px; }
+.day-cell { background:#fff; border:1px solid #e6e9ef; border-radius:8px; min-height:72px; padding:8px; position:relative; cursor:pointer; }
+.day-cell.empty { background:transparent; border:none; cursor:default; }
+.day-number { font-weight:700; font-size:13px; color:#222; }
+
+/* Маленькие иконки в дне */
+.pub-icons { position:absolute; right:6px; bottom:6px; display:flex; gap:4px; align-items:center; }
+.pub-icons img { width:18px; height:18px; display:block; opacity:0.95; }
+
+/* Лист */
+.sheet { display:none; position:fixed; left:0; right:0; bottom:0; background:#fff; border-top-left-radius:12px; border-top-right-radius:12px; padding:12px; box-shadow:0 -8px 24px rgba(0,0,0,0.08); z-index:40; }
+.sheet.active { display:block; }
+.sheet .sheet-buttons { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:6px 0; }
+.sheet button { padding:8px 10px; border-radius:8px; border:1px solid #ddd; background:#fafafa; cursor:pointer; }
+
+/* Обертка кнопок календаря */
+.button-wrapper { display: flex; flex-direction: column; align-items: center; margin: 6px; }
+
+/* Иконки под кнопками */
+.editor-icons-wrapper { display: flex; gap: 8px; margin-top: 4px; justify-content: center; }
+.editor-icons-wrapper img { width: 22px; height: 22px; }
+
+/* Редактор */
+.editor-header { display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; z-index:20; }
+.editor-type { text-align:center; font-weight:700; margin:10px 0; }
+.editor-toolbar { display:flex; gap:6px; justify-content:center; padding:8px; border-bottom:1px solid #eee; background:#fafafa; }
+#editorText { height:60vh; border:1px solid #e6e9ef; margin:12px; padding:12px; background:#fff; border-radius:8px; overflow:auto; }
+
+/* Чекбоксы публикации */
+#publishChecks { display:flex; gap:12px; justify-content:center; margin:8px 12px; }
+#publishChecks label { display:flex; gap:6px; align-items:center; font-size:14px; }
+
+/* Страница "Тема" */
+.tema-field {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tema-field label {
+  font-weight: 600;
+  font-size: 15px;
+}
+#tema_tema {
+  width: 100%;
+  resize: none;
+  font-size: 15px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+#tema_goal, #tema_type {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  background-color: #fff;
+}
+#calendarContainer {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 20px;
+  transition: background-image 0.4s ease;
+}
+
+/* Адаптив */
+@media (max-width:640px){
+  .panel-inner { margin:20px; padding:14px; }
+  #editorText { height:50vh; }
+  .day-cell { min-height:62px; }
+}
+
+/* tiny tooltip */
+#imageTooltip { position:absolute; display:none; background:#222; color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; z-index:60; }
+
+/* hints */
+.hint { color:#d00; margin-top:8px; font-size:13px; }
