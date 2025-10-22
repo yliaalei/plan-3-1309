@@ -2,7 +2,7 @@
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// ===== Google Auth =====
+// ===== Auth =====
 const googleBtn = document.getElementById('googleBtn');
 const authSection = document.getElementById('authSection');
 const appDiv = document.getElementById('app');
@@ -11,22 +11,20 @@ const logoutBtn = document.getElementById('logoutBtn');
 
 googleBtn.addEventListener('click', () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).then(result => {
-    const user = result.user;
-    if (user.email !== 'ylia.alei@gmail.com') {
-      auth.signOut();
-      authError.textContent = 'Доступ разрешён только владельцу';
-    }
-  }).catch(err => {
-    authError.textContent = err.message;
-  });
+  auth.signInWithPopup(provider)
+    .then(result => {
+      const user = result.user;
+      if (user.email !== 'ylia.alei@gmail.com') {
+        auth.signOut();
+        authError.textContent = 'Доступ разрешён только владельцу';
+      }
+    })
+    .catch(err => authError.textContent = err.message);
 });
 
-logoutBtn.addEventListener('click', () => {
-  auth.signOut();
-});
+logoutBtn.addEventListener('click', () => auth.signOut());
 
-// ===== Calendar setup =====
+// ===== Calendar =====
 const monthYearLabel = document.getElementById('monthYear');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
@@ -71,7 +69,6 @@ const monthBackgrounds = [
 
 let currentDate = new Date();
 
-// ===== Functions =====
 function formatWeekdays() {
   const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
   weekdaysContainer.innerHTML = '';
@@ -97,9 +94,8 @@ function renderCalendar() {
 
   monthYearLabel.textContent = `${currentDate.toLocaleString('ru', { month:'long' })} ${year}`;
   calendarContainer.innerHTML = '';
-  calendarContainer.appendChild(weekdaysContainer);
 
-  let startIndex = firstDay === 0 ? 6 : firstDay - 1; // adjust for Mon-Sun
+  let startIndex = firstDay === 0 ? 6 : firstDay - 1;
   for(let i=0;i<startIndex;i++){
     const emptyCell = document.createElement('div');
     emptyCell.classList.add('day-cell','empty');
@@ -118,13 +114,12 @@ function renderCalendar() {
   updateCalendarBackground();
 }
 
-// ===== Editor functions =====
+// ===== Editors =====
 function openTemaEditor(day){
   editors.temaPage.classList.add('active');
   const month = currentDate.getMonth()+1;
   const year = currentDate.getFullYear();
   document.getElementById('temaDateTitle').textContent = `${day}.${month}.${year}`;
-  // load data from Firestore
 }
 
 function closeTemaEditor(){
@@ -173,4 +168,3 @@ auth.onAuthStateChanged(user=>{
     appDiv.style.display='none';
   }
 });
-
