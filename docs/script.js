@@ -1,56 +1,41 @@
-const OWNER_EMAIL = "ylia.alei@gmail.com";
+  const dbInstance = firebase.firestore();
+  const authInstance = firebase.auth();
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+  const ICONS = {
+    vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
+    inst: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
+    tg: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg"
+  };
 
-const ICONS = {
-  vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
-  inst: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
-  tg: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg"
-};
+  function $(id){ return document.getElementById(id); }
+  function safeAssign(id, prop, handler){ const el = $(id); if(el) el[prop] = handler; }
 
-function $(id) { return document.getElementById(id); }
-function safeAssign(id, prop, handler) { const el = $(id); if(el) el[prop] = handler; }
+  safeAssign("googleBtn","onclick", ()=>{
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({prompt:"select_account"});
+    authInstance.signInWithPopup(provider).catch(e => $("authError").textContent = e.message);
+  });
 
-// Авторизация через Google
-safeAssign("googleBtn","onclick", () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
-  auth.signInWithPopup(provider).catch(e => $("authError").textContent = e.message);
-});
-safeAssign("logoutBtn","onclick", () => auth.signOut());
+  safeAssign("logoutBtn","onclick", () => authInstance.signOut());
 
-auth.onAuthStateChanged(user => {
-  if(!user){
-    document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
-    $("authSection")?.style.setProperty("display","block");
-    return;
-  }
-  if(user.email !== OWNER_EMAIL){
-    alert("Доступ только владельцу.");
-    auth.signOut();
-    return;
-  }
-  $("app")?.style.setProperty("display","block");
-  $("authSection")?.style.setProperty("display","none");
-  initApp();
-});
+  authInstance.onAuthStateChanged(user => {
+    if(!user){
+      document.querySelectorAll(".panel, #app").forEach(el => el.style.display="none");
+      $("authSection")?.style.setProperty("display","block");
+      return;
+    }
+    if(user.email !== OWNER_EMAIL){
+      alert("Доступ только владельцу.");
+      authInstance.signOut();
+      return;
+    }
+    $("app")?.style.setProperty("display","block");
+    $("authSection")?.style.setProperty("display","none");
+    initApp();
+  });
 
-function createIcon(src, alt, active) {
-  const img = document.createElement("img");
-  img.src = src;
-  img.alt = alt;
-  img.style.width = "22px";
-  img.style.height = "22px";
-  img.style.opacity = active ? "1" : "0.3";
-  img.style.filter = active ? "none" : "grayscale(100%)";
-  img.title = alt;
-  return img;
-}
-
-function initApp() {
-  const dbRef = db.collection("contentPlanner");
+  function initApp(){
+    const dbRef = dbInstance.collection("contentPlanner");
   const colorMap = {
     burgundy: "rgba(128,0,32,0.5)",
     orange: "rgba(255,165,0,0.5)",
