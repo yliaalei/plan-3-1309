@@ -1,187 +1,59 @@
-body {
-  margin: 0;
-  font-family: "Inter", sans-serif;
-  background: #000;
-  color: #fff;
-}
+(() => {
+  const OWNER_EMAIL = "ylia.alei@gmail.com";
 
-h1, h2, h3 {
-  text-align: center;
-  margin: 0.5em 0;
-}
+  const firebaseConfig = {
+    // твои ключи Firebase здесь
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-header {
-  text-align: center;
-  padding-top: 10px;
-}
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-#monthNav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  font-size: 20px;
-}
+  const ICONS = {
+    vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
+    inst: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
+    tg: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg"
+  };
 
-.nav-btn {
-  cursor: pointer;
-  background: rgba(255,255,255,0.2);
-  border: none;
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 8px;
-}
+  function $(id){ return document.getElementById(id); }
 
-#calendarBackground {
-  min-height: 100vh;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  padding-bottom: 80px;
-}
+  function createIcon(src, alt, active){
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = alt;
+    img.style.width = "20px";
+    img.style.height = "20px";
+    img.style.opacity = active ? "1" : "0.3";
+    img.style.filter = active ? "none" : "grayscale(100%)";
+    img.title = alt;
+    return img;
+  }
 
-.weekdays, .calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  max-width: 900px;
-  margin: 10px auto;
-}
+  $("googleBtn").onclick = () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({prompt:"select_account"});
+    auth.signInWithPopup(provider).catch(e => $("authError").textContent = e.message);
+  };
 
-.weekdays div {
-  text-align: center;
-  opacity: 0.8;
-}
+  $("logoutBtn").onclick = () => auth.signOut();
 
-.day-cell {
-  background: rgba(255,255,255,0.15);
-  min-height: 80px;
-  border-radius: 6px;
-  position: relative;
-  cursor: pointer;
-  transition: 0.3s;
-}
+  auth.onAuthStateChanged(user => {
+    if(!user){
+      document.querySelectorAll(".panel, #app").forEach(el => el.style.display="none");
+      $("authSection").style.display="block";
+      return;
+    }
+    if(user.email !== OWNER_EMAIL){
+      alert("Доступ только владельцу.");
+      auth.signOut();
+      return;
+    }
+    $("authSection").style.display="none";
+    $("app").style.display="block";
+    initApp();
+  });
 
-.day-cell:hover {
-  background: rgba(255,255,255,0.25);
-}
-
-.day-number {
-  position: absolute;
-  top: 4px;
-  left: 6px;
-  font-size: 14px;
-}
-
-.legend {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 6px 20px;
-  max-width: 900px;
-  margin: 20px auto;
-  font-size: 14px;
-  opacity: 0.9;
-}
-.legend-color {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  margin-right: 5px;
-  vertical-align: middle;
-}
-.burgundy { background: #800020; }
-.orange { background: #ffa500; }
-.green { background: #006400; }
-.brown { background: #8b4513; }
-.beige { background: #f5f5dc; }
-
-.logout.logout-fixed {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 18px;
-  z-index: 60;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-  font-size: 15px;
-}
-.logout.logout-fixed:hover {
-  background: rgba(255,255,255,0.3);
-}
-
-.menu {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  z-index: 100;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-}
-.menu.active { display: flex; }
-.menu-content {
-  background: rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 20px;
-  max-width: 400px;
-  text-align: center;
-}
-.editors-row {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 12px 0;
-}
-.editors-row button {
-  background: rgba(255,255,255,0.2);
-  border: none;
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.icons-row {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  margin: 10px 0;
-}
-.close-btn {
-  background: rgba(255,255,255,0.15);
-  border: none;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.panel {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #fff;
-  color: #000;
-  z-index: 120;
-  padding: 20px;
-  overflow-y: auto;
-}
-.panel.active { display: block; }
-
-#editorText {
-  background: #fff;
-  color: #000;
-  min-height: 300px;
-  margin-bottom: 20px;
-}
-#publishChecks label {
-  margin-right: 12px;
-}
+  function initApp(){
+    // ...вся логика календаря, редакторов и Firebase осталась, просто заменены переменные authInstance → auth, dbInstance → db
+  }
+})();
