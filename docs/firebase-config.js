@@ -1,4 +1,4 @@
-// Firebase configuration
+// firebase-config.js
 const firebaseConfig = {
   apiKey: "AIzaSyAqUEri9DzMftxtS7ker4tfC-EnZNK6nMA",
   authDomain: "content-planner-ffb8e.firebaseapp.com",
@@ -10,5 +10,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.firestore();
 const auth = firebase.auth();
