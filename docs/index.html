@@ -29,7 +29,7 @@
 
   <!-- APP -->
   <div id="app" style="display:none;">
-    <div id="calendarBackground">
+    <div id="calendarPage">
       <header id="header">
         <h1 id="appTitle">Мой контент-план</h1>
         <div class="header-right">
@@ -48,7 +48,6 @@
         <main id="calendar" class="calendar"></main>
       </div>
 
-      <!-- Легенда -->
       <section id="colorLegend" class="legend">
         <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
         <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
@@ -66,17 +65,14 @@
           <div class="button-wrapper">
             <button id="btnTema">Тема</button>
           </div>
-
           <div class="button-wrapper">
             <button id="btnStories">Сторис</button>
             <div class="editor-icons-wrapper" id="storiesIcons"></div>
           </div>
-
           <div class="button-wrapper">
             <button id="btnPost">Пост</button>
             <div class="editor-icons-wrapper" id="postIcons"></div>
           </div>
-
           <div class="button-wrapper">
             <button id="btnReel">Рилс</button>
             <div class="editor-icons-wrapper" id="reelIcons"></div>
@@ -87,7 +83,7 @@
     </div>
 
     <!-- TEMA PAGE -->
-    <section id="temaPage" class="panel">
+    <section id="temaPage" class="panel white-panel">
       <div class="panel-inner">
         <div class="panel-top">
           <button class="backBtn" id="temaBack">← Назад</button>
@@ -129,7 +125,7 @@
     </section>
 
     <!-- EDITOR PAGE -->
-    <section id="editorPage" class="panel">
+    <section id="editorPage" class="panel white-panel">
       <div class="editor-header">
         <button class="backBtn" id="editorBack">←</button>
         <h2 id="editorDateTitle"></h2>
@@ -146,7 +142,7 @@
         <button class="ql-image"></button>
       </div>
       <div id="editorText" class="editor-text"></div>
-      <div id="publishChecks" style="display:flex; gap:12px; justify-content:center; margin:8px 12px;"></div>
+      <div id="publishChecks"></div>
     </section>
   </div>
 
