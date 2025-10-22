@@ -1,109 +1,143 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Мой контент-план</title>
-<link rel="stylesheet" href="styles.css">
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мой контент-план</title>
+
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Sweet+Mavka+Script&display=swap" rel="stylesheet">
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 </head>
 <body>
-<div id="authSection" class="panel active">
-  <div class="panel-inner auth">
-    <h2>Вход в приложение</h2>
-    <button id="googleBtn" class="primary">Войти через Google</button>
-    <div id="authError" style="color:red; margin-top:10px;"></div>
-  </div>
-</div>
+  <!-- AUTH -->
+  <section id="authSection" class="panel active">
+    <div class="panel-inner auth">
+      <h2>Войдите через Google</h2>
+      <p>Вход доступен только владельцу</p>
+      <button id="googleBtn" class="primary">Войти через Google</button>
+      <p id="authError" class="hint"></p>
+    </div>
+  </section>
 
-<div id="app">
-  <div id="calendarBackground">
-    <div id="header">
-      <div id="appTitle">Мой контент-план</div>
+  <!-- APP -->
+  <div id="app" style="display:none;">
+    <header id="header">
+      <h1 id="appTitle">Мой контент-план</h1>
       <div class="header-right">
         <button id="logoutBtn">Выйти</button>
       </div>
-    </div>
+    </header>
 
-    <div class="nav">
-      <button id="prevBtn">←</button>
-      <div id="monthYear"></div>
-      <button id="nextBtn">→</button>
-    </div>
+    <section id="calendarContainer">
+      <section id="calendarNav" class="nav">
+        <button id="prevBtn">←</button>
+        <div id="monthYear"></div>
+        <button id="nextBtn">→</button>
+      </section>
 
-    <div id="calendarContainer">
       <div id="weekdays" class="weekdays"></div>
-      <div id="calendar" class="calendar"></div>
-    </div>
+      <main id="calendar" class="calendar"></main>
 
-    <div id="editorButtons" style="display:flex; justify-content:center; gap:12px; position:relative; z-index:1; margin-bottom:10px;">
-      <button id="btnTema" class="primary">Тема</button>
-      <button id="btnPost" class="primary">Пост</button>
-      <button id="btnReel" class="primary">Рилс</button>
-      <button id="btnStories" class="primary">Сторис</button>
-    </div>
+      <div id="calendarButtons" class="calendar-buttons">
+        <div class="button-wrapper">
+          <button id="btnTema">Тема</button>
+        </div>
+        <div class="button-wrapper">
+          <button id="btnStories">Сторис</button>
+          <div class="editor-icons-wrapper" id="storiesIcons"></div>
+        </div>
+        <div class="button-wrapper">
+          <button id="btnPost">Пост</button>
+          <div class="editor-icons-wrapper" id="postIcons"></div>
+        </div>
+        <div class="button-wrapper">
+          <button id="btnReel">Рилс</button>
+          <div class="editor-icons-wrapper" id="reelIcons"></div>
+        </div>
+      </div>
 
-    <div id="socialIndicators" style="display:flex; justify-content:center; gap:12px; margin-bottom:20px;"></div>
+      <section id="colorLegend" class="legend">
+        <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
+        <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
+        <div class="legend-item"><span class="square green"></span><span>Продающий</span></div>
+        <div class="legend-item"><span class="square brown"></span><span>Обучающий</span></div>
+        <div class="legend-item"><span class="square beige"></span><span>Интерактив</span></div>
+      </section>
+    </section>
 
-    <div class="legend">
-      <div class="legend-item"><span class="square burgundy"></span>Бордовый</div>
-      <div class="legend-item"><span class="square orange"></span>Оранжевый</div>
-      <div class="legend-item"><span class="square green"></span>Зелёный</div>
-      <div class="legend-item"><span class="square brown"></span>Коричневый</div>
-      <div class="legend-item"><span class="square beige"></span>Бежевый</div>
-    </div>
+    <!-- TEMA PAGE -->
+    <section id="temaPage" class="panel">
+      <div class="panel-inner">
+        <div class="panel-top">
+          <button class="backBtn" id="temaBack">← Назад</button>
+          <h2 id="temaDateTitle"></h2>
+        </div>
+
+        <div class="tema-field">
+          <label for="tema_tema">Тема</label>
+          <textarea id="tema_tema" rows="1" placeholder="Введите тему..."></textarea>
+        </div>
+
+        <div class="tema-field">
+          <label for="tema_goal">Цель</label>
+          <select id="tema_goal">
+            <option value="">Выберите цель...</option>
+            <option value="охват">Охват</option>
+            <option value="вовлеченность">Вовлеченность</option>
+            <option value="репост">Репост</option>
+            <option value="сохранение">Сохранение</option>
+            <option value="подписка">Подписка</option>
+            <option value="продажа">Продажа</option>
+            <option value="отзывы">Отзывы</option>
+            <option value="конверсия">Конверсия</option>
+          </select>
+        </div>
+
+        <div class="tema-field">
+          <label for="tema_type">Тип контента</label>
+          <select id="tema_type">
+            <option value="">Выберите тип...</option>
+            <option value="burgundy">Развлекательный</option>
+            <option value="orange">Экспертный</option>
+            <option value="green">Продающий</option>
+            <option value="brown">Обучающий</option>
+            <option value="beige">Интерактив</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- EDITOR PAGE -->
+    <section id="editorPage" class="panel">
+      <div class="editor-header">
+        <button class="backBtn" id="editorBack">←</button>
+        <h2 id="editorDateTitle"></h2>
+        <div class="editor-actions">
+          <button id="copyBtn">Копировать</button>
+        </div>
+      </div>
+
+      <div class="editor-type" id="editorTypeLabel"></div>
+      <div id="editorToolbar" class="editor-toolbar">
+        <button class="ql-bold"></button>
+        <button class="ql-italic"></button>
+        <button class="ql-link"></button>
+        <button class="ql-image"></button>
+      </div>
+      <div id="editorText" class="editor-text"></div>
+      <div id="publishChecks"></div>
+    </section>
+
   </div>
-</div>
 
-<!-- Редакторы -->
-<div id="temaPage" class="panel">
-  <div class="panel-inner">
-    <div class="editor-header">
-      <div id="temaBack" class="primary">Назад</div>
-    </div>
-    <div class="editor-type">Тема</div>
-    <div id="editorDateTitle"></div>
-
-    <div id="temaControls" style="margin:10px 0;">
-      <label>Тип:
-        <select id="temaType">
-          <option value="пост">Пост</option>
-          <option value="рилс">Рилс</option>
-          <option value="сторис">Сторис</option>
-        </select>
-      </label>
-      <label>Вид:
-        <select id="temaView">
-          <option value="текст">Текст</option>
-          <option value="картинка">Картинка</option>
-        </select>
-      </label>
-    </div>
-
-    <div id="editorText" style="min-height:150px; max-height:50vh; overflow:auto;"></div>
-    <div id="publishChecks"></div>
-    <button id="copyBtn" class="primary">Скопировать текст</button>
-  </div>
-</div>
-
-<div id="editorPage" class="panel">
-  <div class="panel-inner">
-    <div class="editor-header">
-      <div id="editorBack" class="primary">Назад</div>
-    </div>
-    <div id="editorTypeLabel"></div>
-    <div id="editorDateTitle"></div>
-    <div id="editorText" style="min-height:150px; max-height:50vh; overflow:auto;"></div>
-    <div id="publishChecks"></div>
-  </div>
-</div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
-
-
