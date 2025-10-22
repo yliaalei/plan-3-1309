@@ -1,22 +1,15 @@
 (() => {
   const OWNER_EMAIL = "ylia.alei@gmail.com";
 
-  const firebaseConfig = {
-    // === твои ключи Firebase здесь ===
-  };
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-
-  const dbInstance = firebase.firestore();
-  const authInstance = firebase.auth();
+  // Используем auth и db из firebase-config.js
+  function $(id) { return document.getElementById(id); }
+  function safeAssign(id, prop, handler){ const el = $(id); if(el) el[prop] = handler; }
 
   const ICONS = {
     vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
     inst: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
     tg: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg"
   };
-
-  function $(id){ return document.getElementById(id); }
-  function safeAssign(id, prop, handler){ const el = $(id); if(el) el[prop] = handler; }
 
   function createIcon(src, alt, active){
     const img = document.createElement("img");
@@ -30,14 +23,15 @@
     return img;
   }
 
-  safeAssign("googleBtn","onclick", ()=>{
+  // Авторизация
+  safeAssign("googleBtn", "onclick", () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({prompt:"select_account"});
-    authInstance.signInWithPopup(provider).catch(e => $("authError").textContent = e.message);
+    auth.signInWithPopup(provider).catch(e => $("authError").textContent = e.message);
   });
-  safeAssign("logoutBtn","onclick", () => authInstance.signOut());
+  safeAssign("logoutBtn", "onclick", () => auth.signOut());
 
-  authInstance.onAuthStateChanged(user => {
+  auth.onAuthStateChanged(user => {
     if(!user){
       document.querySelectorAll(".panel, #app").forEach(el => el.style.display="none");
       $("authSection").style.display="block";
@@ -45,7 +39,7 @@
     }
     if(user.email !== OWNER_EMAIL){
       alert("Доступ только владельцу.");
-      authInstance.signOut();
+      auth.signOut();
       return;
     }
     $("authSection").style.display="none";
@@ -54,7 +48,7 @@
   });
 
   function initApp(){
-    const dbRef = dbInstance.collection("contentPlanner");
+    const dbRef = db.collection("contentPlanner");
     const colorMap = {
       burgundy: "rgba(128,0,32,0.5)",
       orange: "rgba(255,165,0,0.5)",
