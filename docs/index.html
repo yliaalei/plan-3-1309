@@ -29,12 +29,12 @@
 
   <!-- APP -->
   <div id="app" style="display:none;">
-    <div id="calendarPage">
-      <div class="overlay"></div>
-
+    <div id="calendarBackground">
       <header id="header">
         <h1 id="appTitle">Мой контент-план</h1>
-        <button id="logoutBtn" class="logout">Выйти</button>
+        <div class="header-right">
+          <button id="logoutBtn">Выйти</button>
+        </div>
       </header>
 
       <section id="calendarNav" class="nav">
@@ -58,36 +58,33 @@
       </section>
     </div>
 
-    <!-- Меню дня (sheet) -->
+    <!-- Меню дня -->
     <div id="menu" class="sheet">
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
         <div class="sheet-buttons">
-          <div class="button-wrapper">
-            <button id="btnTema">Тема</button>
-          </div>
-          <div class="button-wrapper">
-            <button id="btnStories">Сторис</button>
-            <div class="editor-icons-wrapper" id="storiesIcons"></div>
-          </div>
-          <div class="button-wrapper">
-            <button id="btnPost">Пост</button>
-            <div class="editor-icons-wrapper" id="postIcons"></div>
-          </div>
-          <div class="button-wrapper">
-            <button id="btnReel">Рилс</button>
-            <div class="editor-icons-wrapper" id="reelIcons"></div>
-          </div>
+          <button id="btnTema">Тема</button>
+          <button id="btnStories">Сторис</button>
+          <button id="btnPost">Пост</button>
+          <button id="btnReel">Рилс</button>
+        </div>
+
+        <div class="editor-icons-row">
+          <div class="editor-icons-wrapper" id="storiesIcons"></div>
+          <div class="editor-icons-wrapper" id="postIcons"></div>
+          <div class="editor-icons-wrapper" id="reelIcons"></div>
         </div>
         <button class="sheet-close" id="menuClose">Отмена</button>
       </div>
     </div>
 
-    <!-- Редактор "Тема" (отдельная панель, белый фон) -->
+    <!-- TEMA PAGE -->
     <section id="temaPage" class="panel">
       <div class="panel-inner">
-        <button class="backBtn" id="temaBack">← Назад</button>
-        <h2 id="temaDateTitle"></h2>
+        <div class="panel-top">
+          <button class="backBtn" id="temaBack">← Назад</button>
+          <h2 id="temaDateTitle"></h2>
+        </div>
 
         <div class="tema-field">
           <label for="tema_tema">Тема</label>
@@ -123,27 +120,25 @@
       </div>
     </section>
 
-    <!-- Редактор контента (Post / Reel / Stories) -->
+    <!-- EDITOR PAGE -->
     <section id="editorPage" class="panel">
-      <div class="panel-inner editor-inner">
-        <button class="backBtn" id="editorBack">← Назад</button>
-        <div class="editor-header">
-          <h2 id="editorDateTitle"></h2>
-          <div id="editorTypeLabel" class="editor-type"></div>
-          <button id="copyBtn" class="primary">Копировать</button>
+      <div class="editor-header">
+        <button class="backBtn" id="editorBack">←</button>
+        <h2 id="editorDateTitle"></h2>
+        <div class="editor-actions">
+          <button id="copyBtn">Копировать</button>
         </div>
-
-        <div id="editorToolbar" class="editor-toolbar">
-          <button class="ql-bold"></button>
-          <button class="ql-italic"></button>
-          <button class="ql-link"></button>
-          <button class="ql-image"></button>
-        </div>
-
-        <div id="editorText" class="editor-text"></div>
-
-        <div id="publishChecks" style="display:flex; gap:12px; justify-content:center; margin:8px 12px;"></div>
       </div>
+
+      <div class="editor-type" id="editorTypeLabel"></div>
+      <div id="editorToolbar" class="editor-toolbar">
+        <button class="ql-bold"></button>
+        <button class="ql-italic"></button>
+        <button class="ql-link"></button>
+        <button class="ql-image"></button>
+      </div>
+      <div id="editorText" class="editor-text"></div>
+      <div id="publishChecks" style="display:flex; gap:12px; justify-content:center; margin:8px 12px;"></div>
     </section>
   </div>
 
