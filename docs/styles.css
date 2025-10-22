@@ -32,9 +32,24 @@ body, html {
 .primary { background:#4285F4; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
 
 /* Calendar */
-#calendarContainer { background-color: rgba(255,255,255,0.8); border-radius:10px; padding:20px; transition: background-image 0.4s ease; }
-.nav { display:flex; justify-content:center; align-items:center; gap:12px; margin:10px 0; }
-#monthYear { font-weight:600; }
+#appTitle, #monthYear, .weekdays div, .legend-item span {
+  color: white !important;
+}
+
+#calendarContainer {
+  background-color: transparent !important;
+}
+
+.day-cell {
+  background: rgba(255,255,255,0.0) !important; /* полностью прозрачные */
+  border: 1px solid rgba(255,255,255,0.3);
+  aspect-ratio: 1/1;
+}
+
+.day-cell .day-number {
+  color: white !important;
+}
+
 
 /* Weekdays & Grid */
 .weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-weight:700; margin:6px 12px; }
@@ -50,9 +65,6 @@ body, html {
   cursor:pointer;
   overflow:hidden;
 }
-.day-cell.empty { background:transparent; border:none; cursor:default; }
-
-.day-number { position:absolute; top:6px; left:6px; font-weight:700; font-size:13px; color:#222; }
 
 /* Icons in day */
 .pub-icons { position:absolute; right:6px; bottom:6px; display:flex; gap:4px; align-items:center; }
