@@ -74,7 +74,6 @@ header {
   font-size: 14px;
 }
 
-/* Легенда в две строки */
 .legend {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
@@ -98,7 +97,6 @@ header {
 .brown { background: #8b4513; }
 .beige { background: #f5f5dc; }
 
-/* Кнопка Выйти — фиксирована внизу по центру */
 .logout.logout-fixed {
   position: fixed;
   left: 50%;
@@ -118,7 +116,6 @@ header {
   background: rgba(255,255,255,0.3);
 }
 
-/* Меню редакторов */
 .menu {
   display: none;
   position: fixed;
@@ -167,7 +164,6 @@ header {
   cursor: pointer;
 }
 
-/* Панели редакторов */
 .panel {
   display: none;
   position: fixed;
