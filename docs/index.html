@@ -21,7 +21,6 @@
   <section id="authSection" class="panel active">
     <div class="panel-inner auth">
       <h2>Войдите через Google</h2>
-      <p>Вход доступен только владельцу</p>
       <button id="googleBtn" class="primary">Войти через Google</button>
       <p id="authError" class="hint"></p>
     </div>
@@ -62,27 +61,16 @@
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
         <div class="sheet-buttons">
-          <div class="button-wrapper">
-            <button id="btnTema">Тема</button>
-          </div>
-          <div class="button-wrapper">
-            <button id="btnStories">Сторис</button>
-            <div class="editor-icons-wrapper" id="storiesIcons"></div>
-          </div>
-          <div class="button-wrapper">
-            <button id="btnPost">Пост</button>
-            <div class="editor-icons-wrapper" id="postIcons"></div>
-          </div>
-          <div class="button-wrapper">
-            <button id="btnReel">Рилс</button>
-            <div class="editor-icons-wrapper" id="reelIcons"></div>
-          </div>
+          <div class="button-wrapper"><button id="btnTema">Тема</button></div>
+          <div class="button-wrapper"><button id="btnStories">Сторис</button><div id="storiesIcons"></div></div>
+          <div class="button-wrapper"><button id="btnPost">Пост</button><div id="postIcons"></div></div>
+          <div class="button-wrapper"><button id="btnReel">Рилс</button><div id="reelIcons"></div></div>
         </div>
         <button class="sheet-close" id="menuClose">Отмена</button>
       </div>
     </div>
 
-    <!-- TEMA PAGE -->
+    <!-- Тема -->
     <section id="temaPage" class="panel white-panel">
       <div class="panel-inner">
         <div class="panel-top">
@@ -124,7 +112,7 @@
       </div>
     </section>
 
-    <!-- EDITOR PAGE -->
+    <!-- Редактор -->
     <section id="editorPage" class="panel white-panel">
       <div class="editor-header">
         <button class="backBtn" id="editorBack">←</button>
@@ -149,3 +137,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
