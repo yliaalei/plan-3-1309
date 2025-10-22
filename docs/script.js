@@ -266,3 +266,4 @@ function initApp(){
     dbRef.doc(selectedDateKey).set(data, { merge: true }).then(()=> renderCalendar());
   }
 }
+
