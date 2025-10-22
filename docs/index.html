@@ -29,12 +29,11 @@
 
   <!-- APP -->
   <div id="app" style="display:none;">
-    <div id="calendarBackground">
+    <div id="calendarPage">
+      <div class="overlay"></div>
       <header id="header">
         <h1 id="appTitle">Мой контент-план</h1>
-        <div class="header-right">
-          <button id="logoutBtn">Выйти</button>
-        </div>
+        <button id="logoutBtn" class="logout">Выйти</button>
       </header>
 
       <section id="calendarNav" class="nav">
@@ -66,17 +65,14 @@
           <div class="button-wrapper">
             <button id="btnTema">Тема</button>
           </div>
-
           <div class="button-wrapper">
             <button id="btnStories">Сторис</button>
             <div class="editor-icons-wrapper" id="storiesIcons"></div>
           </div>
-
           <div class="button-wrapper">
             <button id="btnPost">Пост</button>
             <div class="editor-icons-wrapper" id="postIcons"></div>
           </div>
-
           <div class="button-wrapper">
             <button id="btnReel">Рилс</button>
             <div class="editor-icons-wrapper" id="reelIcons"></div>
@@ -86,13 +82,11 @@
       </div>
     </div>
 
-    <!-- TEMA PAGE -->
+    <!-- Страницы редакторов -->
     <section id="temaPage" class="panel">
       <div class="panel-inner">
-        <div class="panel-top">
-          <button class="backBtn" id="temaBack">← Назад</button>
-          <h2 id="temaDateTitle"></h2>
-        </div>
+        <button class="backBtn" id="temaBack">← Назад</button>
+        <h2 id="temaDateTitle"></h2>
 
         <div class="tema-field">
           <label for="tema_tema">Тема</label>
@@ -128,17 +122,13 @@
       </div>
     </section>
 
-    <!-- EDITOR PAGE -->
     <section id="editorPage" class="panel">
       <div class="editor-header">
         <button class="backBtn" id="editorBack">←</button>
         <h2 id="editorDateTitle"></h2>
-        <div class="editor-actions">
-          <button id="copyBtn">Копировать</button>
-        </div>
+        <button id="copyBtn">Копировать</button>
       </div>
-
-      <div class="editor-type" id="editorTypeLabel"></div>
+      <div id="editorTypeLabel"></div>
       <div id="editorToolbar" class="editor-toolbar">
         <button class="ql-bold"></button>
         <button class="ql-italic"></button>
@@ -146,10 +136,11 @@
         <button class="ql-image"></button>
       </div>
       <div id="editorText" class="editor-text"></div>
-      <div id="publishChecks" style="display:flex; gap:12px; justify-content:center; margin:8px 12px;"></div>
+      <div id="publishChecks"></div>
     </section>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
+
