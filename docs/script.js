@@ -1,168 +1,187 @@
-(() => {
-  const OWNER_EMAIL = "ylia.alei@gmail.com";
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: #000;
+  color: #fff;
+}
 
-  // Используем auth и db из firebase-config.js
-  function $(id) { return document.getElementById(id); }
-  function safeAssign(id, prop, handler){ const el = $(id); if(el) el[prop] = handler; }
+h1, h2, h3 {
+  text-align: center;
+  margin: 0.5em 0;
+}
 
-  const ICONS = {
-    vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
-    inst: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
-    tg: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg"
-  };
+header {
+  text-align: center;
+  padding-top: 10px;
+}
 
-  function createIcon(src, alt, active){
-    const img = document.createElement("img");
-    img.src = src;
-    img.alt = alt;
-    img.style.width = "20px";
-    img.style.height = "20px";
-    img.style.opacity = active ? "1" : "0.3";
-    img.style.filter = active ? "none" : "grayscale(100%)";
-    img.title = alt;
-    return img;
-  }
+#monthNav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+}
 
-  // Авторизация
-  safeAssign("googleBtn", "onclick", () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({prompt:"select_account"});
-    auth.signInWithPopup(provider).catch(e => $("authError").textContent = e.message);
-  });
-  safeAssign("logoutBtn", "onclick", () => auth.signOut());
+.nav-btn {
+  cursor: pointer;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
 
-  auth.onAuthStateChanged(user => {
-    if(!user){
-      document.querySelectorAll(".panel, #app").forEach(el => el.style.display="none");
-      $("authSection").style.display="block";
-      return;
-    }
-    if(user.email !== OWNER_EMAIL){
-      alert("Доступ только владельцу.");
-      auth.signOut();
-      return;
-    }
-    $("authSection").style.display="none";
-    $("app").style.display="block";
-    initApp();
-  });
+#calendarBackground {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  padding-bottom: 80px;
+}
 
-  function initApp(){
-    const dbRef = db.collection("contentPlanner");
-    const colorMap = {
-      burgundy: "rgba(128,0,32,0.5)",
-      orange: "rgba(255,165,0,0.5)",
-      green: "rgba(0,100,0,0.5)",
-      brown: "rgba(139,69,19,0.5)",
-      beige: "rgba(245,245,220,0.5)",
-      free: "rgba(255,255,255,0.3)"
-    };
+.weekdays, .calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  max-width: 900px;
+  margin: 10px auto;
+}
 
-    let selectedDateKey = null;
-    let selectedType = null;
-    let currentMonth = (new Date()).getMonth();
-    let currentYear = (new Date()).getFullYear();
-    let quill = null;
+.weekdays div {
+  text-align: center;
+  opacity: 0.8;
+}
 
-    const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
-    const weekdays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+.day-cell {
+  background: rgba(255,255,255,0.15);
+  min-height: 80px;
+  border-radius: 6px;
+  position: relative;
+  cursor: pointer;
+  transition: 0.3s;
+}
 
-    safeAssign("prevBtn","onclick", () => { currentMonth--; if(currentMonth<0){currentMonth=11; currentYear--;} renderCalendar(); });
-    safeAssign("nextBtn","onclick", () => { currentMonth++; if(currentMonth>11){currentMonth=0; currentYear++;} renderCalendar(); });
+.day-cell:hover {
+  background: rgba(255,255,255,0.25);
+}
 
-    safeAssign("menuClose","onclick", closeMenu);
-    safeAssign("btnTema","onclick", () => showEditor("tema"));
-    safeAssign("btnStories","onclick", () => showEditor("stories"));
-    safeAssign("btnPost","onclick", () => showEditor("post"));
-    safeAssign("btnReel","onclick", () => showEditor("reel"));
-    safeAssign("temaBack","onclick", () => hidePanel("temaPage"));
-    safeAssign("editorBack","onclick", () => hidePanel("editorPage"));
-    safeAssign("copyBtn","onclick", copyEditorText);
+.day-number {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 14px;
+}
 
-    renderWeekdays();
-    renderCalendar();
+.legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 6px 20px;
+  max-width: 900px;
+  margin: 20px auto;
+  font-size: 14px;
+  opacity: 0.9;
+}
+.legend-color {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.burgundy { background: #800020; }
+.orange { background: #ffa500; }
+.green { background: #006400; }
+.brown { background: #8b4513; }
+.beige { background: #f5f5dc; }
 
-    function pad(n){ return String(n).padStart(2,"0"); }
-    function makeDateKey(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
-    function formatReadable(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("ru-RU",{day:"2-digit",month:"long",year:"numeric"}); }
+.logout.logout-fixed {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
+  z-index: 60;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  font-size: 15px;
+}
+.logout.logout-fixed:hover {
+  background: rgba(255,255,255,0.3);
+}
 
-    function renderWeekdays(){
-      const wd = $("weekdays"); wd.innerHTML = "";
-      weekdays.forEach(d => { const div=document.createElement("div"); div.textContent=d; wd.appendChild(div); });
-    }
+.menu {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+.menu.active { display: flex; }
+.menu-content {
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 400px;
+  text-align: center;
+}
+.editors-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0;
+}
+.editors-row button {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.icons-row {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin: 10px 0;
+}
+.close-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
-    function renderCalendar(){
-      const cal=$("calendar"); cal.innerHTML="";
-      $("monthYear").textContent=`${monthNames[currentMonth]} ${currentYear}`;
-      const firstDay=new Date(currentYear,currentMonth,1).getDay();
-      const leading=(firstDay===0?6:firstDay-1);
-      for(let i=0;i<leading;i++){ cal.appendChild(document.createElement("div")).className="day-cell empty"; }
-      const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-      for(let d=1;d<=daysInMonth;d++){
-        const key=makeDateKey(currentYear,currentMonth,d);
-        const cell=document.createElement("div");
-        cell.className="day-cell"; cell.dataset.date=key;
-        const num=document.createElement("div"); num.className="day-number"; num.textContent=d;
-        cell.appendChild(num);
-        cell.style.backgroundColor=colorMap.free;
-        cell.onclick=()=>openMenuForDate(key);
-        dbRef.doc(key).get().then(doc=>{
-          if(doc.exists){
-            const c=doc.data().temaColor||"free";
-            cell.style.backgroundColor=colorMap[c]||colorMap.free;
-          }
-        });
-        cal.appendChild(cell);
-      }
-      updateCalendarBackground(currentMonth);
-    }
+.panel {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  color: #000;
+  z-index: 120;
+  padding: 20px;
+  overflow-y: auto;
+}
+.panel.active { display: block; }
 
-    function updateCalendarBackground(month){
-      const bg=$("calendarBackground");
-      if([8,9,10].includes(month)){
-        bg.style.backgroundImage="linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg')";
-      } else {
-        bg.style.backgroundImage="none";
-      }
-    }
-
-    function openMenuForDate(key){
-      selectedDateKey=key;
-      $("menuDateTitle").textContent=formatReadable(key);
-      showMenu();
-      renderCalendarIcons(key);
-    }
-
-    function showMenu(){ $("menu").classList.add("active"); }
-    function closeMenu(){ $("menu").classList.remove("active"); }
-    function showPanel(id){ $(id).classList.add("active"); }
-    function hidePanel(id){ $(id).classList.remove("active"); }
-
-    function showEditor(type){
-      closeMenu();
-      selectedType=type;
-      $("editorDateTitle").textContent=formatReadable(selectedDateKey);
-      $("editorTypeLabel").textContent=type.toUpperCase();
-      showPanel("editorPage");
-      if(quill) quill.root.innerHTML="";
-      quill=new Quill("#editorText",{theme:"snow"});
-    }
-
-    function copyEditorText(){
-      const text=quill.root.innerHTML;
-      navigator.clipboard.writeText(text).then(()=>alert("Текст скопирован!"));
-    }
-
-    function renderCalendarIcons(key){
-      dbRef.doc(key).get().then(doc=>{
-        if(!doc.exists) return;
-        const d=doc.data();
-        const containers=["postIcons","reelIcons","storiesIcons"];
-        containers.forEach(id=>$(id).innerHTML="");
-        if(d.vk) $("postIcons").appendChild(createIcon(ICONS.vk,"VK",true));
-        if(d.inst) $("reelIcons").appendChild(createIcon(ICONS.inst,"Instagram",true));
-        if(d.tg) $("storiesIcons").appendChild(createIcon(ICONS.tg,"Telegram",true));
-      });
-    }
-  }
-})();
+#editorText {
+  background: #fff;
+  color: #000;
+  min-height: 300px;
+  margin-bottom: 20px;
+}
+#publishChecks label {
+  margin-right: 12px;
+}
