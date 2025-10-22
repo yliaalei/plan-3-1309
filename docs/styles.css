@@ -1,65 +1,57 @@
-/* Сброс */
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; }
+/* Global reset */
+* { box-sizing: border-box; margin:0; padding:0; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; line-height:1.4; color:#222; }
 
-/* Фон страницы календаря */
-#calendarBackground {
-  min-height:100vh;
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
-  position:relative;
-  color:#fff;
-  text-shadow:0 0 6px rgba(0,0,0,0.7);
-}
-#calendarBackground::before {
-  content:"";
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,0.4);
-  z-index:0;
-}
+/* Calendar page font white */
+#app #calendarContainer, #app #calendarContainer * { color:white; }
 
-/* Заголовок */
-#header { text-align:center; padding:15px; position:relative; z-index:1; }
-#appTitle { font-size:32px; font-weight:bold; }
+/* Header */
+#header { display:flex; justify-content:center; align-items:center; padding:10px 14px; }
+#appTitle { font-family:'Sweet Mavka Script', cursive; font-size:30px; text-align:center; }
 
-/* Навигация */
-.nav { display:flex; justify-content:center; align-items:center; gap:12px; margin:10px 0; position:relative; z-index:1; }
-#monthYear { font-weight:600; font-size:20px; }
-
-/* Календарь */
-#calendarContainer { position:relative; z-index:1; max-width:900px; margin:0 auto; }
-.weekdays, .calendar { display:grid; grid-template-columns:repeat(7,1fr); }
-.weekdays div { text-align:center; font-weight:700; margin-bottom:6px; }
-.day-cell { aspect-ratio:1/1; background:rgba(255,255,255,0.6); border-radius:8px; display:flex; justify-content:center; align-items:center; cursor:pointer; position:relative; }
-.day-cell.empty { background:transparent; cursor:default; }
-.day-number { font-weight:700; font-size:14px; }
-
-/* Соцсети под кнопками */
-#socialIndicators img { width:22px; height:22px; }
-
-/* Легенда */
-.legend { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:10px auto 30px; max-width:900px; z-index:1; position:relative; }
-.legend-item { display:flex; align-items:center; gap:6px; font-size:15px; }
-.square { width:16px; height:16px; border-radius:3px; border:1px solid #999; }
-
-/* Кнопки редакторов */
-#editorButtons button { padding:6px 12px; border:none; border-radius:8px; cursor:pointer; }
-
-/* Редакторы */
+/* Panels & auth */
 .panel { display:none; position:fixed; inset:0; background:#fff; overflow:auto; z-index:30; }
 .panel.active { display:block; }
 .panel-inner { max-width:720px; margin:40px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(10,20,40,0.06); }
-.editor-type { font-weight:700; text-align:center; margin:10px 0; }
-#editorText { border:1px solid #e6e9ef; border-radius:8px; padding:10px; width:100%; resize:none; overflow:auto; }
+.auth .panel-inner { max-width:360px; margin-top:120px; text-align:center; }
+.primary { background:#4285F4; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
 
-/* Publish checks */
-#publishChecks { display:flex; gap:12px; justify-content:center; margin:8px 12px; }
-#publishChecks label { display:flex; gap:6px; align-items:center; font-size:14px; }
+/* Calendar container */
+#calendarContainer { padding:20px; background-size:cover; background-position:center; background-repeat:no-repeat; position:relative; }
+#calendarNav { display:flex; justify-content:center; align-items:center; gap:12px; margin:10px 0; }
+#monthYear { font-weight:600; font-size:18px; }
+
+/* Weekdays and grid */
+.weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-weight:700; margin:6px 12px; }
+.calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; padding:0 12px 12px; }
+.day-cell { border-radius:8px; min-height:72px; display:flex; justify-content:center; align-items:center; cursor:pointer; background:rgba(255,255,255,0.7); }
+.day-number { font-weight:700; font-size:16px; }
+
+/* calendar buttons */
+.calendar-buttons { display:flex; justify-content:center; gap:12px; margin:12px 0; flex-wrap:wrap; }
+.button-wrapper { display:flex; flex-direction:column; align-items:center; }
+.editor-icons-wrapper { display:flex; gap:6px; margin-top:4px; }
+.editor-icons-wrapper img { width:22px; height:22px; }
+
+/* legend */
+.legend { display:flex; flex-direction:column; align-items:flex-start; gap:6px; margin:20px auto; max-width:900px; padding:0 10px; }
+.legend-item { display:flex; align-items:center; gap:8px; font-size:15px; }
+.square { width:16px; height:16px; border-radius:3px; border:1px solid #999; display:inline-block; }
+.square.burgundy { background:#800020; }
+.square.orange { background:#FFA500; }
+.square.green { background:#006400; }
+.square.brown { background:#8B4513; }
+.square.beige { background:#F5F5DC; }
+
+/* editor */
+.editor-header { display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; z-index:20; color:#222; }
+#editorText { height:60vh; border:1px solid #e6e9ef; margin:12px; padding:12px; background:#fff; border-radius:8px; overflow:auto; color:#222; }
+.editor-type { text-align:center; font-weight:700; margin:10px 0; }
+.editor-toolbar { display:flex; gap:6px; justify-content:center; padding:8px; border-bottom:1px solid #eee; background:#fafafa; }
 
 /* Responsive */
 @media(max-width:640px){
-  .panel-inner { margin:20px; padding:14px; }
-  .day-cell { aspect-ratio:1/1; min-height:50px; }
+  .panel-inner{ margin:20px; padding:14px; }
+  #editorText{ height:50vh; }
+  .day-cell{ min-height:62px; }
 }
