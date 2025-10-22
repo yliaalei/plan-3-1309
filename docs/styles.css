@@ -5,15 +5,6 @@ body, html {
   color:#222; line-height:1.4;
 }
 
-#calendarBackground {
-  background: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg') no-repeat center top;
-  background-size: cover;
-  max-width:900px;
-  margin:40px auto 20px;
-  padding:20px;
-  border-radius:10px;
-}
-
 #calendarContainer { background:transparent; padding:0; }
 .day-cell { aspect-ratio:1/1; border-radius:8px; } /* квадратные ячейки */
 .legend-row { display:flex; gap:12px; justify-content:center; margin-bottom:6px; }
