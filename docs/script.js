@@ -70,7 +70,6 @@ function initApp(){
   safeAssign("prevBtn","onclick", () => { currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; } renderCalendar(); });
   safeAssign("nextBtn","onclick", () => { currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; } renderCalendar(); });
   safeAssign("menuClose","onclick", closeMenu);
-  safeAssign("btnTema","onclick", () => showEditor("tema"));
   safeAssign("btnStories","onclick", () => showEditor("stories"));
   safeAssign("btnPost","onclick", () => showEditor("post"));
   safeAssign("btnReel","onclick", () => showEditor("reel"));
@@ -106,7 +105,6 @@ function initApp(){
       cell.className = "day-cell"; cell.dataset.date = key;
       const num = document.createElement("div"); num.className = "day-number"; num.textContent=d;
       cell.appendChild(num);
-      cell.style.backgroundColor=colorMap.free;
       cell.onclick=()=> openMenuForDate(key);
 
       dbRef.doc(key).get().then(doc => {
@@ -117,21 +115,6 @@ function initApp(){
         }
       });
       cal.appendChild(cell);
-    }
-
-    updateCalendarBackground(currentMonth);
-  }
-
-  function updateCalendarBackground(currentMonth) {
-    const calendarSection = document.getElementById("calendarContainer");
-
-    if ([8, 9, 10].includes(currentMonth)) {
-      calendarSection.style.backgroundImage = "url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg')";
-      calendarSection.style.backgroundSize = "cover";
-      calendarSection.style.backgroundPosition = "center";
-      calendarSection.style.backgroundRepeat = "no-repeat";
-    } else {
-      calendarSection.style.backgroundImage = "none";
     }
   }
 
@@ -256,4 +239,3 @@ function initApp(){
     dbRef.doc(selectedDateKey).set(data, { merge: true }).then(()=> renderCalendar());
   }
 }
-
