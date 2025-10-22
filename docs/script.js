@@ -1,3 +1,14 @@
+// Конфигурация Firebase
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Настройки приложения
 const OWNER_EMAIL = "ylia.alei@gmail.com";
 
 const MONTH_BACKGROUNDS = [
@@ -24,174 +35,88 @@ const COLOR_MAP = {
   free: "rgba(255,255,255,0.6)"
 };
 
-const ICONS = {
-  vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
-  inst: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
-  tg: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg"
-};
+const $ = id => document.getElementById(id);
 
-function $(id){ return document.getElementById(id); }
-function safeAssign(id, prop, handler){ const el = $(id); if(el) el[prop] = handler; }
-
-safeAssign("googleBtn", "onclick", () => {
+// Вход и проверка владельца
+$("googleBtn").onclick = () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
-  auth.signInWithPopup(provider)
-      .then(result => window.focus())
-      .catch(e => $("authError").textContent = e.message);
-});
-
-safeAssign("logoutBtn", "onclick", () => { auth.signOut(); });
+  auth.signInWithPopup(provider).catch(e=>$("authError").textContent=e.message);
+};
+$("logoutBtn").onclick = () => auth.signOut();
 
 auth.onAuthStateChanged(user => {
-  if(!user){
-    document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
-    $("authSection").style.display = "block";
-    return;
-  }
-  if(user.email !== OWNER_EMAIL){
-    alert("Доступ только владельцу.");
-    auth.signOut();
-    return;
-  }
-  $("app").style.display = "block";
-  $("authSection").style.display = "none";
-  initApp();
+  if(!user){ document.querySelector("#app").style.display="none"; $("authSection").style.display="block"; return; }
+  if(user.email!==OWNER_EMAIL){ alert("Доступ только владельцу"); auth.signOut(); return; }
+  $("app").style.display="block"; $("authSection").style.display="none"; initApp();
 });
 
-function createIcon(src, alt, active){
-  const img = document.createElement("img");
-  img.src = src;
-  img.alt = alt;
-  img.style.width = "22px";
-  img.style.height = "22px";
-  img.style.opacity = active ? "1" : "0.3";
-  img.style.filter = active ? "none" : "grayscale(100%)";
-  img.title = alt;
-  return img;
-}
-
+// Инициализация приложения
 function initApp(){
   const dbRef = db.collection("contentPlanner");
-  let selectedDateKey = null;
-  let selectedType = null;
   let currentMonth = (new Date()).getMonth();
   let currentYear = (new Date()).getFullYear();
+  let selectedDate = null;
   let quill = null;
 
   const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
   const weekdays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
-  safeAssign("prevBtn","onclick", () => { currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; } renderCalendar(); });
-  safeAssign("nextBtn","onclick", () => { currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; } renderCalendar(); });
+  $("prevBtn").onclick = ()=>{ currentMonth--; if(currentMonth<0){currentMonth=11; currentYear--;} renderCalendar();}
+  $("nextBtn").onclick = ()=>{ currentMonth++; if(currentMonth>11){currentMonth=0; currentYear++;} renderCalendar();}
 
-  safeAssign("menuClose","onclick", closeMenu);
-  safeAssign("btnTema","onclick", () => showEditor("tema"));
-  safeAssign("btnStories","onclick", () => showEditor("stories"));
-  safeAssign("btnPost","onclick", () => showEditor("post"));
-  safeAssign("btnReel","onclick", () => showEditor("reel"));
-  safeAssign("temaBack","onclick", () => hidePanel("temaPage"));
-  safeAssign("editorBack","onclick", () => hidePanel("editorPage"));
-  safeAssign("copyBtn","onclick", copyEditorText);
-
-  renderWeekdays();
-  renderCalendar();
+  $("btnTema").onclick = ()=>showEditor("tema");
+  $("btnPost").onclick = ()=>showEditor("post");
+  $("btnReel").onclick = ()=>showEditor("reel");
+  $("btnStories").onclick = ()=>showEditor("stories");
+  $("temaBack").onclick = ()=>hidePanel("temaPage");
+  $("editorBack").onclick = ()=>hidePanel("editorPage");
+  $("copyBtn").onclick = ()=>{ if(quill) navigator.clipboard.writeText(quill.getText()); }
 
   function pad(n){ return String(n).padStart(2,"0"); }
   function makeDateKey(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
   function formatReadable(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("ru-RU",{day:"2-digit",month:"long",year:"numeric"}); }
 
   function renderWeekdays(){
-    const wd = $("weekdays"); wd.innerHTML="";
-    weekdays.forEach(d => { const div=document.createElement("div"); div.textContent=d; wd.appendChild(div); });
+    const wd = $("weekdays"); wd.innerHTML=""; weekdays.forEach(d=>{ const div=document.createElement("div"); div.textContent=d; wd.appendChild(div); });
   }
 
-  function updateCalendarBackground(){
-    const bg = MONTH_BACKGROUNDS[currentMonth] || "";
-    $("calendarBackground").style.backgroundImage = `url('${bg}')`;
-  }
+  function updateCalendarBackground(){ $("calendarBackground").style.backgroundImage=`url('${MONTH_BACKGROUNDS[currentMonth]}')`; }
 
   function renderCalendar(){
     updateCalendarBackground();
-    const cal = $("calendar");
-    cal.innerHTML = "";
     $("monthYear").textContent = `${monthNames[currentMonth]} ${currentYear}`;
-    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-    const leading = (firstDay === 0 ? 6 : firstDay - 1);
-    for(let i=0;i<leading;i++){ cal.appendChild(document.createElement("div")).className="day-cell empty"; }
-    const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
+    const cal = $("calendar"); cal.innerHTML="";
+    const firstDay = new Date(currentYear,currentMonth,1).getDay();
+    const leading = (firstDay===0?6:firstDay-1);
+    for(let i=0;i<leading;i++){ const e=document.createElement("div"); e.className="day-cell empty"; cal.appendChild(e); }
+    const daysInMonth = new Date(currentYear,currentMonth+1,0).getDate();
     for(let d=1; d<=daysInMonth; d++){
-      const key = makeDateKey(currentYear, currentMonth, d);
+      const key = makeDateKey(currentYear,currentMonth,d);
       const cell = document.createElement("div");
-      cell.className = "day-cell"; cell.dataset.date = key;
-      const num = document.createElement("div"); num.className = "day-number"; num.textContent=d;
+      cell.className="day-cell"; cell.dataset.date=key;
+      const num = document.createElement("div"); num.className="day-number"; num.textContent=d;
       cell.appendChild(num);
-      cell.style.backgroundColor=COLOR_MAP.free;
-      cell.onclick=()=> openMenuForDate(key);
-      dbRef.doc(key).get().then(doc => {
-        if(doc.exists){
-          const data=doc.data();
-          const c=data.temaColor||"free";
-          cell.style.backgroundColor=COLOR_MAP[c]||COLOR_MAP.free;
-        }
-      });
+      cell.style.backgroundColor = COLOR_MAP.free;
+      cell.onclick=()=>openEditorForDate(key);
+      dbRef.doc(key).get().then(doc=>{ if(doc.exists){ const data=doc.data(); const c=data.temaColor||"free"; cell.style.backgroundColor=COLOR_MAP[c]||COLOR_MAP.free; }});
       cal.appendChild(cell);
     }
   }
 
-  function openMenuForDate(key){
-    selectedDateKey=key;
-    $("menuDateTitle").textContent=formatReadable(key);
-    showMenu();
-    renderCalendarIcons(key);
-  }
-
-  function showMenu(){ $("menu").style.display="block"; }
-  function closeMenu(){ $("menu").style.display="none"; }
+  function openEditorForDate(key){ selectedDate=key; showEditor("tema"); $("editorDateTitle").textContent=formatReadable(key); }
 
   function showEditor(type){
-    selectedType=type;
-    $("editorPage").style.display="block";
-    $("menu").style.display="none";
-    $("editorTypeLabel").textContent=type.toUpperCase();
-    $("editorDateTitle").textContent=formatReadable(selectedDateKey);
-
-    if(quill){ quill.setText(""); quill = null; }
-    quill = new Quill("#editorText", { theme:"snow", placeholder:"Введите текст..." });
-
-    dbRef.doc(selectedDateKey).get().then(doc=>{
-      if(doc.exists){
-        const data=doc.data();
-        const val=data[type]||"";
-        quill.setText(val);
-        renderPublishChecks(data, type);
-      }
+    const panelId = type==="tema"?"temaPage":"editorPage";
+    $(panelId).style.display="block"; $("app").style.display="none";
+    if(quill){ quill=null; }
+    quill = new Quill("#editorText",{theme:"snow"});
+    dbRef.doc(selectedDate).get().then(doc=>{
+      if(doc.exists){ const val=doc.data()[type]||""; quill.setText(val); }
     });
   }
 
-  function hidePanel(panelId){ $(panelId).style.display="none"; renderCalendar(); }
+  function hidePanel(panelId){ $(panelId).style.display="none"; $("app").style.display="block"; renderCalendar(); }
 
-  function renderPublishChecks(data, type){
-    const container=$("publishChecks"); container.innerHTML="";
-    ["vk","inst","tg"].forEach(s=>{
-      const checked = data[type+"_"+s]||false;
-      const label=document.createElement("label");
-      const input=document.createElement("input");
-      input.type="checkbox"; input.checked=checked;
-      input.onchange = e => dbRef.doc(selectedDateKey).set({ [type+"_"+s]:e.target.checked }, { merge:true });
-      label.appendChild(input); label.appendChild(document.createTextNode(s.toUpperCase()));
-      container.appendChild(label);
-    });
-  }
-
-  function copyEditorText(){
-    if(quill){
-      navigator.clipboard.writeText(quill.getText()).then(()=>alert("Скопировано!"));
-    }
-  }
-
-  function renderCalendarIcons(key){
-    // заглушка: можно добавить сюда маленькие иконки на ячейки, если есть публикации
-  }
+  renderWeekdays();
+  renderCalendar();
 }
-
