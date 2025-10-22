@@ -21,6 +21,7 @@
   <section id="authSection" class="panel active">
     <div class="panel-inner auth">
       <h2>Войдите через Google</h2>
+      <p>Вход доступен только владельцу</p>
       <button id="googleBtn" class="primary">Войти через Google</button>
       <p id="authError" class="hint"></p>
     </div>
@@ -28,7 +29,7 @@
 
   <!-- APP -->
   <div id="app" style="display:none;">
-    <div id="calendarPage">
+    <div id="calendarBackground">
       <header id="header">
         <h1 id="appTitle">Мой контент-план</h1>
         <div class="header-right">
@@ -47,6 +48,7 @@
         <main id="calendar" class="calendar"></main>
       </div>
 
+      <!-- Легенда -->
       <section id="colorLegend" class="legend">
         <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
         <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
@@ -61,17 +63,25 @@
       <div class="sheet-inner">
         <h3 id="menuDateTitle"></h3>
         <div class="sheet-buttons">
-          <div class="button-wrapper"><button id="btnTema">Тема</button></div>
-          <div class="button-wrapper"><button id="btnStories">Сторис</button><div id="storiesIcons"></div></div>
-          <div class="button-wrapper"><button id="btnPost">Пост</button><div id="postIcons"></div></div>
-          <div class="button-wrapper"><button id="btnReel">Рилс</button><div id="reelIcons"></div></div>
+          <div class="button-wrapper">
+            <button id="btnTema">Тема</button>
+          </div>
+          <div class="button-wrapper">
+            <button id="btnStories">Сторис</button>
+          </div>
+          <div class="button-wrapper">
+            <button id="btnPost">Пост</button>
+          </div>
+          <div class="button-wrapper">
+            <button id="btnReel">Рилс</button>
+          </div>
         </div>
         <button class="sheet-close" id="menuClose">Отмена</button>
       </div>
     </div>
 
-    <!-- Тема -->
-    <section id="temaPage" class="panel white-panel">
+    <!-- TEMA PAGE -->
+    <section id="temaPage" class="panel">
       <div class="panel-inner">
         <div class="panel-top">
           <button class="backBtn" id="temaBack">← Назад</button>
@@ -112,29 +122,28 @@
       </div>
     </section>
 
-    <!-- Редактор -->
-    <section id="editorPage" class="panel white-panel">
-      <div class="editor-header">
-        <button class="backBtn" id="editorBack">←</button>
-        <h2 id="editorDateTitle"></h2>
-        <div class="editor-actions">
-          <button id="copyBtn">Копировать</button>
+    <!-- EDITOR PAGE -->
+    <section id="editorPage" class="panel">
+      <div class="panel-inner">
+        <div class="editor-header">
+          <button class="backBtn" id="editorBack">← Назад</button>
+          <h2 id="editorDateTitle"></h2>
+          <div class="editor-type" id="editorTypeLabel"></div>
         </div>
-      </div>
 
-      <div class="editor-type" id="editorTypeLabel"></div>
-      <div id="editorToolbar" class="editor-toolbar">
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-link"></button>
-        <button class="ql-image"></button>
+        <div id="editorToolbar" class="editor-toolbar">
+          <button class="ql-bold"></button>
+          <button class="ql-italic"></button>
+          <button class="ql-link"></button>
+          <button class="ql-image"></button>
+        </div>
+        <div id="editorText" class="editor-text"></div>
+
+        <div id="publishChecks"></div>
       </div>
-      <div id="editorText" class="editor-text"></div>
-      <div id="publishChecks"></div>
     </section>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
-
