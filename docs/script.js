@@ -210,6 +210,25 @@ function initApp(){
       [`${selectedType}Platforms`]:flags
     },{merge:true}).then(()=>renderCalendarIcons(selectedDateKey));
   }
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+dbRef.doc(key).get().then(doc => {
+  if(doc.exists){
+    const data=doc.data();
+    const c=data.temaColor||"free";
+    const baseColor = colorMap[c] || colorMap.free;
+    cell.style.backgroundColor = baseColor === "#fff"
+      ? "rgba(255,255,255,0.3)"
+      : hexToRgba(baseColor, 0.3);
+  } else {
+    cell.style.backgroundColor = "rgba(255,255,255,0.3)";
+  }
+});
 
   let timer;
   function saveEditorDebounced(){ clearTimeout(timer); timer=setTimeout(saveEditor,700); }
