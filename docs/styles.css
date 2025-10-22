@@ -90,6 +90,34 @@ body, html {
 .day-cell { background:#fff; border:1px solid #e6e9ef; border-radius:8px; min-height:72px; padding:8px; position:relative; cursor:pointer; }
 .day-cell.empty { background:transparent; border:none; cursor:default; }
 .day-number { font-weight:700; font-size:13px; color:#222; }
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 0 12px 40px;
+}
+
+.day-cell {
+  background: rgba(255, 255, 255, 0.3); /* базовый полупрозрачный фон */
+  border: 1px solid #e6e9ef;
+  border-radius: 8px;
+  width: 100%;
+  padding-top: 100%; /* делает квадрат */
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.day-cell .day-number {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #222;
+}
+
+/* отключаем цвета из JS, ведь они будут ставиться другими способами */
 
 /* Маленькие иконки в дне */
 .pub-icons { position:absolute; right:6px; bottom:6px; display:flex; gap:4px; align-items:center; }
