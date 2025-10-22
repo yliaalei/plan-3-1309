@@ -1,3 +1,7 @@
+(() => {
+  const OWNER_EMAIL = "ylia.alei@gmail.com";
+
+  // Используем глобальные firebase объекты без повторного const db/auth
   const dbInstance = firebase.firestore();
   const authInstance = firebase.auth();
 
@@ -227,3 +231,4 @@
   }
 }
 
+})();
