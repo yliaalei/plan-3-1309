@@ -1,4 +1,4 @@
-// firebase-config.js — оставляем как у тебя, но аккуратно единожды инициализируем Firebase
+// firebase-config.js — инициализация Firebase (один раз)
 
 const firebaseConfig = {
   apiKey: "AIzaSyAqUEri9DzMftxtS7ker4tfC-EnZNK6nMA",
