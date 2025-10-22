@@ -1,161 +1,78 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background: #f7fbff;
-  color: #222;
-  line-height: 1.4;
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+  background:#f7fbff;
 }
 
-/* ======= ЕДИНЫЙ ФОН ДЛЯ КАЛЕНДАРЯ С ЗАТЕМНЕНИЕМ ======= */
-#calendarPage {
-  position: relative;
-  background-image: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  color: #fff;
-  min-height: 100vh;
-  overflow: hidden;
+/* ======= ФОН ======= */
+#calendarPage{
+  position:relative;
+  background-image:url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg');
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+  color:#fff;min-height:100vh;overflow:hidden;
 }
-#calendarPage::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.45); /* уровень затемнения */
-  z-index: 0;
+#calendarPage::before{
+  content:"";position:absolute;inset:0;background:rgba(0,0,0,0.45);z-index:0;
 }
-#calendarPage * {
-  position: relative;
-  z-index: 1;
-  color: #fff;
-}
+#calendarPage *{position:relative;z-index:1;color:#fff;}
 
 /* ===== HEADER ===== */
-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 20px;
-  background: transparent;
-}
-#appTitle {
-  font-family: 'Sweet Mavka Script', cursive;
-  font-size: 2.2rem;
-  letter-spacing: 1px;
-}
-header button {
-  background: rgba(255,255,255,0.3);
-  border: none;
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px;}
+#appTitle{font-family:'Sweet Mavka Script',cursive;font-size:2.2rem;}
+header button{background:rgba(255,255,255,0.3);border:none;padding:8px 16px;border-radius:12px;color:#fff;cursor:pointer;}
 
-/* ===== НАВИГАЦИЯ МЕСЯЦЕВ ===== */
-.nav {
-  display: flex; justify-content: center; align-items: center;
-  gap: 20px;
-  padding: 10px 0 20px;
-}
-.nav button {
-  font-size: 1.2rem;
-  color: #fff;
-  background: rgba(255,255,255,0.2);
-  border: none;
-  border-radius: 8px;
-  padding: 4px 10px;
-}
+/* ===== НАВИГАЦИЯ ===== */
+.nav{display:flex;justify-content:center;align-items:center;gap:20px;padding:10px 0 20px;}
+.nav button{font-size:1.2rem;background:rgba(255,255,255,0.2);border:none;border-radius:8px;padding:4px 10px;color:#fff;}
 
 /* ===== КАЛЕНДАРЬ ===== */
-#calendarContainer { max-width: 700px; margin: 0 auto; padding: 0 10px; }
-.weekdays, .calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+#calendarContainer{max-width:700px;margin:0 auto;padding:0 10px;}
+.weekdays,.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.weekdays div{text-align:center;font-weight:bold;opacity:0.9;}
+.day-cell{
+  aspect-ratio:1/1;
+  background:rgba(255,255,255,0.1);
+  border-radius:10px;
+  display:flex;justify-content:flex-end;align-items:flex-start;
+  padding:6px;
+  transition:0.2s;
+  cursor:pointer;
 }
-.weekdays div { text-align: center; font-weight: bold; opacity: 0.9; }
-.day-cell {
-  min-height: 90px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 6px;
-  position: relative;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.day-cell:hover { transform: scale(1.03); background: rgba(255,255,255,0.25); }
-.day-cell.empty { background: transparent; pointer-events: none; }
-.day-number {
-  position: absolute;
-  top: 5px; right: 8px;
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
+.day-cell:hover{transform:scale(1.05);background:rgba(255,255,255,0.25);}
+.day-cell.empty{background:transparent;pointer-events:none;}
+.day-number{font-size:0.9rem;opacity:0.8;}
 
 /* ===== ЛЕГЕНДА ===== */
-.legend {
-  display: flex; justify-content: center; flex-wrap: wrap;
-  gap: 14px; padding: 20px 10px 40px;
+.legend{
+  position:relative;
+  z-index:1;
+  display:flex;justify-content:center;flex-wrap:wrap;
+  gap:14px;padding:20px 10px 50px;
 }
-.legend-item { display: flex; align-items: center; gap: 6px; }
-.square {
-  width: 16px; height: 16px; border-radius: 4px;
-}
-.burgundy { background: #800020; }
-.orange { background: #FFA500; }
-.green { background: #006400; }
-.brown { background: #8B4513; }
-.beige { background: #F5F5DC; }
+.legend-item{display:flex;align-items:center;gap:6px;}
+.square{width:16px;height:16px;border-radius:4px;}
+.burgundy{background:rgba(128,0,32,0.6);}
+.orange{background:rgba(255,165,0,0.6);}
+.green{background:rgba(0,100,0,0.6);}
+.brown{background:rgba(139,69,19,0.6);}
+.beige{background:rgba(245,245,220,0.6);}
 
 /* ===== МЕНЮ ===== */
-.sheet {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,0.4);
-  display: none; align-items: flex-end;
+.sheet{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(0,0,0,0.4);
+  display:none;align-items:flex-end;z-index:999;
 }
-.sheet.active { display: flex; }
-.sheet-inner {
-  background: #fff;
-  width: 100%; border-radius: 20px 20px 0 0;
-  padding: 20px;
+.sheet.active{display:flex;}
+.sheet-inner{
+  background:#fff;width:100%;border-radius:20px 20px 0 0;padding:20px;color:#000;
 }
-.sheet-buttons { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
-.sheet-close {
-  margin-top: 14px;
-  width: 100%; background: #ccc; border: none; border-radius: 8px;
-  padding: 8px; cursor: pointer;
-}
-.editor-icons-wrapper { display: flex; gap: 4px; justify-content: center; margin-top: 4px; }
+.sheet-buttons{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;}
+.sheet-close{margin-top:14px;width:100%;background:#ccc;border:none;border-radius:8px;padding:8px;cursor:pointer;}
 
 /* ===== ПАНЕЛИ ===== */
-.panel { display: none; }
-.panel.active { display: block; }
+.panel{display:none;}
+.panel.active{display:block;}
 
-/* ===== БЕЛЫЕ РЕДАКТОРЫ ===== */
-.white-panel {
-  background: #fff;
-  color: #000;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* ===== РЕДАКТОР ===== */
-.editor-toolbar {
-  background: #f3f3f3;
-  border-radius: 10px;
-  margin: 10px 0;
-}
-.editor-text {
-  min-height: 300px;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 12px;
-  color: #000;
-}
-
-/* ===== КНОПКИ ===== */
-button {
-  cursor: pointer;
-  transition: 0.2s;
-}
-button:hover { opacity: 0.8; }
+/* ===== РЕДАКТОРЫ ===== */
+.white-panel{background:#fff;color:#000;min-height:100vh;padding:20px;}
