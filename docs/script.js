@@ -1,4 +1,26 @@
+// ===== Google Auth =====
+const googleBtn = document.getElementById('googleBtn');
+const authSection = document.getElementById('authSection');
+const appDiv = document.getElementById('app');
+const authError = document.getElementById('authError');
+const logoutBtn = document.getElementById('logoutBtn');
 
+googleBtn.addEventListener('click', () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).then(result => {
+    const user = result.user;
+    if (user.email !== 'ylia.alei@gmail.com') {
+      auth.signOut();
+      authError.textContent = 'Доступ разрешён только владельцу';
+    }
+  }).catch(err => {
+    authError.textContent = err.message;
+  });
+});
+
+logoutBtn.addEventListener('click', () => {
+  auth.signOut();
+});
 const authSection = document.getElementById("authSection");
 const app = document.getElementById("app");
 const googleBtn = document.getElementById("googleBtn");
