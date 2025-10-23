@@ -1,26 +1,20 @@
-/* script.js for "Мой контент-план"
-   - collection: contentPlanner
-   - date key: YYYY-MM-DD
-*/
- 
+/* script.js - исправлен для удаления иконок из календаря */
 const OWNER_EMAIL = "ylia.alei@gmail.com";
 function $(id){ return document.getElementById(id); }
 function safeAssign(id, prop, handler){ const el=$(id); if(el) el[prop]=handler; }
- 
+
 // Ensure firebase initialized
 if(typeof firebase === "undefined" || typeof db === "undefined" || typeof auth === "undefined"){
   console.error("Firebase не инициализирован. Проверьте firebase-config.js");
 }
- 
-// Icons
+
 const ICONS = {
   vk: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg",
   inst: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
   tg: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg"
 };
- 
+
 window.addEventListener("load", () => {
-  // Auth buttons
   safeAssign("googleBtn","onclick", async () => {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -31,8 +25,7 @@ window.addEventListener("load", () => {
     }
   });
   safeAssign("logoutBtn","onclick", ()=> auth.signOut());
- 
-  // Auth state
+
   auth.onAuthStateChanged(user => {
     if(!user){
       document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
@@ -44,15 +37,13 @@ window.addEventListener("load", () => {
       auth.signOut();
       return;
     }
-    // show app
     $("authSection").style.display = "none";
     $("app").style.display = "block";
     document.body.classList.add("calendar-page");
     initApp();
   });
 });
- 
-// App
+
 function initApp(){
   const dbRef = db.collection("contentPlanner");
   const colorMap = {
@@ -68,48 +59,46 @@ function initApp(){
     const b = parseInt(hex.slice(5,7),16);
     return `rgba(${r},${g},${b},${alpha})`;
   }
- 
+
   let selectedDateKey = null;
   let currentMonth = (new Date()).getMonth();
   let currentYear = (new Date()).getFullYear();
   let quill = null;
   let currentEditorType = null;
- 
+
   const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
   const weekdays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
- 
-  // Wire nav
+
+  // Nav buttons
   safeAssign("prevBtn","onclick", ()=> { currentMonth--; if(currentMonth<0){currentMonth=11; currentYear--;} renderCalendar(); });
   safeAssign("nextBtn","onclick", ()=> { currentMonth++; if(currentMonth>11){currentMonth=0; currentYear++;} renderCalendar(); });
- 
-  // Menu buttons
+
   safeAssign("menuClose","onclick", closeMenu);
   safeAssign("menuBtnTema","onclick", ()=> openEditorFromMenu("tema"));
   safeAssign("menuBtnPost","onclick", ()=> openEditorFromMenu("post"));
   safeAssign("menuBtnReel","onclick", ()=> openEditorFromMenu("reel"));
   safeAssign("menuBtnStories","onclick", ()=> openEditorFromMenu("stories"));
- 
-  // Panel nav
+
   safeAssign("temaBack","onclick", ()=> closeEditorPanel("temaPage"));
   safeAssign("editorBack","onclick", ()=> closeEditorPanel("editorPage"));
   safeAssign("copyBtn","onclick", copyEditorText);
- 
+
   renderWeekdays();
   renderCalendar();
- 
+
   function pad(n){ return String(n).padStart(2,"0"); }
   function makeDateKey(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
   function formatReadable(key){ const [y,m,d] = key.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("ru-RU",{day:"2-digit",month:"long",year:"numeric"}); }
- 
+
   function renderWeekdays(){
     const wd = $("weekdays"); wd.innerHTML="";
     weekdays.forEach(d => { const div=document.createElement("div"); div.textContent=d; wd.appendChild(div); });
   }
- 
+
   function renderCalendar(){
     const cal = $("calendar"); cal.innerHTML = "";
     $("monthYear").textContent = `${monthNames[currentMonth]} ${currentYear}`;
- 
+
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const leading = (firstDay === 0 ? 6 : firstDay - 1);
     for(let i=0;i<leading;i++){
@@ -117,31 +106,24 @@ function initApp(){
       e.className = "day-cell empty";
       cal.appendChild(e);
     }
- 
+
     const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
     for(let d=1; d<=daysInMonth; d++){
       const key = makeDateKey(currentYear, currentMonth, d);
       const cell = document.createElement("div");
       cell.className = "day-cell";
       cell.dataset.date = key;
- 
+
       const num = document.createElement("div");
       num.className = "day-number";
       num.textContent = d;
       cell.appendChild(num);
- 
-      // Remove icons inside cell to fix error
-      // const iconsWrap = document.createElement("div");
-      // iconsWrap.className = "pub-icons";
-      // cell.appendChild(iconsWrap);
- 
-      // default translucent
+
+      // Remove icons from cells (no div.pub-icons added here!)
+
       cell.style.backgroundColor = "rgba(255,255,255,0.04)";
- 
-      // click
       cell.addEventListener("click", ()=> openMenuForDate(key));
- 
-      // load saved doc to set color
+
       dbRef.doc(key).get().then(docSnap => {
         const data = docSnap.exists ? docSnap.data() : {};
         const c = data.temaColor || null;
@@ -149,16 +131,14 @@ function initApp(){
           cell.style.backgroundColor = hexToRgba(colorMap[c], 0.28);
         }
       }).catch(e => console.error(e));
- 
+
       cal.appendChild(cell);
     }
   }
- 
-  // Open sheet menu for date
+
   function openMenuForDate(key){
     selectedDateKey = key;
     $("menuDateTitle").textContent = formatReadable(key);
-    // fetch doc to render icons under each button
     dbRef.doc(key).get().then(docSnap => {
       const data = docSnap.exists ? docSnap.data() : {};
       setMenuIcons("menuTemaIcons", data.temaPlatforms || {});
@@ -177,7 +157,7 @@ function initApp(){
       $("menu").style.display = "block";
     });
   }
- 
+
   function setMenuIcons(containerId, flags){
     const div = $(containerId);
     if(!div) return;
@@ -185,19 +165,25 @@ function initApp(){
     const vk = document.createElement("img"); vk.src = ICONS.vk; vk.alt = "VK";
     const inst = document.createElement("img"); inst.src = ICONS.inst; inst.alt = "Instagram";
     const tg = document.createElement("img"); tg.src = ICONS.tg; tg.alt = "Telegram";
-    [vk,inst,tg].forEach(img => { img.style.width="22px"; img.style.height="22px"; img.style.opacity="0.25"; img.style.filter="grayscale(100%)"; });
+    [vk,inst,tg].forEach(img => {
+      img.style.width="22px";
+      img.style.height="22px";
+      img.style.opacity="0.25";
+      img.style.filter="grayscale(100%)";
+    });
     if(flags.vk) { vk.classList.add("active"); vk.style.opacity="1"; vk.style.filter="none"; }
     if(flags.inst) { inst.classList.add("active"); inst.style.opacity="1"; inst.style.filter="none"; }
     if(flags.tg) { tg.classList.add("active"); tg.style.opacity="1"; tg.style.filter="none"; }
-    div.appendChild(vk); div.appendChild(inst); div.appendChild(tg);
+    div.appendChild(vk);
+    div.appendChild(inst);
+    div.appendChild(tg);
   }
- 
+
   function closeMenu(){
     $("menu").classList.remove("active");
     $("menu").style.display = "none";
   }
  
-  // Open editor from menu — close menu, open panel, hide calendar visuals
   function openEditorFromMenu(type){
     closeMenu();
     currentEditorType = type;
@@ -216,7 +202,6 @@ function initApp(){
       $("editorPage").style.display = "block";
       $("editorTypeLabel").textContent = type.charAt(0).toUpperCase() + type.slice(1);
       $("editorDateTitle").textContent = formatReadable(selectedDateKey);
- 
       if(!quill){
         quill = new Quill("#editorText", { theme: "snow", modules: { toolbar: [["bold","italic"], ["link","image"]] } });
         quill.on("text-change", ()=> saveEditorDebounced());
@@ -229,7 +214,7 @@ function initApp(){
     }
     document.body.classList.remove("calendar-page");
   }
- 
+
   function hideCalendarUI(){
     $("calendarBackground").style.display = "none";
     $("colorLegend").style.display = "none";
@@ -241,14 +226,13 @@ function initApp(){
     $("calendarNav").style.display = "";
     document.body.classList.add("calendar-page");
   }
- 
+
   function closeEditorPanel(panelId){
     $(panelId).style.display = "none";
     showCalendarUI();
     renderCalendar();
   }
- 
-  // Publish checks area handlers
+
   function renderPublishChecks(flags){
     const checks = $("publishChecks");
     checks.innerHTML = `
@@ -259,13 +243,11 @@ function initApp(){
     $("chk_vk").checked = !!flags.vk;
     $("chk_inst").checked = !!flags.inst;
     $("chk_tg").checked = !!flags.tg;
- 
     ["chk_vk","chk_inst","chk_tg"].forEach(id => {
       $(id).onchange = saveEditorDebounced;
     });
   }
- 
-  // Save editor content
+
   function saveEditor(){
     if(!selectedDateKey || !currentEditorType || !quill) return;
     const content = quill.root.innerHTML;
@@ -279,7 +261,7 @@ function initApp(){
   }
   let saveTimer;
   function saveEditorDebounced(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveEditor, 600); }
- 
+
   function copyEditorText(){
     if(!quill) return;
     navigator.clipboard.writeText(quill.root.innerText || "");
@@ -287,12 +269,12 @@ function initApp(){
     btn.textContent = "Скопировано!";
     setTimeout(()=> btn.textContent = "Копировать", 900);
   }
- 
+
   // TEMA save handlers
   $("tema_tema").addEventListener("input", e => { e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; saveTemaDebounced(); });
   $("tema_goal").addEventListener("change", saveTemaDebounced);
   $("tema_type").addEventListener("change", saveTemaDebounced);
- 
+
   let temaTimer;
   function saveTemaDebounced(){ clearTimeout(temaTimer); temaTimer = setTimeout(saveTema, 600); }
   function saveTema(){
@@ -304,6 +286,4 @@ function initApp(){
       return dbRef.doc(selectedDateKey).set(payload, { merge: true });
     }).then(()=> renderCalendar()).catch(e => console.error(e));
   }
- 
-  // Menu close button already wired
 }
