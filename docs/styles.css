@@ -1,86 +1,105 @@
-body {
-  margin: 0;
-  text-align: center;
+/* Global reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+/* Default body for calendar page */
+body.calendar-page {
   font-family: "Sweet Mavka Script", cursive;
-  background-color: #000;
-}
-
-.calendar-page {
-  background-image: url("https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg");
-  background-size: cover;
-  background-position: center;
+  background: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg') center top / cover no-repeat;
   color: #fff;
 }
 
-.primary {
-  background: #222;
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: inherit;
+/* Panels (editors) use default sans-serif for readability */
+.panel, .panel * {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #111;
 }
 
-.calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+/* Header */
+#header { display:flex; justify-content:center; align-items:center; padding:20px 14px; background:transparent; }
+#appTitle { font-size:30px; color: #fff; }
+
+/* Calendar container includes header + calendar + legend */
+#calendarBackground {
+  max-width: 960px;
+  margin: 24px auto;
+  padding: 12px;
+  background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)); /* soft darkening for contrast */
+  border-radius: 12px;
 }
 
-.day {
-  aspect-ratio: 1/1;
-  border: 1px solid rgba(255,255,255,0.3);
+/* Nav */
+.nav { display:flex; justify-content:center; align-items:center; gap:12px; margin:10px 0; }
+#monthYear { font-weight:600; color:#fff; }
+
+/* Weekdays */
+.weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-weight:700; margin:6px 12px; color:#fff; }
+
+/* Calendar grid */
+.calendar { display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; padding: 0 12px 40px; }
+
+/* Day cell: square and responsive */
+.day-cell {
+  aspect-ratio: 1 / 1;
+  min-height: 56px;           /* ensures touch target on mobile */
   border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255,255,255,0.1);
-  color: #fff;
+  border: 1px solid rgba(255,255,255,0.18);
+  overflow: hidden;
+  position: relative;
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
 }
+.day-cell.empty { background: transparent; border: none; cursor: default; }
 
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px 16px;
-  margin-top: 10px;
-  color: #fff;
-}
+/* Number inside cell */
+.day-number { position: absolute; top: 6px; left: 8px; font-weight:700; font-size:13px; color:#fff; z-index:5; }
 
-.color-box {
-  width: 16px;
-  height: 16px;
-  display: inline-block;
-  margin-right: 4px;
-  border-radius: 3px;
-}
+/* Icons area */
+.pub-icons { position:absolute; right:6px; bottom:6px; display:flex; gap:6px; z-index:5; }
+.pub-icons img { width:18px; height:18px; opacity:0.95; filter: invert(1) sepia(0.2) saturate(0.2); }
 
-.burgundy { background-color: rgba(128, 0, 32, 0.5); }
-.orange { background-color: rgba(255, 165, 0, 0.5); }
-.green { background-color: rgba(34, 139, 34, 0.5); }
-.brown { background-color: rgba(139, 69, 19, 0.5); }
-.beige { background-color: rgba(245, 245, 220, 0.5); }
+/* Legend */
+.legend { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:16px auto; max-width:900px; color:#fff; }
+.legend-item { display:flex; align-items:center; gap:8px; font-size:15px; }
+.square { width:16px; height:16px; border-radius:3px; border:1px solid rgba(255,255,255,0.3); }
+.square.burgundy { background:#800020; }
+.square.orange { background:#FFA500; }
+.square.green { background:#006400; }
+.square.brown { background:#8B4513; }
+.square.beige { background:#F5F5DC; }
 
-.menu-content, .panel-inner {
-  background: #fff;
-  color: #000;
-  font-family: Arial, sans-serif;
-}
+/* Sheet (menu) and editor buttons */
+.sheet { display:none; position:fixed; left:0; right:0; bottom:0; background:#fff; border-top-left-radius:12px; border-top-right-radius:12px; padding:12px; box-shadow:0 -8px 24px rgba(0,0,0,0.08); z-index:60; }
+.sheet.active { display:block; }
+.sheet .sheet-buttons { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:6px 0; }
 
-textarea, input, select {
-  width: 90%;
-  padding: 8px;
-  margin: 6px 0;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-family: Arial, sans-serif;
-}
+/* Button wrapper */
+.button-wrapper { display:flex; flex-direction:column; align-items:center; margin:6px; }
 
-.logout-container {
-  position: fixed;
-  bottom: 20px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
+/* Editor header and editor area */
+.editor-header { display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; z-index:20; }
+.editor-type { text-align:center; font-weight:700; margin:10px 0; color:#111; }
+#editorText { height:60vh; border:1px solid #e6e9ef; margin:12px; padding:12px; background:#fff; border-radius:8px; overflow:auto; color:#111; }
+
+/* Publish checks */
+#publishChecks { display:flex; gap:12px; justify-content:center; margin:8px 12px; color:#111; }
+
+/* Tema page form */
+.tema-field { margin-bottom:16px; display:flex; flex-direction:column; gap:6px; color:#111; }
+#tema_tema { width:100%; resize:none; font-size:15px; padding:8px; border:1px solid #ccc; border-radius:8px; font-family:Arial, sans-serif; }
+
+/* Logout button bottom */
+.logout-bottom { display:flex; justify-content:center; margin:18px 0; }
+
+/* Tiny tooltip */
+#imageTooltip { position:absolute; display:none; background:#222; color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; z-index:80; }
+
+/* Hints */
+.hint { color:#ff8080; margin-top:8px; font-size:13px; }
+
+/* Responsive */
+@media (max-width:640px) {
+  .calendar { gap:6px; padding:0 8px 28px; }
+  .day-cell { min-height:48px; aspect-ratio:1/1; }
+  #calendarBackground { margin: 12px; padding: 10px; }
 }
