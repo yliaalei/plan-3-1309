@@ -1,84 +1,145 @@
-/* Global reset */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body, html {
-  height: 100%;
+/* === ГЛОБАЛЬНЫЙ СБРОС === */
+* {
+  box-sizing: border-box;
   margin: 0;
-  background: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg') no-repeat center top;
-  background-size: cover;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  color: #fff;
-  line-height: 1.4;
+  padding: 0;
 }
 
-/* Header */
+html, body {
+  height: 100%;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  line-height: 1.4;
+  background: #fff;
+  color: #000;
+}
+
+/* === СТРАНИЦА КАЛЕНДАРЯ === */
+body.calendar-page {
+  background: url('https://disk.yandex.ru/i/pU2HznbFSjNSxw') no-repeat center top;
+  background-size: cover;
+  color: #fff;
+}
+
+/* === ШАПКА === */
 #header {
-  display:flex;
+  display: flex;
   justify-content: center;
-  align-items:center;
+  align-items: center;
   padding: 20px 14px;
   background: transparent;
-  border-bottom: none;
 }
 #appTitle {
-  font-family:'Sweet Mavka Script', cursive;
-  font-size:30px;
+  font-family: 'Sweet Mavka Script', cursive;
+  font-size: 30px;
   text-align: center;
-  margin: 0 auto;
-  color:white;
+  color: inherit;
 }
 
-/* Панели & аутентификация */
-.panel { display:none; position:fixed; inset:0; background:#fff; overflow:auto; z-index:30; }
-.panel.active { display:block; }
-.panel-inner { max-width:720px; margin:40px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(10,20,40,0.06); }
-.auth .panel-inner { max-width:360px; text-align:center; margin-top:120px; }
-.primary { background:#4285F4; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
+/* === ПАНЕЛИ (редакторы, темы, аутентификация) === */
+.panel {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  overflow-y: auto;
+  z-index: 30;
+  color: #000; /* Чёрный текст */
+}
+.panel.active {
+  display: block;
+}
+.panel-inner {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(10, 20, 40, 0.06);
+}
 
-/* Календарь */
+/* === КАЛЕНДАРЬ === */
 #calendarContainer {
-  background-color: transparent !important;
+  background: transparent;
   border-radius: 10px;
   padding: 20px;
-  transition: background-image 0.4s ease;
 }
 
-/* Навигация календаря */
-.nav { display:flex; justify-content:center; align-items:center; gap:12px; margin:10px 0; }
-#monthYear { font-weight:600; color:white; }
+/* Навигация */
+.nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+}
+#monthYear {
+  font-weight: 600;
+  color: inherit;
+}
 
-/* День недели и сетка */
-.weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-weight:700; margin: 6px 12px; color:white; }
-.calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; padding:0 12px 40px; }
+/* Дни недели */
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: 700;
+  margin: 6px 12px;
+  color: inherit;
+}
 
+/* Сетка календаря */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 0 12px 40px;
+}
+
+/* Ячейки дней */
 .day-cell {
-  background: rgba(255,255,255,0.0);
-  border: 1px solid rgba(255,255,255,0.3);
-  aspect-ratio: 1/1;
+  background: rgba(255, 255, 255, 0.0);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  aspect-ratio: 1 / 1;
   position: relative;
   cursor: pointer;
-  overflow: hidden;
   border-radius: 8px;
+  overflow: hidden;
 }
-.day-cell.empty { background:transparent; border:none; cursor:default; }
-
+.day-cell.empty {
+  background: transparent;
+  border: none;
+  cursor: default;
+}
 .day-number {
   position: absolute;
   top: 6px;
   left: 6px;
-  font-weight:700;
-  font-size:13px;
-  color:white;
+  font-weight: 700;
+  font-size: 13px;
+  color: inherit;
 }
 
-/* Маленькие иконки в дне */
-.pub-icons { position:absolute; right:6px; bottom:6px; display:flex; gap:4px; align-items:center; }
-.pub-icons img { width:18px; height:18px; display:block; opacity:0.95; }
+/* Иконки соцсетей в ячейках */
+.pub-icons {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  display: flex;
+  gap: 4px;
+}
+.pub-icons img {
+  width: 18px;
+  height: 18px;
+  display: block;
+  opacity: 0.95;
+}
 
-/* Легенда */
+/* === ЛЕГЕНДА === */
 .legend {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  justify-content: center;
   margin: 20px auto 40px;
   max-width: 900px;
   padding: 0 10px;
@@ -89,49 +150,90 @@ body, html {
   align-items: center;
   gap: 8px;
   font-size: 15px;
-  color: #fff;
+  color: inherit;
 }
 .square {
   width: 16px;
   height: 16px;
   border-radius: 3px;
   border: 1px solid #999;
-  display: inline-block;
 }
-.square.burgundy { background:#800020; }
-.square.orange { background:#FFA500; }
-.square.green { background:#006400; }
-.square.brown { background:#8B4513; }
-.square.beige { background:#F5F5DC; }
+.square.burgundy { background: #800020; }
+.square.orange { background: #FFA500; }
+.square.green { background: #006400; }
+.square.brown { background: #8B4513; }
+.square.beige { background: #F5F5DC; }
 
-/* Лист */
-.sheet { display:none; position:fixed; left:0; right:0; bottom:0; background:#fff; border-top-left-radius:12px; border-top-right-radius:12px; padding:12px; box-shadow:0 -8px 24px rgba(0,0,0,0.08); z-index:40; }
-.sheet.active { display:block; }
-.sheet .sheet-buttons { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:6px 0; }
-.sheet button { padding:8px 10px; border-radius:8px; border:1px solid #ddd; background:#fafafa; cursor:pointer; }
+/* === КНОПКИ === */
+.primary {
+  background: #4285F4;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
-/* Обертка кнопок календаря */
-.button-wrapper { display: flex; flex-direction: column; align-items: center; margin: 6px; }
-/* Иконки под кнопками */
-.editor-icons-wrapper { display: flex; gap: 8px; margin-top: 4px; justify-content: center; }
-.editor-icons-wrapper img { width: 22px; height: 22px; }
+/* === РЕДАКТОРЫ === */
+.editor-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  color: #000;
+}
+.editor-type {
+  text-align: center;
+  font-weight: 700;
+  margin: 10px 0;
+  color: #000;
+}
+.editor-toolbar {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+}
+#editorText {
+  height: 60vh;
+  border: 1px solid #e6e9ef;
+  margin: 12px;
+  padding: 12px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: auto;
+  color: #000;
+}
 
-/* Редактор */
-.editor-header { display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; z-index:20; }
-.editor-type { text-align:center; font-weight:700; margin:10px 0; }
-.editor-toolbar { display:flex; gap:6px; justify-content:center; padding:8px; border-bottom:1px solid #eee; background:#fafafa; }
-#editorText { height:60vh; border:1px solid #e6e9ef; margin:12px; padding:12px; background:#fff; border-radius:8px; overflow:auto; }
+/* === ЧЕКБОКСЫ ПУБЛИКАЦИИ === */
+#publishChecks {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 8px 12px;
+  color: #000;
+}
+#publishChecks label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 14px;
+}
 
-/* Чекбоксы публикации */
-#publishChecks { display:flex; gap:12px; justify-content:center; margin:8px 12px; }
-#publishChecks label { display:flex; gap:6px; align-items:center; font-size:14px; }
-
-/* Страница "Тема" */
+/* === ТЕМА === */
 .tema-field {
   margin-bottom: 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  color: #000;
 }
 .tema-field label {
   font-weight: 600;
@@ -154,15 +256,27 @@ body, html {
   background-color: #fff;
 }
 
-/* Адаптив */
-@media (max-width:640px){
-  .panel-inner { margin:20px; padding:14px; }
-  #editorText { height:50vh; }
-  .day-cell { min-height:62px; }
+/* === МЕЛОЧИ === */
+#imageTooltip {
+  position: absolute;
+  display: none;
+  background: #222;
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  z-index: 60;
+}
+.hint {
+  color: #d00;
+  margin-top: 8px;
+  font-size: 13px;
 }
 
-/* tiny tooltip */
-#imageTooltip { position:absolute; display:none; background:#222; color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; z-index:60; }
-
-/* hints */
-.hint { color:#d00; margin-top:8px; font-size:13px; }
+/* === АДАПТИВ === */
+@media (max-width: 640px) {
+  .panel-inner { margin: 20px; padding: 14px; }
+  #editorText { height: 50vh; }
+  .calendar { gap: 4px; }
+  .day-cell { min-height: 60px; }
+}
