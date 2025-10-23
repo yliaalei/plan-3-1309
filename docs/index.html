@@ -4,98 +4,89 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Мой контент-план</title>
-  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
-  <!-- Авторизация -->
-  <section id="authSection" class="center">
-    <h2>Вход в приложение</h2>
-    <button id="googleBtn" class="black-btn">Войти через Google</button>
-    <p id="authError" class="error"></p>
+  <section id="authSection" class="auth-section">
+    <div class="auth-box">
+      <h2>Мой контент-план</h2>
+      <button id="googleBtn" class="btn black">Войти через Google</button>
+      <p id="authError" class="error"></p>
+    </div>
   </section>
 
-  <!-- Основное приложение -->
-  <section id="app" style="display:none;">
+  <section id="app" class="hidden">
     <div id="calendarPage" class="page active">
-      <header>
-        <h1>Мой контент-план</h1>
-      </header>
+      <h1>Мой контент-план</h1>
 
-      <div class="month-nav">
+      <div class="nav">
         <button id="prevBtn">←</button>
-        <h2 id="monthYear"></h2>
+        <div id="monthYear"></div>
         <button id="nextBtn">→</button>
       </div>
 
-      <div id="calendarBackground" class="calendar-wrapper">
-        <div id="weekdays" class="weekdays"></div>
-        <div id="calendar" class="calendar"></div>
+      <div id="calendar" class="calendar"></div>
 
-        <div id="legend" class="legend">
-          <span><b>Тема:</b> цвет ячейки</span>
-          <span><b>Пост / Рилс / Сторис:</b> сохраняются по дням</span>
-        </div>
-
-        <button id="logoutBtn" class="black-btn logout-btn">Выйти</button>
+      <div class="legend">
+        <div><span class="color burgundy"></span> Бордовая тема</div>
+        <div><span class="color orange"></span> Оранжевая тема</div>
+        <div><span class="color green"></span> Зелёная тема</div>
+        <div><span class="color brown"></span> Коричневая тема</div>
+        <div><span class="color beige"></span> Бежевая тема</div>
       </div>
+
+      <button id="logoutBtn" class="logout-btn">Выйти</button>
     </div>
 
-    <!-- Меню выбора редактора -->
     <div id="menu" class="menu">
-      <div class="menu-content">
-        <h3 id="menuDateTitle"></h3>
-        <div class="menu-buttons">
-          <button id="btnTema" class="menu-btn">Тема</button>
-          <button id="btnPost" class="menu-btn">Пост</button>
-          <button id="btnReel" class="menu-btn">Рилс</button>
-          <button id="btnStories" class="menu-btn">Сторис</button>
-        </div>
-        <button id="menuClose" class="black-btn">Закрыть</button>
+      <div id="menuDateTitle"></div>
+      <div class="menu-buttons">
+        <button id="btnTema" class="btn black">Тема</button>
+        <button id="btnPost" class="btn black">Пост</button>
+        <button id="btnReel" class="btn black">Рилс</button>
+        <button id="btnStories" class="btn black">Сторис</button>
       </div>
+      <button id="menuClose" class="btn">Закрыть</button>
     </div>
 
-    <!-- Редактор ТЕМА -->
-    <div id="temaPage" class="panel">
-      <h2>Редактор "Тема"</h2>
-      <div class="tema-form">
-        <textarea id="tema_tema" placeholder="Введите тему..."></textarea>
-        <select id="tema_goal">
-          <option value="none">Цель публикации</option>
-          <option value="продажи">Продажи</option>
-          <option value="вовлечение">Вовлечение</option>
-          <option value="узнаваемость">Узнаваемость</option>
-        </select>
-        <select id="tema_type">
-          <option value="free">Без цвета</option>
-          <option value="burgundy">Бордовый</option>
-          <option value="orange">Оранжевый</option>
-          <option value="green">Зеленый</option>
-          <option value="brown">Коричневый</option>
-          <option value="beige">Бежевый</option>
-        </select>
-      </div>
-      <button id="temaBack" class="black-btn">Назад</button>
+    <!-- Редактор Тема -->
+    <div id="temaPage" class="page editor">
+      <h2>Редактор темы</h2>
+      <textarea id="tema_tema" placeholder="Тема..."></textarea>
+      <select id="tema_goal">
+        <option value="none">Цель публикации</option>
+        <option value="продажи">Продажи</option>
+        <option value="вовлеченность">Вовлеченность</option>
+      </select>
+      <select id="tema_type">
+        <option value="free">Без цвета</option>
+        <option value="burgundy">Бордовый</option>
+        <option value="orange">Оранжевый</option>
+        <option value="green">Зелёный</option>
+        <option value="brown">Коричневый</option>
+        <option value="beige">Бежевый</option>
+      </select>
+      <button id="temaBack" class="btn">Назад</button>
     </div>
 
-    <!-- Редактор универсальный (Пост, Рилс, Сторис) -->
-    <div id="editorPage" class="panel">
+    <!-- Редактор Пост / Рилс / Сторис -->
+    <div id="editorPage" class="page editor">
       <h2 id="editorTypeLabel"></h2>
-      <h3 id="editorDateTitle"></h3>
-      <div id="editorToolbar" class="toolbar"></div>
+      <div id="editorToolbar"></div>
       <div id="editorText"></div>
       <div id="publishChecks"></div>
-      <button id="copyBtn" class="black-btn">Копировать</button>
-      <button id="editorBack" class="black-btn">Назад</button>
+      <button id="editorBack" class="btn">Назад</button>
     </div>
   </section>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
   <script src="firebase-config.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
+
