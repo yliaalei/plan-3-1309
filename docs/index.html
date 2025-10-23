@@ -1,157 +1,123 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Мой контент-план</title>
-
-  <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Sweet+Mavka+Script&display=swap" rel="stylesheet">
-
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-
-  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.min.js"></script>
 </head>
-<body>
-  <!-- AUTH -->
-  <section id="authSection" class="panel active">
-    <div class="panel-inner auth">
-      <h2>Войдите через Google</h2>
-      <p>Вход доступен только владельцу</p>
-      <button id="googleBtn" class="primary">Войти через Google</button>
-      <p id="authError" class="hint"></p>
-    </div>
+
+<body class="calendar-page">
+  <!-- === Авторизация === -->
+  <section id="authSection">
+    <h1>Мой контент-план</h1>
+    <button id="googleBtn" class="primary">Войти через Google</button>
+    <p id="authError" class="error"></p>
   </section>
 
-  <!-- APP -->
+  <!-- === Основное приложение === -->
   <div id="app" style="display:none;">
-    <div id="calendarBackground">
-      <header id="header">
-        <h1 id="appTitle">Мой контент-план</h1>
-      </header>
+    <header class="calendar-header">
+      <h1 id="appTitle">Мой контент-план</h1>
+    </header>
 
-      <section id="calendarNav" class="nav">
-        <button id="prevBtn">←</button>
-        <div id="monthYear"></div>
-        <button id="nextBtn">→</button>
-      </section>
-
-      <div id="calendarContainer">
-        <div id="weekdays" class="weekdays"></div>
-        <main id="calendar" class="calendar"></main>
-      </div>
-
-      <!-- Легенда -->
-      <section id="colorLegend" class="legend">
-        <div class="legend-item"><span class="square burgundy"></span><span>Развлекательный</span></div>
-        <div class="legend-item"><span class="square orange"></span><span>Экспертный</span></div>
-        <div class="legend-item"><span class="square green"></span><span>Продающий</span></div>
-        <div class="legend-item"><span class="square brown"></span><span>Обучающий</span></div>
-        <div class="legend-item"><span class="square beige"></span><span>Интерактив</span></div>
-      </section>
-
-      <!-- Вниз кнопка выхода -->
-      <div style="text-align:center; margin:20px 0;">
-        <button id="logoutBtn" class="primary">Выйти</button>
-      </div>
+    <!-- Навигация по месяцам -->
+    <div class="month-nav">
+      <button id="prevBtn">←</button>
+      <span id="monthYear"></span>
+      <button id="nextBtn">→</button>
     </div>
 
-    <!-- Меню дня -->
-    <div id="menu" class="sheet">
-      <div class="sheet-inner">
-        <h3 id="menuDateTitle"></h3>
-        <div class="sheet-buttons">
-          <div class="button-wrapper">
-            <button id="btnTema">Тема</button>
-          </div>
+    <!-- Недели и календарь -->
+    <div id="calendarBackground" class="calendar-bg">
+      <div id="weekdays" class="weekdays"></div>
+      <div id="calendar" class="calendar"></div>
+    </div>
 
-          <div class="button-wrapper">
-            <button id="btnStories">Сторис</button>
-            <div class="editor-icons-wrapper" id="storiesIcons"></div>
-          </div>
+    <!-- Легенда -->
+    <div class="legend">
+      <div class="legend-item"><span class="color-box burgundy"></span>Тема</div>
+      <div class="legend-item"><span class="color-box orange"></span>Пост</div>
+      <div class="legend-item"><span class="color-box green"></span>Рилс</div>
+      <div class="legend-item"><span class="color-box brown"></span>Сторис</div>
+      <div class="legend-item"><span class="color-box beige"></span>Идея</div>
+    </div>
 
-          <div class="button-wrapper">
-            <button id="btnPost">Пост</button>
-            <div class="editor-icons-wrapper" id="postIcons"></div>
-          </div>
-
-          <div class="button-wrapper">
-            <button id="btnReel">Рилс</button>
-            <div class="editor-icons-wrapper" id="reelIcons"></div>
-          </div>
+    <!-- Меню выбора редактора -->
+    <div id="menu" class="menu">
+      <div class="menu-content">
+        <h2 id="menuDateTitle"></h2>
+        <div class="editor-buttons">
+          <button id="btnTema" class="primary">Тема</button>
+          <button id="btnPost" class="primary">Пост</button>
+          <button id="btnReel" class="primary">Рилс</button>
+          <button id="btnStories" class="primary">Сторис</button>
         </div>
-        <button class="sheet-close" id="menuClose">Отмена</button>
+        <div class="social-icons">
+          <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/vk.svg" alt="VK">
+          <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram">
+          <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" alt="Telegram">
+        </div>
+        <button id="menuClose" class="primary">Закрыть</button>
       </div>
     </div>
 
-    <!-- TEMA PAGE -->
+    <!-- === Редактор Тема === -->
     <section id="temaPage" class="panel">
       <div class="panel-inner">
-        <div class="panel-top">
-          <button class="backBtn" id="temaBack">← Назад</button>
-          <h2 id="temaDateTitle"></h2>
-        </div>
-
-        <div class="tema-field">
-          <label for="tema_tema">Тема</label>
-          <textarea id="tema_tema" rows="3" placeholder="Введите тему..."></textarea>
-        </div>
-
-        <div class="tema-field">
-          <label for="tema_goal">Цель</label>
-          <select id="tema_goal">
-            <option value="">Выберите цель...</option>
-            <option value="охват">Охват</option>
-            <option value="вовлеченность">Вовлеченность</option>
-            <option value="репост">Репост</option>
-            <option value="сохранение">Сохранение</option>
-            <option value="подписка">Подписка</option>
-            <option value="продажа">Продажа</option>
-            <option value="отзывы">Отзывы</option>
-            <option value="конверсия">Конверсия</option>
-          </select>
-        </div>
-
-        <div class="tema-field">
-          <label for="tema_type">Тип контента</label>
-          <select id="tema_type">
-            <option value="">Выберите тип...</option>
-            <option value="burgundy">Развлекательный</option>
-            <option value="orange">Экспертный</option>
-            <option value="green">Продающий</option>
-            <option value="brown">Обучающий</option>
-            <option value="beige">Интерактив</option>
-          </select>
-        </div>
+        <button id="temaBack" class="primary back-btn">Назад</button>
+        <h2>Редактор «Тема»</h2>
+        <textarea id="tema_tema" placeholder="Введите тему..."></textarea>
+        <label>Цель:</label>
+        <input id="tema_goal" type="text" placeholder="Введите цель...">
+        <label>Тип контента:</label>
+        <select id="tema_type">
+          <option value="burgundy">Тема</option>
+          <option value="orange">Пост</option>
+          <option value="green">Рилс</option>
+          <option value="brown">Сторис</option>
+          <option value="beige">Идея</option>
+        </select>
       </div>
     </section>
 
-    <!-- EDITOR PAGE -->
+    <!-- === Редактор постов/рилс/сторис === -->
     <section id="editorPage" class="panel">
-      <div class="editor-header">
-        <button class="backBtn" id="editorBack">←</button>
-        <h2 id="editorDateTitle"></h2>
-        <div class="editor-actions">
-          <button id="copyBtn">Копировать</button>
-        </div>
+      <div class="panel-inner">
+        <button id="editorBack" class="primary back-btn">Назад</button>
+        <h2><span id="editorTypeLabel"></span></h2>
+        <h3 id="editorDateTitle"></h3>
+        <div id="editorToolbar"></div>
+        <div id="editorText"></div>
+        <div id="publishChecks"></div>
+        <button id="copyBtn" class="primary">Копировать</button>
       </div>
-
-      <div class="editor-type" id="editorTypeLabel"></div>
-      <div id="editorToolbar" class="editor-toolbar">
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-link"></button>
-        <button class="ql-image"></button>
-      </div>
-      <div id="editorText" class="editor-text"></div>
-      <div id="publishChecks" style="display:flex; gap:12px; justify-content:center; margin:8px 12px;"></div>
     </section>
+
+    <!-- === Кнопка выхода === -->
+    <div class="logout-container">
+      <button id="logoutBtn" class="primary">Выйти</button>
+    </div>
   </div>
 
+  <!-- === Firebase и скрипт === -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDXKi-6v8qH8cvfGsfWZ2oH0gOVzRikBcA",
+      authDomain: "planer-6c61d.firebaseapp.com",
+      projectId: "planer-6c61d",
+      storageBucket: "planer-6c61d.appspot.com",
+      messagingSenderId: "682474690996",
+      appId: "1:682474690996:web:deef944d2b02b7f2a53bcb"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
