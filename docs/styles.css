@@ -1,79 +1,124 @@
+/* ---------- Global reset ---------- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
-
+ 
+/* ---------- Calendar page font & background ---------- */
 body.calendar-page {
-  font-family: "Sweet Mavka Script", cursive;
-  background: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg') center top / cover no-repeat;
-  color: #fff;
+  font-family: "Sweet Mavka Script", cursive;
+  background: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg') center top / cover no-repeat;
+  color: #fff;
 }
-
-/* Panels use Arial */
+ 
+/* Panels (editors) use standard font */
 .panel, .panel * { font-family: Arial, Helvetica, sans-serif; color: #111; }
-
-#header { display:flex; justify-content:center; align-items:center; padding:20px; }
+ 
+/* ---------- Header ---------- */
+#header { display:flex; justify-content:center; align-items:center; padding:20px 14px; background:transparent; }
 #appTitle { font-size:30px; color:white; }
-
+ 
+/* ---------- Calendar container & overlay ---------- */
 #calendarBackground {
-  max-width: 980px;
-  margin: 20px auto;
-  padding: 14px;
-  border-radius: 12px;
-  background: rgba(0,0,0,0.22);
+  max-width: 980px;
+  margin: 20px auto;
+  padding: 14px;
+  border-radius: 12px;
+  background: linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.22));
 }
-
+ 
+/* Nav */
 .nav { display:flex; justify-content:center; align-items:center; gap:16px; margin:8px 0; }
 #monthYear { font-weight:600; color: #fff; }
-
-.weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin:6px 12px; color:#fff; font-weight:700; }
-
-.calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; padding:0 12px 24px; }
-
+ 
+/* Weekdays */
+.weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-weight:700; margin:6px 12px; color:#fff; }
+ 
+/* Calendar grid */
+.calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; padding: 0 12px 24px; }
+ 
+/* Day cell: square, responsive */
 .day-cell {
-  aspect-ratio: 1/1;
-  min-height: 56px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.04);
-  position: relative;
-  cursor: pointer;
-  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  min-height: 56px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
+  overflow: hidden;
+  position: relative;
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
+/* Empty day cells transparent and no border */
 .day-cell.empty { background: transparent; border: none; cursor: default; }
-.day-number { position:absolute; top:8px; left:8px; font-weight:700; font-size:13px; color:#fff; }
-
-.legend { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:14px auto; color:#fff; }
+ 
+/* Day number */
+.day-number { position:absolute; top:8px; left:8px; font-weight:700; font-size:13px; color:#fff; z-index:3; }
+ 
+/* Remove social icons style in calendar cells as we don't show icons there */
+.pub-icons {
+  display: none !important;
+}
+ 
+/* Legend */
+.legend { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:14px auto; max-width:900px; color:#fff; }
 .legend-item { display:flex; align-items:center; gap:8px; font-size:15px; }
-.square { width:16px; height:16px; border-radius:3px; border:1px solid rgba(255,255,255,0.3); }
+.square { width:16px; height:16px; border-radius:3px; border:1px solid rgba(255,255,255,0.25); }
 .square.burgundy { background:#800020; }
 .square.orange { background:#FFA500; }
 .square.green { background:#006400; }
 .square.brown { background:#8B4513; }
 .square.beige { background:#F5F5DC; }
-
-.sheet { display:none; position:fixed; left:0; right:0; bottom:0; background:#fff; border-top-left-radius:12px; border-top-right-radius:12px; padding:14px; box-shadow:0 -8px 24px rgba(0,0,0,0.2); z-index:70; }
+ 
+/* Sheet (menu) */
+.sheet { display:none; position:fixed; left:0; right:0; bottom:0; background:#fff; border-top-left-radius:12px; border-top-right-radius:12px; padding:14px; box-shadow:0 -8px 24px rgba(0,0,0,0.12); z-index:70; }
 .sheet.active { display:block; }
-.black-btn { background:#000; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
+ 
+/* Black buttons inside sheet */
+.black-btn {
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 10px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  min-width: 120px;
+}
+ 
+/* menu icons under buttons */
 .menu-icons { display:flex; gap:8px; margin-top:6px; justify-content:center; }
-.menu-icons img { width:22px; height:22px; filter:grayscale(100%); opacity:0.3; }
+.menu-icons img { width:22px; height:22px; filter: grayscale(100%); opacity:0.3; }
 .menu-icons img.active { filter:none; opacity:1; }
-
+ 
+/* sheet layout */
+.sheet-buttons { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
+.button-wrapper { display:flex; flex-direction:column; align-items:center; gap:6px; }
+ 
+/* Editor panels */
 .panel { display:none; position:fixed; inset:0; background:#fff; overflow:auto; z-index:80; }
-.panel-inner { max-width:720px; margin:40px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(10,20,40,0.08); }
-.backBtn { background:#eee; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; }
-
-.editor-header { display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; }
-.editor-type { text-align:center; font-weight:700; margin:10px 0; }
-.editor-toolbar { display:flex; gap:6px; justify-content:center; padding:8px; background:#fafafa; border-bottom:1px solid #eee; }
-#editorText { height:60vh; border:1px solid #ddd; margin:12px; padding:12px; background:#fff; border-radius:8px; overflow:auto; color:#111; }
-
-.publish-checks { display:flex; gap:12px; justify-content:center; margin:8px 12px; }
-
-.tema-field { margin-bottom:16px; display:flex; flex-direction:column; gap:6px; }
+.panel-inner { max-width:720px; margin:40px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(10,20,40,0.06); }
+.backBtn { background:#eee; border: none; padding:8px 10px; border-radius:8px; cursor:pointer; }
+ 
+/* Editor content area (Quill) */
+.editor-header { display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; z-index:20; }
+.editor-type { text-align:center; font-weight:700; margin:10px 0; color:#111; }
+.editor-toolbar { display:flex; gap:6px; justify-content:center; padding:8px; border-bottom:1px solid #eee; background:#fafafa; }
+#editorText { height:60vh; border:1px solid #e6e9ef; margin:12px; padding:12px; background:#fff; border-radius:8px; overflow:auto; color:#111; }
+ 
+/* publish checks */
+.publish-checks { display:flex; gap:12px; justify-content:center; margin:8px 12px; color:#111; }
+ 
+/* Tema fields */
+.tema-field { margin-bottom:16px; display:flex; flex-direction:column; gap:6px; color:#111; }
 #tema_tema { width:100%; resize:none; font-size:15px; padding:8px; border:1px solid #ccc; border-radius:8px; }
-
+ 
+/* logout bottom */
 .logout-bottom { display:flex; justify-content:center; margin:18px 0; }
-
+ 
+/* tooltip */
+#imageTooltip { position:absolute; display:none; background:#222; color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; z-index:80; }
+ 
+/* responsive */
 @media (max-width:640px){
-  .calendar { gap:6px; padding:0 8px 20px; }
-  .day-cell { min-height:48px; }
+  .calendar { gap:6px; padding: 0 8px 20px; }
+  .day-cell { min-height:48px; aspect-ratio:1/1; }
+  .sheet-inner { padding:12px; }
 }
