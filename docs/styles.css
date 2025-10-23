@@ -1,158 +1,116 @@
 body {
   margin: 0;
-  font-family: "Inter", sans-serif;
-  background: #000;
+  font-family: 'Inter', sans-serif;
   color: white;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
 }
 
-/* Центрирование для входа */
-.center {
+h1 {
+  text-align: center;
+  font-size: 28px;
+  margin-top: 16px;
+}
+
+.auth-section {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   height: 100vh;
 }
 
-.black-btn {
-  background: black;
+.auth-box {
+  text-align: center;
+  background: rgba(255,255,255,0.2);
+  padding: 30px;
+  border-radius: 12px;
   color: white;
+}
+
+.btn {
+  padding: 10px 20px;
   border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
   cursor: pointer;
-}
-.black-btn:hover { opacity: 0.9; }
-
-.logout-btn {
-  position: absolute;
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%);
+  margin: 8px;
+  border-radius: 8px;
+  font-size: 15px;
 }
 
-/* Календарь */
-.calendar-wrapper {
-  position: relative;
-  min-height: 100vh;
-  background-size: cover;
-  background-position: center;
-  padding: 10px 0 60px;
-}
+.btn.black { background: black; color: white; }
 
-.month-nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
+.hidden { display: none; }
 
-.weekdays, .calendar {
+.calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 6px;
-  padding: 10px 15px;
-}
-
-.weekdays div {
-  text-align: center;
-  font-weight: bold;
+  padding: 20px;
 }
 
 .day-cell {
   position: relative;
-  aspect-ratio: 1/1;
-  border-radius: 10px;
-  cursor: pointer;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  text-align: center;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.day-number {
-  font-weight: bold;
-  font-size: 14px;
 }
 
-/* Легенда */
+.day-number {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-weight: bold;
+  color: white;
+}
+
 .legend {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
+  margin: 20px auto;
   font-size: 14px;
+  color: white;
 }
 
-/* Меню редакторов */
-.menu {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.8);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
+.legend .color {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  border-radius: 3px;
 }
-.menu.active { display: flex; }
-.menu-content {
-  background: white;
-  color: black;
-  padding: 25px;
-  border-radius: 14px;
-  text-align: center;
-}
-.menu-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin: 15px 0;
-}
-.menu-btn {
+
+.color.burgundy { background: rgba(128,0,32,0.5); }
+.color.orange { background: rgba(255,165,0,0.5); }
+.color.green { background: rgba(0,100,0,0.5); }
+.color.brown { background: rgba(139,69,19,0.5); }
+.color.beige { background: rgba(245,245,220,0.5); }
+
+.logout-btn {
+  display: block;
+  margin: 40px auto;
   background: black;
   color: white;
-  border: none;
+  padding: 10px 18px;
   border-radius: 8px;
-  padding: 10px 14px;
+  font-size: 15px;
   cursor: pointer;
 }
 
-/* Панели редакторов */
-.panel {
-  display: none;
+.page.editor {
   background: white;
   color: black;
-  min-height: 100vh;
   padding: 20px;
 }
-.panel.active { display: block; }
 
-.tema-form textarea {
+textarea, select {
   width: 100%;
-  min-height: 120px;
-  font-family: sans-serif;
-  font-size: 15px;
-}
-.tema-form select {
-  display: block;
   margin: 10px 0;
-  padding: 8px;
-  width: 100%;
-  font-size: 15px;
-}
-
-/* Редактор Quill */
-#editorText {
-  background: white;
-  color: black;
-  min-height: 300px;
-  margin-bottom: 10px;
-}
-#editorToolbar {
-  background: #eee;
-  border-radius: 8px;
-  margin-bottom: 5px;
-}
-#publishChecks label {
-  margin-right: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
