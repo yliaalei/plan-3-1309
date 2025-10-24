@@ -46,14 +46,27 @@ function initApp(){
   const dbRef = db.collection("contentPlanner");
   const colorMap = { burgundy:"#800020", orange:"#FFA500", green:"#006400", brown:"#8B4513", beige:"#F5F5DC" };
 
+  let selectedDateKey = null;
   let currentMonth = new Date().getMonth();
   let currentYear = new Date().getFullYear();
+  let quill = null;
+  let currentEditorType = null;
 
   const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
   const weekdays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
   safeAssign("prevBtn","onclick",()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();});
   safeAssign("nextBtn","onclick",()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();});
+
+  safeAssign("menuClose","onclick",()=>closeMenu());
+  safeAssign("temaBack","onclick",()=>closeEditor("temaPage"));
+  safeAssign("editorBack","onclick",()=>closeEditor("editorPage"));
+  safeAssign("copyBtn","onclick",copyEditorText);
+
+  safeAssign("menuBtnTema","onclick",()=>openEditor("tema"));
+  safeAssign("menuBtnPost","onclick",()=>openEditor("post"));
+  safeAssign("menuBtnReel","onclick",()=>openEditor("reel"));
+  safeAssign("menuBtnStories","onclick",()=>openEditor("stories"));
 
   renderWeekdays(); renderCalendar();
 
@@ -93,9 +106,117 @@ function initApp(){
   }
 
   function openMenuForDate(key){
-    $("menuDateTitle").textContent=key;
+    selectedDateKey = key;
+    $("menuDateTitle").textContent = key;
     $("menu").classList.add("active");
-    $("menu").style.display="block";
+    $("menu").style.display = "block";
   }
-  safeAssign("menuClose","onclick",()=>{$("menu").classList.remove("active");$("menu").style.display="none";});
+  function closeMenu(){
+    $("menu").classList.remove("active");
+    $("menu").style.display="none";
+  }
+
+  function openEditor(type){
+    closeMenu();
+    currentEditorType = type;
+    selectedDateKey && (type==="tema" ? openTema() : openTextEditor(type));
+  }
+
+  // === ТЕМА ===
+  function openTema(){
+    $("temaPage").style.display="block";
+    $("temaDateTitle").textContent = selectedDateKey;
+
+    dbRef.doc(selectedDateKey).get().then(docSnap=>{
+      const data=docSnap.exists?docSnap.data():{};
+      $("tema_tema").value = data.temaText || "";
+      $("tema_goal").value = data.temaGoal || "";
+      $("tema_type").value = data.temaColor || "";
+    });
+
+    ["tema_tema","tema_goal","tema_type"].forEach(id=>{
+      $(id).oninput = saveTemaDebounced;
+      $(id).onchange = saveTemaDebounced;
+    });
+  }
+
+  let temaTimer;
+  function saveTemaDebounced(){
+    clearTimeout(temaTimer);
+    temaTimer = setTimeout(saveTema, 600);
+  }
+  function saveTema(){
+    if(!selectedDateKey) return;
+    const payload = {
+      temaText: $("tema_tema").value.trim(),
+      temaGoal: $("tema_goal").value,
+      temaColor: $("tema_type").value
+    };
+    dbRef.doc(selectedDateKey).set(payload,{merge:true}).then(()=>renderCalendar());
+  }
+
+  // === POST / REEL / STORIES ===
+  function openTextEditor(type){
+    $("editorPage").style.display="block";
+    $("editorTypeLabel").textContent = type.toUpperCase();
+    $("editorDateTitle").textContent = selectedDateKey;
+
+    if(!quill){
+      quill = new Quill("#editorText", { theme:"snow", modules:{ toolbar:[["bold","italic"],["link","image"]] } });
+      quill.on("text-change", saveEditorDebounced);
+    }
+
+    dbRef.doc(selectedDateKey).get().then(docSnap=>{
+      const data=docSnap.exists?docSnap.data():{};
+      quill.root.innerHTML = data[type] || "";
+      renderPublishChecks(data[`${type}Platforms`] || {});
+    });
+  }
+
+  let saveTimer;
+  function saveEditorDebounced(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveEditor,600);
+  }
+  function saveEditor(){
+    if(!selectedDateKey || !currentEditorType || !quill) return;
+    const html = quill.root.innerHTML;
+    const flags = {
+      vk: $("chk_vk").checked,
+      inst: $("chk_inst").checked,
+      tg: $("chk_tg").checked
+    };
+    const payload = {};
+    payload[currentEditorType] = html;
+    payload[`${currentEditorType}Platforms`] = flags;
+    dbRef.doc(selectedDateKey).set(payload,{merge:true}).then(()=>renderCalendar());
+  }
+
+  function renderPublishChecks(flags){
+    const div = $("publishChecks");
+    div.innerHTML = `
+      <label><input type="checkbox" id="chk_vk"> ВК</label>
+      <label><input type="checkbox" id="chk_inst"> Инст</label>
+      <label><input type="checkbox" id="chk_tg"> ТГ</label>
+    `;
+    $("chk_vk").checked = !!flags.vk;
+    $("chk_inst").checked = !!flags.inst;
+    $("chk_tg").checked = !!flags.tg;
+    ["chk_vk","chk_inst","chk_tg"].forEach(id=>{
+      $(id).onchange = saveEditorDebounced;
+    });
+  }
+
+  function closeEditor(panelId){
+    $(panelId).style.display="none";
+    renderCalendar();
+  }
+
+  function copyEditorText(){
+    if(!quill) return;
+    navigator.clipboard.writeText(quill.root.innerText||"");
+    const btn=$("copyBtn");
+    btn.textContent="Скопировано!";
+    setTimeout(()=>btn.textContent="Копировать",900);
+  }
 }
