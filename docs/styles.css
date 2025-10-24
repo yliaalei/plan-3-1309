@@ -1,22 +1,22 @@
-/* ---------- Global reset ---------- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 
-/* ---------- Calendar page font & background ---------- */
+/* Calendar page */
 body.calendar-page {
   font-family: "Sweet Mavka Script", cursive;
-  background: url('https://i.pinimg.com/736x/90/1c/6a/901c6aab908ff55adc594fabae3ace52.jpg') center top / cover no-repeat;
+  background: center top / cover no-repeat;
   color: #fff;
+  transition: background-image 0.5s ease-in-out;
 }
 
-/* Panels (editors) use standard font */
+/* Panels (editors) use Arial */
 .panel, .panel * { font-family: Arial, Helvetica, sans-serif; color: #111; }
 
-/* ---------- Header ---------- */
+/* Header */
 #header { display:flex; justify-content:center; align-items:center; padding:20px 14px; background:transparent; }
 #appTitle { font-size:30px; color:white; }
 
-/* ---------- Calendar container & overlay ---------- */
+/* Calendar background */
 #calendarBackground {
   max-width: 980px;
   margin: 20px auto;
@@ -35,7 +35,7 @@ body.calendar-page {
 /* Calendar grid */
 .calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; padding: 0 12px 24px; }
 
-/* Day cell: square, responsive */
+/* Day cells */
 .day-cell {
   aspect-ratio: 1 / 1;
   min-height: 56px;
@@ -52,8 +52,8 @@ body.calendar-page {
 /* Day number */
 .day-number { position:absolute; top:8px; left:8px; font-weight:700; font-size:13px; color:#fff; z-index:3; }
 
-/* NOTE: иконки в ячейках отключены — они не должны отображаться в календаре */
-.pub-icons { display:none !important; }
+/* (иконки убраны из ячеек календаря — не отображаются) */
+.pub-icons { display:none; }
 
 /* Legend */
 .legend { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:14px auto; max-width:900px; color:#fff; }
@@ -65,11 +65,10 @@ body.calendar-page {
 .square.brown { background:#8B4513; }
 .square.beige { background:#F5F5DC; }
 
-/* Sheet (menu) */
+/* Sheet menu */
 .sheet { display:none; position:fixed; left:0; right:0; bottom:0; background:#fff; border-top-left-radius:12px; border-top-right-radius:12px; padding:14px; box-shadow:0 -8px 24px rgba(0,0,0,0.12); z-index:70; }
 .sheet.active { display:block; }
 
-/* Black buttons inside sheet */
 .black-btn {
   background: #111;
   color: #fff;
@@ -80,42 +79,34 @@ body.calendar-page {
   min-width: 120px;
 }
 
-/* menu icons under buttons */
 .menu-icons { display:flex; gap:8px; margin-top:6px; justify-content:center; }
 .menu-icons img { width:22px; height:22px; filter: grayscale(100%); opacity:0.3; }
 .menu-icons img.active { filter:none; opacity:1; }
 
-/* sheet layout */
 .sheet-buttons { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
 .button-wrapper { display:flex; flex-direction:column; align-items:center; gap:6px; }
 
-/* Editor panels */
 .panel { display:none; position:fixed; inset:0; background:#fff; overflow:auto; z-index:80; }
 .panel-inner { max-width:720px; margin:40px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(10,20,40,0.06); }
 .backBtn { background:#eee; border: none; padding:8px 10px; border-radius:8px; cursor:pointer; }
 
-/* Editor content area (Quill) */
 .editor-header { display:flex; align-items:center; gap:8px; padding:10px; border-bottom:1px solid #eee; background:#fff; position:sticky; top:0; z-index:20; }
 .editor-type { text-align:center; font-weight:700; margin:10px 0; color:#111; }
 .editor-toolbar { display:flex; gap:6px; justify-content:center; padding:8px; border-bottom:1px solid #eee; background:#fafafa; }
 #editorText { height:60vh; border:1px solid #e6e9ef; margin:12px; padding:12px; background:#fff; border-radius:8px; overflow:auto; color:#111; }
 
-/* publish checks */
 .publish-checks { display:flex; gap:12px; justify-content:center; margin:8px 12px; color:#111; }
 
-/* Tema fields */
 .tema-field { margin-bottom:16px; display:flex; flex-direction:column; gap:6px; color:#111; }
 #tema_tema { width:100%; resize:none; font-size:15px; padding:8px; border:1px solid #ccc; border-radius:8px; }
 
-/* logout bottom */
 .logout-bottom { display:flex; justify-content:center; margin:18px 0; }
 
-/* tooltip */
 #imageTooltip { position:absolute; display:none; background:#222; color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; z-index:80; }
 
-/* responsive */
 @media (max-width:640px){
   .calendar { gap:6px; padding: 0 8px 20px; }
   .day-cell { min-height:48px; aspect-ratio:1/1; }
   .sheet-inner { padding:12px; }
 }
+
