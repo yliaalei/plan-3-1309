@@ -1,4 +1,4 @@
-/* script.js for "Мой контент-план" */
+/* script.js for "Мой контент-план" (updated) */
 const OWNER_EMAIL = "ylia.alei@gmail.com";
 
 function $(id){ return document.getElementById(id); }
@@ -16,50 +16,130 @@ const ICONS = {
 
 // 🔹 Фоны месяцев
 const monthBackgrounds = [
-  "https://i.pinimg.com/736x/ac/0f/a9/ac0fa9912b3c74e34d99c9c0e0b57323.jpg", // Январь
-  "https://i.pinimg.com/736x/ac/5e/74/ac5e740afe0ad061777b979f5e4a0808.jpg", // Февраль
-  "https://i.pinimg.com/736x/d4/c4/b4/d4c4b455ebe734b9d69dfd16635de086.jpg", // Март
-  "https://i.pinimg.com/736x/a5/33/db/a533db51f86acc360d2f34b9ab2de7b3.jpg", // Апрель
-  "https://i.pinimg.com/736x/fa/1f/2e/fa1f2ebc900dd29049e1cf26098a6039.jpg", // Май
-  "https://i.pinimg.com/736x/d8/a5/20/d8a520e299b09faf6b0805f0eebe4e74.jpg", // Июнь
-  "https://i.pinimg.com/1200x/40/c4/31/40c43185d7067a13c9cc999f596c377e.jpg", // Июль
-  "https://i.pinimg.com/736x/fb/f7/ee/fbf7ee009c3cd6189d7ce6044f408c0f.jpg", // Август
-  "https://i.pinimg.com/736x/4c/42/43/4c4243788c34ad2c357e6895b66c12eb.jpg", // Сентябрь
-  "https://i.pinimg.com/736x/01/18/c2/0118c2cc54622adb4edb500703a063eb.jpg", // Октябрь
-  "https://i.pinimg.com/736x/94/78/0d/94780d2437de26d5fbd37c702467a4a5.jpg", // Ноябрь
-  "https://i.pinimg.com/736x/95/bb/85/95bb85acb69721441b666577aefd7ad7.jpg"  // Декабрь
+  "https://i.pinimg.com/736x/ac/0f/a9/ac0fa9912b3c74e34d99c9c0e0b57323.jpg", // Янв
+  "https://i.pinimg.com/736x/ac/5e/74/ac5e740afe0ad061777b979f5e4a0808.jpg",
+  "https://i.pinimg.com/736x/d4/c4/b4/d4c4b455ebe734b9d69dfd16635de086.jpg",
+  "https://i.pinimg.com/736x/a5/33/db/a533db51f86acc360d2f34b9ab2de7b3.jpg",
+  "https://i.pinimg.com/736x/fa/1f/2e/fa1f2ebc900dd29049e1cf26098a6039.jpg",
+  "https://i.pinimg.com/736x/d8/a5/20/d8a520e299b09faf6b0805f0eebe4e74.jpg",
+  "https://i.pinimg.com/1200x/40/c4/31/40c43185d7067a13c9cc999f596c377e.jpg",
+  "https://i.pinimg.com/736x/fb/f7/ee/fbf7ee009c3cd6189d7ce6044f408c0f.jpg",
+  "https://i.pinimg.com/736x/4c/42/43/4c4243788c34ad2c357e6895b66c12eb.jpg",
+  "https://i.pinimg.com/736x/01/18/c2/0118c2cc54622adb4edb500703a063eb.jpg",
+  "https://i.pinimg.com/736x/94/78/0d/94780d2437de26d5fbd37c702467a4a5.jpg",
+  "https://i.pinimg.com/736x/95/bb/85/95bb85acb69721441b666577aefd7ad7.jpg"
 ];
 
 window.addEventListener("load", () => {
+  // auth UI buttons
   safeAssign("googleBtn","onclick", async () => {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });
       await auth.signInWithPopup(provider);
-    } catch(e){ $("authError").textContent = e.message; }
+    } catch(e){ $("authHint").textContent = e.message; }
   });
+
+  safeAssign("registerBtn","onclick", async () => {
+    const email = $("regEmail").value.trim();
+    const pass = $("regPass").value;
+    if(!email || !pass){ $("authHint").textContent="Введите email и пароль"; return; }
+    try {
+      await auth.createUserWithEmailAndPassword(email, pass);
+    } catch(e){ $("authHint").textContent = e.message; }
+  });
+
+  safeAssign("loginBtn","onclick", async () => {
+    const email = $("loginEmail").value.trim();
+    const pass = $("loginPass").value;
+    if(!email || !pass){ $("authHint").textContent="Введите email и пароль"; return; }
+    try {
+      await auth.signInWithEmailAndPassword(email, pass);
+    } catch(e){ $("authHint").textContent = e.message; }
+  });
+
   safeAssign("logoutBtn","onclick", ()=> auth.signOut());
+
+  safeAssign("payBtn","onclick", createPaymentForCurrentUser);
+  safeAssign("restoreTrialBtn","onclick", ()=> alert("Напишите владельцу: "+OWNER_EMAIL));
 
   auth.onAuthStateChanged(user => {
     if(!user){
+      // show auth
       document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
       $("authSection").style.display = "block";
       return;
     }
-    if(user.email !== OWNER_EMAIL){
-      alert("Доступ только владельцу.");
-      auth.signOut();
+
+    // if not owner and email not verified? we still allow
+    if(user.email === OWNER_EMAIL){
+      // owner always gets full app
+      $("authSection").style.display = "none";
+      $("paymentPage").style.display = "none";
+      $("app").style.display = "block";
+      initApp(user);
       return;
     }
-    $("authSection").style.display = "none";
-    $("app").style.display = "block";
-    document.body.classList.add("calendar-page");
-    initApp();
+
+    // check users/{uid} doc for trial/payment
+    const userDocRef = db.collection("users").doc(user.uid);
+    userDocRef.get().then(docSnap => {
+      const now = Date.now();
+      if(!docSnap.exists){
+        // new user: create with trial
+        const trialEnds = now + 7*24*60*60*1000;
+        userDocRef.set({ createdAt: now, trialEnds, paid: false }).then(()=>{
+          $("authSection").style.display = "none";
+          $("paymentPage").style.display = "none";
+          $("app").style.display = "block";
+          initApp(user);
+        });
+      } else {
+        const data = docSnap.data();
+        if(data.paid){
+          $("authSection").style.display = "none";
+          $("paymentPage").style.display = "none";
+          $("app").style.display = "block";
+          initApp(user);
+        } else if(now < data.trialEnds){
+          $("authSection").style.display = "none";
+          $("paymentPage").style.display = "none";
+          $("app").style.display = "block";
+          initApp(user);
+        } else {
+          // trial over -> require payment
+          document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
+          $("paymentPage").style.display = "block";
+        }
+      }
+    }).catch(err=>{
+      console.error(err);
+      $("authHint").textContent = "Ошибка доступа к БД";
+    });
   });
 });
 
-function initApp(){
-  const dbRef = db.collection("contentPlanner");
+// ---------------- utilities ----------------
+
+function getUserId(){
+  const u = auth.currentUser;
+  return u ? u.uid : null;
+}
+
+function usersCollectionRef(){
+  return db.collection("users");
+}
+
+function userContentCollectionRef(){
+  const uid = getUserId();
+  if(!uid) throw new Error("User not signed in");
+  return db.collection("users").doc(uid).collection("contentPlanner");
+}
+
+// ---------------- APP logic (calendar etc) ----------------
+
+function initApp(user){
+  // existing logic mostly preserved — but data reads/writes go to per-user collection
   const colorMap = { burgundy:"#800020", orange:"#FFA500", green:"#006400", brown:"#8B4513", beige:"#F5F5DC" };
 
   let selectedDateKey = null;
@@ -91,11 +171,11 @@ function initApp(){
     weekdays.forEach(d=>{const div=document.createElement("div");div.textContent=d;wd.appendChild(div);});
   }
 
-  function renderCalendar(){
+  async function renderCalendar(){
     const cal=$("calendar"); cal.innerHTML="";
     $("monthYear").textContent=`${monthNames[currentMonth]} ${currentYear}`;
 
-    // 🌸 Установка фона по месяцу
+    // Установка фона по месяцу
     document.body.style.backgroundImage = `url('${monthBackgrounds[currentMonth]}')`;
 
     const firstDay=new Date(currentYear,currentMonth,1).getDay();
@@ -115,11 +195,15 @@ function initApp(){
       cell.appendChild(num);
 
       cell.addEventListener("click",()=>openMenuForDate(key));
-      dbRef.doc(key).get().then(docSnap=>{
-        const data=docSnap.exists?docSnap.data():{};
-        const c=data.temaColor||null;
-        if(c&&colorMap[c]) cell.style.backgroundColor=colorMap[c]+"33";
-      });
+      // fetch per-user doc
+      try{
+        const docSnap = await userContentCollectionRef().doc(key).get();
+        const data = docSnap.exists ? docSnap.data() : {};
+        const c = data.temaColor || null;
+        if(c && colorMap[c]) cell.style.backgroundColor = colorMap[c] + "33";
+      }catch(e){
+        console.error("Ошибка чтения doc", key, e);
+      }
       cal.appendChild(cell);
     }
   }
@@ -146,8 +230,8 @@ function initApp(){
     $("temaPage").style.display="block";
     $("temaDateTitle").textContent = selectedDateKey;
 
-    dbRef.doc(selectedDateKey).get().then(docSnap=>{
-      const data=docSnap.exists?docSnap.data():{};
+    userContentCollectionRef().doc(selectedDateKey).get().then(docSnap=>{
+      const data = docSnap.exists?docSnap.data():{};
       $("tema_tema").value = data.temaText || "";
       $("tema_goal").value = data.temaGoal || "";
       $("tema_type").value = data.temaColor || "";
@@ -171,7 +255,7 @@ function initApp(){
       temaGoal: $("tema_goal").value,
       temaColor: $("tema_type").value
     };
-    dbRef.doc(selectedDateKey).set(payload,{merge:true}).then(()=>renderCalendar());
+    userContentCollectionRef().doc(selectedDateKey).set(payload,{merge:true}).then(()=>renderCalendar());
   }
 
   // === POST / REEL / STORIES ===
@@ -185,8 +269,8 @@ function initApp(){
       quill.on("text-change", saveEditorDebounced);
     }
 
-    dbRef.doc(selectedDateKey).get().then(docSnap=>{
-      const data=docSnap.exists?docSnap.data():{};
+    userContentCollectionRef().doc(selectedDateKey).get().then(docSnap=>{
+      const data = docSnap.exists?docSnap.data():{};
       quill.root.innerHTML = data[type] || "";
       renderPublishChecks(data[`${type}Platforms`] || {});
     });
@@ -201,14 +285,14 @@ function initApp(){
     if(!selectedDateKey || !currentEditorType || !quill) return;
     const html = quill.root.innerHTML;
     const flags = {
-      vk: $("chk_vk").checked,
-      inst: $("chk_inst").checked,
-      tg: $("chk_tg").checked
+      vk: $("chk_vk") ? $("chk_vk").checked : false,
+      inst: $("chk_inst") ? $("chk_inst").checked : false,
+      tg: $("chk_tg") ? $("chk_tg").checked : false
     };
     const payload = {};
     payload[currentEditorType] = html;
     payload[`${currentEditorType}Platforms`] = flags;
-    dbRef.doc(selectedDateKey).set(payload,{merge:true}).then(()=>renderCalendar());
+    userContentCollectionRef().doc(selectedDateKey).set(payload,{merge:true}).then(()=>renderCalendar());
   }
 
   function renderPublishChecks(flags){
@@ -239,3 +323,33 @@ function initApp(){
     setTimeout(()=>btn.textContent="Копировать",900);
   }
 }
+
+// ---------------- PAYMENT flow ----------------
+
+async function createPaymentForCurrentUser(){
+  const user = auth.currentUser;
+  if(!user) return alert("Пожалуйста, войдите");
+
+  // Ваш бекенд (разверните / укажите URL)
+  const API_URL = "https://ВАШ_БЕКЕНД_URL/createPayment"; // <-- замените
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: user.uid })
+    });
+    const data = await res.json();
+    if(data && data.confirmation && data.confirmation.confirmation_url){
+      // перенаправляем пользователя
+      window.location.href = data.confirmation.confirmation_url;
+    } else {
+      console.error("Ошибка создания платежа", data);
+      alert("Не удалось создать платёж. Проверьте бэкенд.");
+    }
+  } catch(e){
+    console.error(e);
+    alert("Ошибка связи с сервером.");
+  }
+}
+
