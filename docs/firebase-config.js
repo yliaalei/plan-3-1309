@@ -1,4 +1,4 @@
-// firebase-config.js
+// firebase-config.js (оставьте ваш конфиг как есть)
 const firebaseConfig = {
   apiKey: "AIzaSyAqUEri9DzMftxtS7ker4tfC-EnZNK6nMA",
   authDomain: "content-planner-ffb8e.firebaseapp.com",
