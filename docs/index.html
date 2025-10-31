@@ -21,10 +21,28 @@
   <!-- AUTH -->
   <section id="authSection" class="panel active">
     <div class="panel-inner auth">
-      <h2>Войдите через Google</h2>
-      <p>Вход доступен только владельцу</p>
-      <button id="googleBtn" class="primary">Войти через Google</button>
-      <p id="authError" class="hint"></p>
+      <h2>Войдите</h2>
+      <p>Вход доступен владельцу (через Google) и обычным пользователям (email/пароль).</p>
+
+      <div class="auth-row">
+        <button id="googleBtn" class="primary">Войти через Google</button>
+      </div>
+
+      <hr style="margin:12px 0;">
+
+      <div class="auth-row">
+        <input id="regEmail" type="email" placeholder="Email для регистрации" />
+        <input id="regPass" type="password" placeholder="Пароль" />
+        <button id="registerBtn" class="primary">Зарегистрироваться</button>
+      </div>
+
+      <div class="auth-row" style="margin-top:8px;">
+        <input id="loginEmail" type="email" placeholder="Email" />
+        <input id="loginPass" type="password" placeholder="Пароль" />
+        <button id="loginBtn" class="primary">Войти</button>
+      </div>
+
+      <p id="authHint" class="hint"></p>
     </div>
   </section>
 
@@ -150,7 +168,16 @@
     </section>
   </div>
 
+  <!-- PAYMENT PAGE -->
+  <section id="paymentPage" class="panel">
+    <div class="panel-inner">
+      <h2>Подписка недоступна</h2>
+      <p>Ваш бесплатный пробный период закончился. Стоимость подписки — 450₽.</p>
+      <button id="payBtn" class="primary">Оплатить через ЮKassa</button>
+      <button id="restoreTrialBtn" class="black-btn" style="margin-left:10px;">Связаться с поддержкой</button>
+    </div>
+  </section>
+
   <script src="script.js"></script>
 </body>
 </html>
-
