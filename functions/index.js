@@ -1,54 +1,43 @@
-// api.js
-import express from "express";
-import fetch from "node-fetch";
-import admin from "firebase-admin";
-import bodyParser from "body-parser";
+const functions = require("firebase-functions");
+const express = require("express");
+const fetch = require("node-fetch");
+const admin = require("firebase-admin");
 
-// Инициализация Firebase Admin SDK (нужен service account)
-import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+admin.initializeApp();
 const db = admin.firestore();
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Конфигурация YooKassa в env
-const YOOKASSA_SHOPID = process.env.YOOKASSA_SHOPID;
-const YOOKASSA_SECRET = process.env.YOOKASSA_SECRET;
-const BASE_RETURN_URL = process.env.RETURN_URL || "https://yliaalei.github.io/plan-3-1309/"; // вернуться после оплаты
+// 🔹 Твои маршруты API
 
-if(!YOOKASSA_SHOPID || !YOOKASSA_SECRET) {
-  console.warn("YOOKASSA env vars not set");
-}
-
-// POST /createPayment
+// Создание платежа
 app.post("/createPayment", async (req, res) => {
   try {
     const { uid } = req.body;
-    if(!uid) return res.status(400).json({ error: "uid required" });
-
     const idempotenceKey = Math.random().toString(36).substring(2);
-    const payload = {
+
+    const paymentData = {
       amount: { value: "450.00", currency: "RUB" },
       confirmation: {
         type: "redirect",
-        return_url: BASE_RETURN_URL
+        return_url: "https://yliaalei.github.io/plan-3-1309/"
       },
       capture: true,
-      description: `Оплата подписки ${uid}`
+      description: `Оплата подписки пользователем ${uid}`
     };
+
+    const SHOPID = functions.config().yookassa.shopid;
+    const SECRET = functions.config().yookassa.secret;
 
     const response = await fetch("https://api.yookassa.ru/v3/payments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Idempotence-Key": idempotenceKey,
-        "Authorization": "Basic " + Buffer.from(`${YOOKASSA_SHOPID}:${YOOKASSA_SECRET}`).toString("base64")
+        "Authorization": "Basic " + Buffer.from(`${SHOPID}:${SECRET}`).toString("base64")
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(paymentData)
     });
 
     const result = await response.json();
@@ -59,32 +48,18 @@ app.post("/createPayment", async (req, res) => {
   }
 });
 
-// Вебхук YooKassa
+// Вебхук ЮKassa
 app.post("/yookassa/webhook", async (req, res) => {
-  try {
-    const event = req.body;
-    // Стандартная структура: event.event = "payment.succeeded"
-    if(event && event.event === "payment.succeeded"){
-      const desc = event.object && event.object.description ? event.object.description : "";
-      // мы положили uid в описание: "Оплата подписки {uid}"
-      const parts = desc.split(" ");
-      const uid = parts[parts.length - 1];
-
-      if(uid){
-        await db.collection("users").doc(uid).set({
-          paid: true,
-          paidAt: admin.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        // можно отправить email/уведомление сюда
-      }
-    }
-    res.sendStatus(200);
-  } catch (e) {
-    console.error(e);
-    res.sendStatus(500);
+  const event = req.body;
+  if (event.event === "payment.succeeded") {
+    const uid = event.object.description.split(" ")[2];
+    await db.collection("payments").doc(uid).set({
+      paid: true,
+      time: Date.now()
+    });
   }
+  res.sendStatus(200);
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, ()=> console.log("API listening on", PORT));
+// 🔹 Экспорт функции для Firebase
+exports.api = functions.https.onRequest(app);
