@@ -1,10 +1,9 @@
-/* script.js for "Мой контент-план" (updated) */
 const OWNER_EMAIL = "ylia.alei@gmail.com";
 
-function $(id){ return document.getElementById(id); }
-function safeAssign(id, prop, handler){ const el=$(id); if(el) el[prop]=handler; }
+function $(id) { return document.getElementById(id); }
+function safeAssign(id, prop, handler) { const el = $(id); if(el) el[prop] = handler; }
 
-if(typeof firebase==="undefined"||typeof db==="undefined"||typeof auth==="undefined"){
+if(typeof firebase === "undefined" || typeof db === "undefined" || typeof auth === "undefined"){
   console.error("Firebase не инициализирован. Проверьте firebase-config.js");
 }
 
@@ -14,9 +13,8 @@ const ICONS = {
   tg: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg"
 };
 
-// 🔹 Фоны месяцев
 const monthBackgrounds = [
-  "https://i.pinimg.com/736x/ac/0f/a9/ac0fa9912b3c74e34d99c9c0e0b57323.jpg", // Янв
+  "https://i.pinimg.com/736x/ac/0f/a9/ac0fa9912b3c74e34d99c9c0e0b57323.jpg",
   "https://i.pinimg.com/736x/ac/5e/74/ac5e740afe0ad061777b979f5e4a0808.jpg",
   "https://i.pinimg.com/736x/d4/c4/b4/d4c4b455ebe734b9d69dfd16635de086.jpg",
   "https://i.pinimg.com/736x/a5/33/db/a533db51f86acc360d2f34b9ab2de7b3.jpg",
@@ -31,115 +29,35 @@ const monthBackgrounds = [
 ];
 
 window.addEventListener("load", () => {
-  // auth UI buttons
   safeAssign("googleBtn","onclick", async () => {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });
       await auth.signInWithPopup(provider);
-    } catch(e){ $("authHint").textContent = e.message; }
+    } catch(e){ $("authError").textContent = e.message; }
   });
-
-  safeAssign("registerBtn","onclick", async () => {
-    const email = $("regEmail").value.trim();
-    const pass = $("regPass").value;
-    if(!email || !pass){ $("authHint").textContent="Введите email и пароль"; return; }
-    try {
-      await auth.createUserWithEmailAndPassword(email, pass);
-    } catch(e){ $("authHint").textContent = e.message; }
-  });
-
-  safeAssign("loginBtn","onclick", async () => {
-    const email = $("loginEmail").value.trim();
-    const pass = $("loginPass").value;
-    if(!email || !pass){ $("authHint").textContent="Введите email и пароль"; return; }
-    try {
-      await auth.signInWithEmailAndPassword(email, pass);
-    } catch(e){ $("authHint").textContent = e.message; }
-  });
-
   safeAssign("logoutBtn","onclick", ()=> auth.signOut());
-
-  safeAssign("payBtn","onclick", createPaymentForCurrentUser);
-  safeAssign("restoreTrialBtn","onclick", ()=> alert("Напишите владельцу: "+OWNER_EMAIL));
 
   auth.onAuthStateChanged(user => {
     if(!user){
-      // show auth
       document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
       $("authSection").style.display = "block";
       return;
     }
-
-    // if not owner and email not verified? we still allow
-    if(user.email === OWNER_EMAIL){
-      // owner always gets full app
-      $("authSection").style.display = "none";
-      $("paymentPage").style.display = "none";
-      $("app").style.display = "block";
-      initApp(user);
+    if(user.email !== OWNER_EMAIL){
+      alert("Доступ только владельцу.");
+      auth.signOut();
       return;
     }
-
-    // check users/{uid} doc for trial/payment
-    const userDocRef = db.collection("users").doc(user.uid);
-    userDocRef.get().then(docSnap => {
-      const now = Date.now();
-      if(!docSnap.exists){
-        // new user: create with trial
-        const trialEnds = now + 7*24*60*60*1000;
-        userDocRef.set({ createdAt: now, trialEnds, paid: false }).then(()=>{
-          $("authSection").style.display = "none";
-          $("paymentPage").style.display = "none";
-          $("app").style.display = "block";
-          initApp(user);
-        });
-      } else {
-        const data = docSnap.data();
-        if(data.paid){
-          $("authSection").style.display = "none";
-          $("paymentPage").style.display = "none";
-          $("app").style.display = "block";
-          initApp(user);
-        } else if(now < data.trialEnds){
-          $("authSection").style.display = "none";
-          $("paymentPage").style.display = "none";
-          $("app").style.display = "block";
-          initApp(user);
-        } else {
-          // trial over -> require payment
-          document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
-          $("paymentPage").style.display = "block";
-        }
-      }
-    }).catch(err=>{
-      console.error(err);
-      $("authHint").textContent = "Ошибка доступа к БД";
-    });
+    $("authSection").style.display = "none";
+    $("app").style.display = "block";
+    document.body.classList.add("calendar-page");
+    initApp();
   });
 });
 
-// ---------------- utilities ----------------
-
-function getUserId(){
-  const u = auth.currentUser;
-  return u ? u.uid : null;
-}
-
-function usersCollectionRef(){
-  return db.collection("users");
-}
-
-function userContentCollectionRef(){
-  const uid = getUserId();
-  if(!uid) throw new Error("User not signed in");
-  return db.collection("users").doc(uid).collection("contentPlanner");
-}
-
-// ---------------- APP logic (calendar etc) ----------------
-
-function initApp(user){
-  // existing logic mostly preserved — but data reads/writes go to per-user collection
+function initApp(){
+  const dbRef = db.collection("contentPlanner");
   const colorMap = { burgundy:"#800020", orange:"#FFA500", green:"#006400", brown:"#8B4513", beige:"#F5F5DC" };
 
   let selectedDateKey = null;
@@ -171,7 +89,7 @@ function initApp(user){
     weekdays.forEach(d=>{const div=document.createElement("div");div.textContent=d;wd.appendChild(div);});
   }
 
-  async function renderCalendar(){
+  function renderCalendar(){
     const cal=$("calendar"); cal.innerHTML="";
     $("monthYear").textContent=`${monthNames[currentMonth]} ${currentYear}`;
 
@@ -195,15 +113,15 @@ function initApp(user){
       cell.appendChild(num);
 
       cell.addEventListener("click",()=>openMenuForDate(key));
-      // fetch per-user doc
-      try{
-        const docSnap = await userContentCollectionRef().doc(key).get();
-        const data = docSnap.exists ? docSnap.data() : {};
+
+      // Подсветка по теме
+      dbRef.doc(key).get().then(docSnap=>{
+        if(!docSnap.exists) return;
+        const data = docSnap.data();
         const c = data.temaColor || null;
-        if(c && colorMap[c]) cell.style.backgroundColor = colorMap[c] + "33";
-      }catch(e){
-        console.error("Ошибка чтения doc", key, e);
-      }
+        if(c && colorMap[c]) cell.style.backgroundColor = colorMap[c]+"33"; // прозрачный цвет
+      });
+
       cal.appendChild(cell);
     }
   }
@@ -214,6 +132,7 @@ function initApp(user){
     $("menu").classList.add("active");
     $("menu").style.display = "block";
   }
+
   function closeMenu(){
     $("menu").classList.remove("active");
     $("menu").style.display="none";
@@ -230,8 +149,8 @@ function initApp(user){
     $("temaPage").style.display="block";
     $("temaDateTitle").textContent = selectedDateKey;
 
-    userContentCollectionRef().doc(selectedDateKey).get().then(docSnap=>{
-      const data = docSnap.exists?docSnap.data():{};
+    dbRef.doc(selectedDateKey).get().then(docSnap=>{
+      const data=docSnap.exists?docSnap.data():{};
       $("tema_tema").value = data.temaText || "";
       $("tema_goal").value = data.temaGoal || "";
       $("tema_type").value = data.temaColor || "";
@@ -255,7 +174,7 @@ function initApp(user){
       temaGoal: $("tema_goal").value,
       temaColor: $("tema_type").value
     };
-    userContentCollectionRef().doc(selectedDateKey).set(payload,{merge:true}).then(()=>renderCalendar());
+    dbRef.doc(selectedDateKey).set(payload,{merge:true}).then(()=>renderCalendar());
   }
 
   // === POST / REEL / STORIES ===
@@ -269,8 +188,8 @@ function initApp(user){
       quill.on("text-change", saveEditorDebounced);
     }
 
-    userContentCollectionRef().doc(selectedDateKey).get().then(docSnap=>{
-      const data = docSnap.exists?docSnap.data():{};
+    dbRef.doc(selectedDateKey).get().then(docSnap=>{
+      const data=docSnap.exists?docSnap.data():{};
       quill.root.innerHTML = data[type] || "";
       renderPublishChecks(data[`${type}Platforms`] || {});
     });
@@ -285,14 +204,14 @@ function initApp(user){
     if(!selectedDateKey || !currentEditorType || !quill) return;
     const html = quill.root.innerHTML;
     const flags = {
-      vk: $("chk_vk") ? $("chk_vk").checked : false,
-      inst: $("chk_inst") ? $("chk_inst").checked : false,
-      tg: $("chk_tg") ? $("chk_tg").checked : false
+      vk: $("chk_vk").checked,
+      inst: $("chk_inst").checked,
+      tg: $("chk_tg").checked
     };
     const payload = {};
     payload[currentEditorType] = html;
     payload[`${currentEditorType}Platforms`] = flags;
-    userContentCollectionRef().doc(selectedDateKey).set(payload,{merge:true}).then(()=>renderCalendar());
+    dbRef.doc(selectedDateKey).set(payload,{merge:true}).then(()=>renderCalendar());
   }
 
   function renderPublishChecks(flags){
@@ -323,33 +242,3 @@ function initApp(user){
     setTimeout(()=>btn.textContent="Копировать",900);
   }
 }
-
-// ---------------- PAYMENT flow ----------------
-
-async function createPaymentForCurrentUser(){
-  const user = auth.currentUser;
-  if(!user) return alert("Пожалуйста, войдите");
-
-  // Ваш бекенд (разверните / укажите URL)
-  const API_URL = "https://ВАШ_БЕКЕНД_URL/createPayment"; // <-- замените
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uid: user.uid })
-    });
-    const data = await res.json();
-    if(data && data.confirmation && data.confirmation.confirmation_url){
-      // перенаправляем пользователя
-      window.location.href = data.confirmation.confirmation_url;
-    } else {
-      console.error("Ошибка создания платежа", data);
-      alert("Не удалось создать платёж. Проверьте бэкенд.");
-    }
-  } catch(e){
-    console.error(e);
-    alert("Ошибка связи с сервером.");
-  }
-}
-
