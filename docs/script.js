@@ -61,10 +61,15 @@ window.addEventListener("load", () => {
   }
 });
 
-
-function initApp(){
+function initApp(readOnly = false) {
   const dbRef = db.collection("contentPlanner");
-  const colorMap = { burgundy:"#800020", orange:"#FFA500", green:"#006400", brown:"#8B4513", beige:"#F5F5DC" };
+  const colorMap = { 
+    burgundy:"#800020", 
+    orange:"#FFA500", 
+    green:"#006400", 
+    brown:"#8B4513", 
+    beige:"#F5F5DC" 
+  };
 
   let selectedDateKey = null;
   let currentMonth = new Date().getMonth();
@@ -72,6 +77,12 @@ function initApp(){
   let quill = null;
   let currentEditorType = null;
 
+  // 🔒 Если пользователь не владелец — скрываем элементы редактирования
+  if (readOnly) {
+    document.querySelectorAll(".menuBtn, #editorPage, #temaPage").forEach(el => {
+      if (el) el.style.display = "none";
+    });
+  }
   const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
   const weekdays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
