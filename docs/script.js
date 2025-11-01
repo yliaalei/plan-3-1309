@@ -259,5 +259,4 @@ function initApp(readOnly = false) {
     setTimeout(()=>btn.textContent="Копировать",900);
   }
 } // ← закрывает initApp()
-
 }); // ← закрывает window.addEventListener("load", ...)
