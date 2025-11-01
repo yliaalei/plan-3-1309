@@ -258,5 +258,5 @@ function initApp(readOnly = false) {
     btn.textContent="Скопировано!";
     setTimeout(()=>btn.textContent="Копировать",900);
   }
-} // ← закрывает initApp()
-}); // ← закрывает window.addEventListener("load", ...)
+} 
+}); 
