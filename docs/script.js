@@ -38,23 +38,29 @@ window.addEventListener("load", () => {
   });
   safeAssign("logoutBtn","onclick", ()=> auth.signOut());
 
-  auth.onAuthStateChanged(user => {
-    if(!user){
-      document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
-      $("authSection").style.display = "block";
-      return;
-    }
-    if(user.email !== OWNER_EMAIL){
-      alert("Доступ только владельцу.");
-      auth.signOut();
-      return;
-    }
-    $("authSection").style.display = "none";
-    $("app").style.display = "block";
-    document.body.classList.add("calendar-page");
+ auth.onAuthStateChanged(user => {
+  if(!user){
+    // если никто не вошёл — показываем экран входа
+    document.querySelectorAll(".panel, #app").forEach(el => el.style.display = "none");
+    $("authSection").style.display = "block";
+    return;
+  }
+
+  // если вошёл пользователь
+  $("authSection").style.display = "none";
+  $("app").style.display = "block";
+  document.body.classList.add("calendar-page");
+
+  if(user.email === OWNER_EMAIL){
+    // владелец (ты) — видит и может редактировать
     initApp();
-  });
+  } else {
+    // обычные пользователи
+    showPayButton(); // показываем кнопку "Оплатить 10₽"
+    initApp(true);   // передаём параметр "только просмотр"
+  }
 });
+
 
 function initApp(){
   const dbRef = db.collection("contentPlanner");
