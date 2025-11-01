@@ -251,11 +251,13 @@ function initApp(readOnly = false) {
     renderCalendar();
   }
 
-  function copyEditorText(){
+    function copyEditorText(){
     if(!quill) return;
     navigator.clipboard.writeText(quill.root.innerText||"");
     const btn=$("copyBtn");
     btn.textContent="Скопировано!";
     setTimeout(()=>btn.textContent="Копировать",900);
   }
-}
+} // ← закрывает initApp()
+
+}); // ← закрывает window.addEventListener("load", ...)
