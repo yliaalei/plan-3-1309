@@ -22,7 +22,7 @@
   <section id="authSection" class="panel active">
     <div class="panel-inner auth">
       <h2>Войдите</h2>
-      <p>Вход доступен владельцу (через Google) и обычным пользователям (email/пароль).</p>
+      <p>Войдите через Google или зарегистрируйтесь с email и паролем. Каждый пользователь получает своё личное хранилище данных.</p>
 
       <div class="auth-row">
         <button id="googleBtn" class="primary">Войти через Google</button>
@@ -43,6 +43,7 @@
       </div>
 
       <p id="authHint" class="hint"></p>
+      <p id="authError" class="hint" style="color:#c00;"></p>
     </div>
   </section>
 
@@ -168,8 +169,8 @@
     </section>
   </div>
 
-  <!-- PAYMENT PAGE -->
-  <section id="paymentPage" class="panel">
+  <!-- PAYMENT PAGE (скрываем/не используем сейчас) -->
+  <section id="paymentPage" class="panel" style="display:none;">
     <div class="panel-inner">
       <h2>Подписка недоступна</h2>
       <p>Ваш бесплатный пробный период закончился. Стоимость подписки — 450₽.</p>
