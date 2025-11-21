@@ -1,4 +1,5 @@
-// firebase-config.js (оставьте ваш конфиг как есть)
+// firebase-config.js
+// Оставьте свой firebaseConfig как есть (в репозитории уже есть ключи)
 const firebaseConfig = {
   apiKey: "AIzaSyAqUEri9DzMftxtS7ker4tfC-EnZNK6nMA",
   authDomain: "content-planner-ffb8e.firebaseapp.com",
@@ -11,3 +12,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+
+// Экспортим глобально (старый код ссылается на db и auth)
+window.db = db;
+window.auth = auth;
