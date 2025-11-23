@@ -2,7 +2,7 @@
 html, body { height: 100%; }
 
 body.calendar-page {
-  font-family: "Sweet Mavka Script", cursive;
+  font-family: "Vivo Sans";
   background: center top / cover no-repeat;
   color: #fff;
   transition: background-image 0.6s ease-in-out;
